@@ -9,5 +9,15 @@ terraform {
       source  = "aztfmod/azurecaf"
       version = "~> 1.2, >= 1.2.22"
     }
+    # tflint-ignore: terraform_unused_required_providers
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.31"
+    }
+    # tflint-ignore: terraform_unused_required_providers
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.11.0"
+    }
   }
 }

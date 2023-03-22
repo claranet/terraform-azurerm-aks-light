@@ -34,12 +34,6 @@ module "azure_virtual_network" {
   vnet_cidr = ["10.0.0.0/19"]
 }
 
-resource "azurerm_private_dns_zone" "private_dns_zone" {
-  name                = "privatelink.francecentral.azmk8s.io"
-  resource_group_name = module.rg.resource_group_name
-
-}
-
 module "node_network_subnet" {
   source  = "claranet/subnet/azurerm"
   version = "x.x.x"
@@ -102,6 +96,10 @@ module "aks" {
   #version = "x.x.x"
   source = "../.."
 
+  providers = {
+    kubernetes = kubernetes.aks-module
+  }
+
   client_name = var.client_name
   environment = var.environment
   stack       = var.stack
@@ -110,36 +108,33 @@ module "aks" {
   location            = module.azure_region.location
   location_short      = module.azure_region.location_short
 
-  service_cidr       = "10.0.16.0/22"
-  kubernetes_version = "1.25.5"
+  private_cluster_enabled = false
+  service_cidr            = "10.0.16.0/22"
+  kubernetes_version      = "1.25.5"
 
   vnet_id         = module.azure_virtual_network.virtual_network_id
   nodes_subnet_id = module.node_network_subnet.subnet_id
-
-  private_cluster_enabled = true
-  private_dns_zone_type   = "Custom"
-  private_dns_zone_id     = azurerm_private_dns_zone.private_dns_zone.id
-
-  default_node_pool = {
-    max_pods        = 110
-    os_disk_size_gb = 64
-    vm_size         = "Standard_B4ms"
-  }
-
   nodes_pools = [
     {
-      name                = "nodepool1"
-      vm_size             = "Standard_B4ms"
-      os_type             = "Linux"
-      os_disk_type        = "Ephemeral"
-      os_disk_size_gb     = 100
-      vnet_subnet_id      = module.node_network_subnet.subnet_id
-      max_pods            = 110
-      enable_auto_scaling = true
-      count               = 1
-      min_count           = 1
-      max_count           = 10
+      name            = "pool1"
+      count           = 1
+      vm_size         = "Standard_D1_v2"
+      os_type         = "Linux"
+      os_disk_type    = "Ephemeral"
+      os_disk_size_gb = 30
+      vnet_subnet_id  = module.node_network_subnet.subnet_id
     },
+    {
+      name                = "bigpool1"
+      count               = 3
+      vm_size             = "Standard_F8s_v2"
+      os_type             = "Linux"
+      os_disk_size_gb     = 30
+      vnet_subnet_id      = module.node_network_subnet.subnet_id
+      enable_auto_scaling = true
+      min_count           = 3
+      max_count           = 9
+    }
   ]
 
   linux_profile = {
