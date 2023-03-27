@@ -230,7 +230,19 @@ variable "oidc_issuer_enabled" {
 }
 
 variable "workload_identity_enabled" {
-  description = "Specifies whether Azure AD Workload Identity should be enabled for the Cluster. `oidc_issuer_enabled` must be set to true to use this feature."
+  description = "Specifies whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature."
   type        = bool
   default     = true
+}
+
+variable "key_vault_secrets_provider_enabled" {
+  description = "Specifies wether Secrets Store CSI Driver should be enabled for the cluster. https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver"
+  type        = bool
+  default     = true
+}
+
+variable "key_vault_secrets_provider_interval" {
+  description = "The interval to poll for secret rotation. This attribute is only set when `secret_rotation` is `true`."
+  type        = string
+  default     = "2m"
 }

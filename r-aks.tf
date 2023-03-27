@@ -76,6 +76,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   azure_policy_enabled = var.azure_policy_enabled
 
+  dynamic "key_vault_secrets_provider" {
+    for_each = var.key_vault_secrets_provider_enabled == false ? [] : ["enabled"]
+    content {
+      secret_rotation_enabled  = true
+      secret_rotation_interval = var.key_vault_secrets_provider_interval
+    }
+  }
+
   dynamic "linux_profile" {
     for_each = var.linux_profile[*]
     content {

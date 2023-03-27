@@ -100,7 +100,7 @@ resource "tls_private_key" "key" {
 module "aks" {
   #source  = "claranet/aks-light/azurerm"
   #version = "x.x.x"
-  source = "../.."
+  source = "git@git.fr.clara.net:claranet/projects/cloud/azure/terraform/modules/aks-light.git?ref=AZ-1027-init--module"
 
   client_name = var.client_name
   environment = var.environment

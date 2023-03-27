@@ -143,7 +143,7 @@ resource "tls_private_key" "key" {
 module "aks" {
   #source  = "claranet/aks-light/azurerm"
   #version = "x.x.x"
-  source = "../.."
+  source = "git@git.fr.clara.net:claranet/projects/cloud/azure/terraform/modules/aks-light.git?ref=AZ-1027-init--module"
 
   client_name = var.client_name
   environment = var.environment
@@ -222,7 +222,6 @@ module "acr" {
 | azuread | ~> 2.31 |
 | azurecaf | ~> 1.2, >= 1.2.22 |
 | azurerm | ~> 3.57 |
-| kubernetes | >= 2.11.0 |
 
 ## Modules
 
@@ -244,11 +243,6 @@ module "acr" {
 | [azurerm_role_assignment.aks_uai_vnet_network_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.aks_user_assigned](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_user_assigned_identity.aks_user_assigned_identity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
-| [kubernetes_cluster_role.containerlogs](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cluster_role) | resource |
-| [kubernetes_cluster_role_binding.containerlogs](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cluster_role_binding) | resource |
-| [kubernetes_storage_class.managed_premium_retain](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/storage_class) | resource |
-| [kubernetes_storage_class.managed_standard_delete](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/storage_class) | resource |
-| [kubernetes_storage_class.managed_standard_retain](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/storage_class) | resource |
 | [azuread_service_principal.aci_identity](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/service_principal) | data source |
 | [azurecaf_name.aks](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_identity](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
@@ -287,6 +281,8 @@ module "acr" {
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
+| key\_vault\_secrets\_provider\_enabled | Specifies wether Secrets Store CSI Driver should be enabled for the cluster. https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver | `bool` | `true` | no |
+| key\_vault\_secrets\_provider\_interval | The interval to poll for secret rotation. This attribute is only set when `secret_rotation` is `true`. | `string` | `"2m"` | no |
 | kubernetes\_version | Version of Kubernetes to deploy | `string` | `"1.25.5"` | no |
 | linux\_profile | Username and ssh key for accessing AKS Linux nodes with ssh. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
@@ -315,7 +311,7 @@ module "acr" {
 | service\_cidr | CIDR used by kubernetes services (kubectl get svc). | `string` | n/a | yes |
 | stack | Project stack name. | `string` | n/a | yes |
 | vnet\_id | Vnet id that Aks MSI should be network contributor in a private cluster | `string` | `null` | no |
-| workload\_identity\_enabled | Specifies whether Azure AD Workload Identity should be enabled for the Cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
+| workload\_identity\_enabled | Specifies whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 
 ## Outputs
 
@@ -330,11 +326,11 @@ module "acr" {
 | aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
 | aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
+| aks\_oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 | aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
 | id | AKS ID |
 | identity\_principal\_id | AKS system identity principal ID |
 | name | AKS name |
-| oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 <!-- END_TF_DOCS -->
 
 ## Related documentation
