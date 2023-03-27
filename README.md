@@ -348,8 +348,8 @@ Microsoft Azure documentation: xxxx
 | aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
 | aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
+| aks\_oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 | aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
-| oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 <!-- END_TF_DOCS -->
 ## Related documentation
 
