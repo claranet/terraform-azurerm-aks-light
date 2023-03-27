@@ -222,3 +222,15 @@ variable "container_registries_id" {
   type        = list(string)
   default     = []
 }
+
+variable "oidc_issuer_enabled" {
+  description = "Enable or Disable the OIDC issuer URL."
+  type        = bool
+  default     = true
+}
+
+variable "workload_identity_enabled" {
+  description = "Specifies whether Azure AD Workload Identity should be enabled for the Cluster. `oidc_issuer_enabled` must be set to true to use this feature."
+  type        = bool
+  default     = true
+}

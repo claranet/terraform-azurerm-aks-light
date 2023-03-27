@@ -64,3 +64,8 @@ output "aks_kubelet_user_managed_identity" {
   value       = azurerm_kubernetes_cluster.aks.kubelet_identity[0]
   description = "The Kubelet User Managed Identity used by the AKS cluster."
 }
+
+output "oidc_issuer_url" {
+  value       = azurerm_kubernetes_cluster.aks.oidc_issuer_url
+  description = "The OIDC issuer URL that is associated with the cluster."
+}

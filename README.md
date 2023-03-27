@@ -8,6 +8,12 @@ Inside the cluster the default node pool is initialized.
 This module also configures logging to a [Log Analytics Workspace](https://docs.microsoft.com/en-us/azure/azure-monitor/learn/quick-create-workspace), and creates some
 [Storage Classes](https://kubernetes.io/docs/concepts/storage/storage-classes/) with different types of Azure managed disks (Standard HDD retain and delete, Premium SSD retain and delete).
 
+## Requirements
+- You have to register the `AzureOverlayPreview` feature flag according to the [documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay#register-the-azureoverlaypreview-feature-flag)
+to use [Azure CNI Overlay](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay) included in the module.
+- You have to register the `EnableWorkloadIdentityPreview` feature flag according to the [documentation](https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity#register-the-enableworkloadidentitypreview-feature-flag)
+to use [Azure AD workload identity](https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview) included in the module.
+
 <!-- BEGIN_TF_DOCS -->
 ## Global versioning rule for Claranet Azure modules
 
@@ -297,6 +303,7 @@ module "acr" {
 | node\_resource\_group\_name | Name of the resource group in which to put AKS nodes. If null default to MC\_<AKS RG Name> | `string` | `null` | no |
 | nodes\_pools | A list of nodes pools to create, each item supports same properties as `local.default_agent_profile` | `list(any)` | `[]` | no |
 | nodes\_subnet\_id | ID of the subnet used for nodes | `string` | n/a | yes |
+| oidc\_issuer\_enabled | Enable or Disable the OIDC issuer URL. | `bool` | `true` | no |
 | oms\_log\_analytics\_workspace\_id | The ID of the Log Analytics Workspace used to send OMS logs | `string` | n/a | yes |
 | outbound\_type | The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are `loadBalancer` and `userDefinedRouting`. | `string` | `"loadBalancer"` | no |
 | private\_cluster\_enabled | Configure AKS as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled | `bool` | `true` | no |
@@ -308,6 +315,7 @@ module "acr" {
 | service\_cidr | CIDR used by kubernetes services (kubectl get svc). | `string` | n/a | yes |
 | stack | Project stack name. | `string` | n/a | yes |
 | vnet\_id | Vnet id that Aks MSI should be network contributor in a private cluster | `string` | `null` | no |
+| workload\_identity\_enabled | Specifies whether Azure AD Workload Identity should be enabled for the Cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 
 ## Outputs
 
@@ -326,6 +334,7 @@ module "acr" {
 | id | AKS ID |
 | identity\_principal\_id | AKS system identity principal ID |
 | name | AKS name |
+| oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 <!-- END_TF_DOCS -->
 
 ## Related documentation
@@ -340,6 +349,7 @@ Microsoft Azure documentation: xxxx
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
 | aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
 | aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
+| oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 <!-- END_TF_DOCS -->
 ## Related documentation
 

@@ -11,6 +11,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   node_resource_group              = local.aks_node_rg_name
   enable_pod_security_policy       = var.enable_pod_security_policy
   http_application_routing_enabled = var.http_application_routing_enabled
+  oidc_issuer_enabled              = var.oidc_issuer_enabled
+  workload_identity_enabled        = var.workload_identity_enabled
 
   private_cluster_enabled = var.private_cluster_enabled
   private_dns_zone_id     = var.private_cluster_enabled ? local.private_dns_zone : null
