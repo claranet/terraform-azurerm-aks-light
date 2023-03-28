@@ -9,7 +9,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   sku_tier                         = var.aks_sku_tier
   api_server_authorized_ip_ranges  = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
   node_resource_group              = local.aks_node_rg_name
-  enable_pod_security_policy       = var.enable_pod_security_policy
   http_application_routing_enabled = var.http_application_routing_enabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
   workload_identity_enabled        = var.workload_identity_enabled
@@ -77,7 +76,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   azure_policy_enabled = var.azure_policy_enabled
 
   dynamic "key_vault_secrets_provider" {
-    for_each = var.key_vault_secrets_provider_enabled == false ? [] : ["enabled"]
+    for_each = var.key_vault_secrets_provider_enabled ? ["enabled"] : []
     content {
       secret_rotation_enabled  = true
       secret_rotation_interval = var.key_vault_secrets_provider_interval
@@ -107,11 +106,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin      = var.aks_network_plugin
-    network_plugin_mode = var.aks_network_plugin == "azure" ? "overlay" : null
+    network_plugin_mode = var.aks_network_plugin == "azure" ? "Overlay" : null
     network_policy      = var.aks_network_policy
     network_mode        = var.aks_network_plugin == "azure" ? "transparent" : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
-    docker_bridge_cidr  = var.docker_bridge_cidr
     service_cidr        = var.service_cidr
     load_balancer_sku   = "standard"
     outbound_type       = var.outbound_type

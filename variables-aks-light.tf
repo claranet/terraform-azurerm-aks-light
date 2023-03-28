@@ -16,12 +16,6 @@ variable "node_resource_group_name" {
   default     = null
 }
 
-variable "enable_pod_security_policy" {
-  description = "Enable pod security policy or not. https://docs.microsoft.com/fr-fr/azure/AKS/use-pod-security-policies"
-  type        = bool
-  default     = false
-}
-
 variable "http_application_routing_enabled" {
   description = "Whether HTTP Application Routing is enabled."
   type        = bool
@@ -203,12 +197,6 @@ variable "outbound_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are `loadBalancer` and `userDefinedRouting`."
   type        = string
   default     = "loadBalancer"
-}
-
-variable "docker_bridge_cidr" {
-  description = "IP address for docker with Network CIDR."
-  type        = string
-  default     = "172.16.0.1/16"
 }
 
 variable "nodes_pools" {

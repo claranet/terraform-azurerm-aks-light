@@ -47,7 +47,6 @@ locals {
   default_no_proxy_url_list = [
     data.azurerm_virtual_network.aks_vnet[*].address_space,
     var.aks_pod_cidr,
-    var.docker_bridge_cidr,
     var.service_cidr,
     "localhost",
     "konnectivity",
