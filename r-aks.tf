@@ -76,10 +76,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   azure_policy_enabled = var.azure_policy_enabled
 
   dynamic "key_vault_secrets_provider" {
-    for_each = var.key_vault_secrets_provider_enabled ? ["enabled"] : []
+    for_each = var.key_vault_secrets_provider[*]
     content {
-      secret_rotation_enabled  = true
-      secret_rotation_interval = var.key_vault_secrets_provider_interval
+      secret_rotation_enabled  = key_vault_secrets_provider.value.secret_rotation_enabled
+      secret_rotation_interval = key_vault_secrets_provider.value.secret_rotation_interval
     }
   }
 
@@ -106,14 +106,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin      = var.aks_network_plugin
-    network_plugin_mode = var.aks_network_plugin == "azure" ? "Overlay" : null
+    network_plugin_mode = var.aks_network_plugin == "azure" ? var.aks_network_plugin_mode : null
     network_policy      = var.aks_network_policy
     network_mode        = var.aks_network_plugin == "azure" ? "transparent" : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
     service_cidr        = var.service_cidr
     load_balancer_sku   = "standard"
     outbound_type       = var.outbound_type
-    pod_cidr            = var.aks_network_plugin == "kubenet" ? var.aks_pod_cidr : null
+    pod_cidr            = var.aks_pod_cidr
   }
 
   depends_on = [

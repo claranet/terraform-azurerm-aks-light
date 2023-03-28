@@ -258,9 +258,10 @@ module "acr" {
 | aci\_subnet\_id | Optional subnet Id used for ACI virtual-nodes | `string` | `null` | no |
 | aks\_http\_proxy\_settings | AKS HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_url_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR must be added to the URLs list. | <pre>object({<br>    http_proxy_url    = optional(string)<br>    https_proxy_url   = optional(string)<br>    no_proxy_url_list = optional(list(string), [])<br>    trusted_ca        = optional(string)<br>  })</pre> | `null` | no |
 | aks\_network\_plugin | AKS network plugin to use. Possible values are `azure` and `kubenet`. Changing this forces a new resource to be created | `string` | `"azure"` | no |
+| aks\_network\_plugin\_mode | AKS network plugin mode to use for building the Kubernetes network. Possible value is `Overlay`. Set to `null` to use `Azure CNI` instead of `Azure CNI Overlay`. | `string` | `"Overlay"` | no |
 | aks\_network\_policy | AKS network policy to use. | `string` | `"calico"` | no |
-| aks\_pod\_cidr | CIDR used by pods when network plugin is set to `kubenet`. https://docs.microsoft.com/en-us/azure/aks/configure-kubenet | `string` | `"172.17.0.0/16"` | no |
-| aks\_sku\_tier | aks sku tier. Possible values are Free ou Paid | `string` | `"Free"` | no |
+| aks\_pod\_cidr | CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay. | `string` | `null` | no |
+| aks\_sku\_tier | AKS SKU tier. Possible values are Free ou Standard | `string` | `"Standard"` | no |
 | aks\_user\_assigned\_identity\_custom\_name | Custom name for the aks user assigned identity resource | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the aks user assigned identity resource. Used when private cluster is enabled and when Azure private dns zone is not managed by aks | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_tags | Tags to add to AKS MSI | `map(string)` | `{}` | no |
@@ -279,8 +280,7 @@ module "acr" {
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
-| key\_vault\_secrets\_provider\_enabled | Specifies wether Secrets Store CSI Driver should be enabled for the cluster. https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver | `bool` | `true` | no |
-| key\_vault\_secrets\_provider\_interval | The interval to poll for secret rotation. This attribute is only set when `secret_rotation` is `true`. | `string` | `"2m"` | no |
+| key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | <pre>{<br>  "secret_rotation_enabled": true<br>}</pre> | no |
 | kubernetes\_version | Version of Kubernetes to deploy | `string` | `"1.25.5"` | no |
 | linux\_profile | Username and ssh key for accessing AKS Linux nodes with ssh. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
@@ -316,6 +316,7 @@ module "acr" {
 | Name | Description |
 |------|-------------|
 | aks\_id | AKS resource id |
+| aks\_key\_vault\_secrets\_provider\_identity | The User Managed Identity used by the Key Vault secrets provider. |
 | aks\_kube\_config | Kube configuration of AKS Cluster |
 | aks\_kube\_config\_raw | Raw kube config to be used by kubectl command |
 | aks\_kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the AKS cluster. |

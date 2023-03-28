@@ -65,6 +65,12 @@ output "aks_kubelet_user_managed_identity" {
   description = "The Kubelet User Managed Identity used by the AKS cluster."
 }
 
+
+output "aks_key_vault_secrets_provider_identity" {
+  description = "The User Managed Identity used by the Key Vault secrets provider."
+  value       = azurerm_kubernetes_cluster.aks.key_vault_secrets_provider[0].secret_identity[0]
+}
+
 output "aks_oidc_issuer_url" {
   value       = azurerm_kubernetes_cluster.aks.oidc_issuer_url
   description = "The OIDC issuer URL that is associated with the cluster."

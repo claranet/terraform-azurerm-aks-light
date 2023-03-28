@@ -68,9 +68,9 @@ variable "aks_user_assigned_identity_resource_group_name" {
 }
 
 variable "aks_sku_tier" {
-  description = "aks sku tier. Possible values are Free ou Paid"
+  description = "AKS SKU tier. Possible values are Free ou Standard"
   type        = string
-  default     = "Free"
+  default     = "Standard"
 }
 
 variable "aks_network_plugin" {
@@ -82,6 +82,12 @@ variable "aks_network_plugin" {
     condition     = contains(["azure", "kubenet"], var.aks_network_plugin)
     error_message = "The network plugin value must be \"azure\" or \"kubenet\"."
   }
+}
+
+variable "aks_network_plugin_mode" {
+  description = "AKS network plugin mode to use for building the Kubernetes network. Possible value is `Overlay`. Set to `null` to use `Azure CNI` instead of `Azure CNI Overlay`."
+  type        = string
+  default     = "Overlay"
 }
 
 variable "aks_network_policy" {
@@ -188,9 +194,9 @@ variable "service_cidr" {
 }
 
 variable "aks_pod_cidr" {
-  description = "CIDR used by pods when network plugin is set to `kubenet`. https://docs.microsoft.com/en-us/azure/aks/configure-kubenet"
+  description = "CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay."
   type        = string
-  default     = "172.17.0.0/16"
+  default     = null
 }
 
 variable "outbound_type" {
@@ -223,14 +229,13 @@ variable "workload_identity_enabled" {
   default     = true
 }
 
-variable "key_vault_secrets_provider_enabled" {
-  description = "Specifies wether Secrets Store CSI Driver should be enabled for the cluster. https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver"
-  type        = bool
-  default     = true
-}
-
-variable "key_vault_secrets_provider_interval" {
-  description = "The interval to poll for secret rotation. This attribute is only set when `secret_rotation` is `true`."
-  type        = string
-  default     = "2m"
+variable "key_vault_secrets_provider" {
+  description = "Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module."
+  type = object({
+    secret_rotation_enabled  = optional(bool)
+    secret_rotation_interval = optional(string)
+  })
+  default = {
+    secret_rotation_enabled = true
+  }
 }
