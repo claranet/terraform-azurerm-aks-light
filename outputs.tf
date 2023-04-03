@@ -28,9 +28,28 @@ output "aks_name" {
   value       = local.aks_name
 }
 
+output "aks_fqdn" {
+  description = "The FQDNs of the Azure Kubernetes Managed Cluster."
+  value = {
+    public_fqdn  = azurerm_kubernetes_cluster.aks.fqdn
+    private_fqdn = azurerm_kubernetes_cluster.aks.private_fqdn
+    portal_fqdn  = azurerm_kubernetes_cluster.aks.portal_fqdn
+  }
+}
+
+output "aks_kubernetes_version" {
+  description = "AKS cluster Kubernetes version."
+  value       = azurerm_kubernetes_cluster.aks.kubernetes_version
+}
+
 output "aks_nodes_rg" {
   description = "Name of the resource group in which AKS nodes are deployed"
   value       = azurerm_kubernetes_cluster.aks.node_resource_group
+}
+
+output "aks_nodes_pools" {
+  description = "AKS nodes pools attributes"
+  value       = { for i, node in azurerm_kubernetes_cluster_node_pool.node_pools : node.name => node }
 }
 
 output "aks_nodes_pools_ids" {

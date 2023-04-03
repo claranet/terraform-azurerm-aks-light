@@ -315,13 +315,16 @@ module "acr" {
 
 | Name | Description |
 |------|-------------|
+| aks\_fqdn | The FQDNs of the Azure Kubernetes Managed Cluster. |
 | aks\_id | AKS resource id |
 | aks\_key\_vault\_secrets\_provider\_identity | The User Managed Identity used by the Key Vault secrets provider. |
 | aks\_kube\_config | Kube configuration of AKS Cluster |
 | aks\_kube\_config\_raw | Raw kube config to be used by kubectl command |
 | aks\_kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the AKS cluster. |
+| aks\_kubernetes\_version | AKS cluster Kubernetes version. |
 | aks\_light | AKS output object |
 | aks\_name | Name of the AKS cluster |
+| aks\_nodes\_pools | AKS nodes pools attributes |
 | aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
 | aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
@@ -339,7 +342,11 @@ Microsoft Azure documentation: xxxx
 | aks\_kube\_config | Kube configuration of AKS Cluster |
 | aks\_kube\_config\_raw | Raw kube config to be used by kubectl command |
 | aks\_kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the AKS cluster. |
+=======
+| aks\_kubernetes\_version | AKS cluster Kubernetes version. |
+>>>>>>> 576d25e (AZ-1027: More outputs)
 | aks\_name | Name of the AKS cluster |
+| aks\_nodes\_pools | AKS nodes pools attributes |
 | aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
 | aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
