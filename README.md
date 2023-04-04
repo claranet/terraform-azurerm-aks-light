@@ -41,10 +41,6 @@ which set some terraform variables in the environment needed by this module.
 More details about variables set by the `terraform-wrapper` available in the [documentation](https://github.com/claranet/terraform-wrapper#environment).
 
 ```hcl
-locals {
-  allowed_cidrs = ["x.x.x.x", "y.y.y.y"]
-}
-
 module "azure_region" {
   source  = "claranet/regions/azurerm"
   version = "x.x.x"

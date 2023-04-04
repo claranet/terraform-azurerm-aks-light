@@ -1,7 +1,3 @@
-locals {
-  allowed_cidrs = ["x.x.x.x", "y.y.y.y"]
-}
-
 module "azure_region" {
   source  = "claranet/regions/azurerm"
   version = "x.x.x"
