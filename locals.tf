@@ -1,38 +1,20 @@
 locals {
-  default_agent_profile = {
-    name                   = var.default_node_pool.name
-    node_count             = var.default_node_pool.node_count
-    vm_size                = var.default_node_pool.vm_size
-    os_type                = var.default_node_pool.os_type
-    zones                  = var.default_node_pool.zones
-    enable_auto_scaling    = var.default_node_pool.enable_auto_scaling
-    min_count              = var.default_node_pool.min_count
-    max_count              = var.default_node_pool.max_count
-    type                   = var.default_node_pool.type
-    node_taints            = var.default_node_pool.node_taints
-    node_labels            = var.default_node_pool.node_labels
-    orchestrator_version   = var.default_node_pool.orchestrator_version
-    priority               = var.default_node_pool.priority
-    enable_host_encryption = var.default_node_pool.enable_host_encryption
-    eviction_policy        = var.default_node_pool.eviction_policy
-    vnet_subnet_id         = var.nodes_subnet_id
-    max_pods               = var.default_node_pool.max_pods
-    os_disk_type           = var.default_node_pool.os_disk_type
-    os_disk_size_gb        = var.default_node_pool.os_disk_size_gb
-    enable_node_public_ip  = var.default_node_pool.enable_node_public_ip
-  }
+
+  default_agent_profile = merge(var.default_node_pool, {
+    vnet_subnet_id = var.nodes_subnet_id
+  })
 
   # Defaults for Linux profile
   # Generally smaller images so can run more pods and require smaller HD
   default_linux_node_profile = {
-    max_pods        = 30
+    max_pods        = 110
     os_disk_size_gb = 128
   }
 
   # Defaults for Windows profile
   # Do not want to run same number of pods and some images can be quite large
   default_windows_node_profile = {
-    max_pods        = 20
+    max_pods        = 60
     os_disk_size_gb = 256
   }
 

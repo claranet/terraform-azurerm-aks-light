@@ -125,7 +125,7 @@ variable "default_node_pool" {
     priority               = optional(string, null)
     enable_host_encryption = optional(bool, null)
     eviction_policy        = optional(string, null)
-    max_pods               = optional(number, 30)
+    max_pods               = optional(number, 110)
     os_disk_type           = optional(string, "Managed")
     os_disk_size_gb        = optional(number, 128)
     enable_node_public_ip  = optional(bool, false)

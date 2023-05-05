@@ -14,10 +14,5 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 2.31"
     }
-    # tflint-ignore: terraform_unused_required_providers
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.11.0"
-    }
   }
 }

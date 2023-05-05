@@ -270,7 +270,7 @@ module "acr" {
 | container\_registries\_id | List of Azure Container Registries ids where AKS needs pull access. | `list(string)` | `[]` | no |
 | custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
 | custom\_name | Custom AKS, generated if not set | `string` | `""` | no |
-| default\_node\_pool | Default node pool configuration | <pre>object({<br>    name                   = optional(string, "default")<br>    node_count             = optional(number, 1)<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_type                = optional(string, "Linux")<br>    zones                  = optional(list(number), [1, 2, 3])<br>    enable_auto_scaling    = optional(bool, false)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    node_taints            = optional(list(any), null)<br>    node_labels            = optional(map(any), null)<br>    orchestrator_version   = optional(string, null)<br>    priority               = optional(string, null)<br>    enable_host_encryption = optional(bool, null)<br>    eviction_policy        = optional(string, null)<br>    max_pods               = optional(number, 30)<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number, 128)<br>    enable_node_public_ip  = optional(bool, false)<br>  })</pre> | `{}` | no |
+| default\_node\_pool | Default node pool configuration | <pre>object({<br>    name                   = optional(string, "default")<br>    node_count             = optional(number, 1)<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_type                = optional(string, "Linux")<br>    zones                  = optional(list(number), [1, 2, 3])<br>    enable_auto_scaling    = optional(bool, false)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    node_taints            = optional(list(any), null)<br>    node_labels            = optional(map(any), null)<br>    orchestrator_version   = optional(string, null)<br>    priority               = optional(string, null)<br>    enable_host_encryption = optional(bool, null)<br>    eviction_policy        = optional(string, null)<br>    max_pods               = optional(number, 110)<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number, 128)<br>    enable_node_public_ip  = optional(bool, false)<br>  })</pre> | `{}` | no |
 | default\_node\_pool\_tags | Specific tags for default node pool | `map(string)` | `{}` | no |
 | default\_tags\_enabled | Option to enable or disable default tags. | `bool` | `true` | no |
 | environment | Project environment. | `string` | n/a | yes |
@@ -320,10 +320,10 @@ module "acr" {
 | aks\_kubernetes\_version | AKS cluster Kubernetes version. |
 | aks\_light | AKS output object |
 | aks\_name | Name of the AKS cluster |
+| aks\_node\_rg | Name of the resource group in which AKS nodes are deployed |
 | aks\_nodes\_pools | AKS nodes pools attributes |
 | aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
-| aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
 | aks\_oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 | aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
 | id | AKS ID |
@@ -342,10 +342,10 @@ Microsoft Azure documentation: xxxx
 | aks\_kubernetes\_version | AKS cluster Kubernetes version. |
 >>>>>>> 576d25e (AZ-1027: More outputs)
 | aks\_name | Name of the AKS cluster |
+| aks\_node\_rg | Name of the resource group in which AKS nodes are deployed |
 | aks\_nodes\_pools | AKS nodes pools attributes |
 | aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
-| aks\_nodes\_rg | Name of the resource group in which AKS nodes are deployed |
 | aks\_oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 | aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
 <!-- END_TF_DOCS -->
