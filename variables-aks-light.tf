@@ -176,7 +176,7 @@ variable "oms_log_analytics_workspace_id" {
 variable "azure_policy_enabled" {
   description = "Should the Azure Policy Add-On be enabled?"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "linux_profile" {
