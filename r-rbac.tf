@@ -32,14 +32,23 @@ resource "azurerm_role_assignment" "aks_kubelet_uai_vnet_network_contributor" {
 
 # Role assignment for ACI, if ACI is enabled
 data "azuread_service_principal" "aci_identity" {
-  count        = length(var.aci_subnet_id[*])
+  count = length(var.aci_subnet_id[*])
+
   display_name = "aciconnectorlinux-${coalesce(var.custom_aks_name, local.aks_name)}"
   depends_on   = [azurerm_kubernetes_cluster.aks]
 }
 
 resource "azurerm_role_assignment" "aci_assignment" {
-  count                = length(var.aci_subnet_id[*])
+  count = length(var.aci_subnet_id[*])
+
   scope                = var.aci_subnet_id
   role_definition_name = "Network Contributor"
   principal_id         = data.azuread_service_principal.aci_identity[0].id
+}
+
+# Allow user assigned identity to manage AKS items in MC_xxx RG
+resource "azurerm_role_assignment" "aks_user_assigned" {
+  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  scope                = format("/subscriptions/%s/resourceGroups/%s", data.azurerm_subscription.current.subscription_id, azurerm_kubernetes_cluster.aks.node_resource_group)
+  role_definition_name = "Contributor"
 }

@@ -1,16 +1,16 @@
 variable "kubernetes_version" {
   description = "Version of Kubernetes to deploy"
   type        = string
-  default     = "1.25.5"
+  default     = null
 }
 
 variable "api_server_authorized_ip_ranges" {
-  description = "Ip ranges allowed to interract with Kubernetes API. Default no restrictions"
+  description = "IP ranges allowed to interact with Kubernetes API for public clusters. Set to `null` to wide open."
   type        = list(string)
   default     = []
 }
 
-variable "node_resource_group_name" {
+variable "nodes_resource_group_name" {
   description = "Name of the resource group in which to put AKS nodes. If null default to MC_<AKS RG Name>"
   type        = string
   default     = null
@@ -19,12 +19,14 @@ variable "node_resource_group_name" {
 variable "http_application_routing_enabled" {
   description = "Whether HTTP Application Routing is enabled."
   type        = bool
+  nullable    = false
   default     = false
 }
 
 variable "private_cluster_enabled" {
   description = "Configure AKS as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled"
   type        = bool
+  nullable    = false
   default     = true
 }
 
@@ -35,8 +37,6 @@ variable "vnet_id" {
 }
 
 variable "private_dns_zone_type" {
-  type        = string
-  default     = "System"
   description = <<EOD
 Set AKS private dns zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)
 - "Custom" : You will have to deploy a private Dns Zone on your own and pass the id with <private_dns_zone_id> variable
@@ -47,17 +47,21 @@ and the aks user must have "Private DNS Zone Contributor" role on the private DN
 
 https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id
 EOD
+  type        = string
+  nullable    = false
+  default     = "System"
 }
 
 variable "private_dns_zone_id" {
+  description = "Id of the private DNS Zone when <private_dns_zone_type> is custom"
   type        = string
   default     = null
-  description = "Id of the private DNS Zone when <private_dns_zone_type> is custom"
 }
 
 variable "private_dns_zone_role_assignment_enabled" {
   description = "Option to enable or disable Private DNS Zone role assignment."
   type        = bool
+  nullable    = false
   default     = true
 }
 
@@ -70,24 +74,27 @@ variable "aks_user_assigned_identity_resource_group_name" {
 variable "aks_sku_tier" {
   description = "AKS SKU tier. Possible values are Free ou Standard"
   type        = string
+  nullable    = false
   default     = "Standard"
 }
 
 variable "aks_network_plugin" {
-  description = "AKS network plugin to use. Possible values are `azure` and `kubenet`. Changing this forces a new resource to be created"
-  type        = string
-  default     = "azure"
+  description = "AKS network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `null` for Azure CNI, `Overlay` and `Cilium`, Changing this forces a new resource to be created"
+  type = object({
+    name     = optional(string, "azure")
+    cni_mode = optional(string, "overlay")
+  })
+  nullable = false
+  default  = {}
 
   validation {
-    condition     = contains(["azure", "kubenet"], var.aks_network_plugin)
+    condition     = contains(["azure", "kubenet"], var.aks_network_plugin.name)
     error_message = "The network plugin value must be \"azure\" or \"kubenet\"."
   }
-}
-
-variable "aks_network_plugin_mode" {
-  description = "AKS network plugin mode to use for building the Kubernetes network. Possible value is `Overlay`. Set to `null` to use `Azure CNI` instead of `Azure CNI Overlay`."
-  type        = string
-  default     = "Overlay"
+  validation {
+    condition     = contains([null, "overlay", "cilium"], lower(var.aks_network_plugin.cni_mode))
+    error_message = "The network plugin value must be null, \"Overlay\" or \"Cilium\"."
+  }
 }
 
 variable "aks_network_policy" {
@@ -130,16 +137,18 @@ variable "default_node_pool" {
     os_disk_size_gb        = optional(number, 128)
     enable_node_public_ip  = optional(bool, false)
   })
-  default = {}
+  nullable = false
+  default  = {}
 }
 
 variable "nodes_subnet_id" {
-  description = "ID of the subnet used for nodes"
+  description = "ID of the subnet used for nodes."
   type        = string
+  nullable    = false
 }
 
 variable "aci_subnet_id" {
-  description = "Optional subnet Id used for ACI virtual-nodes"
+  description = "Optional ID of the subnet for ACI virtual-nodes."
   type        = string
   default     = null
 }
@@ -169,18 +178,19 @@ variable "auto_scaler_profile" {
 }
 
 variable "oms_log_analytics_workspace_id" {
-  description = "The ID of the Log Analytics Workspace used to send OMS logs"
+  description = "The ID of the Log Analytics Workspace used to send OMS logs."
   type        = string
 }
 
 variable "azure_policy_enabled" {
   description = "Should the Azure Policy Add-On be enabled?"
   type        = bool
+  nullable    = false
   default     = true
 }
 
 variable "linux_profile" {
-  description = "Username and ssh key for accessing AKS Linux nodes with ssh."
+  description = "Username and SSH public key for accessing AKS Linux nodes with SSH."
   type = object({
     username = string,
     ssh_key  = string
@@ -189,8 +199,9 @@ variable "linux_profile" {
 }
 
 variable "service_cidr" {
-  description = "CIDR used by kubernetes services (kubectl get svc)."
+  description = "CIDR used by Kubernetes services (kubectl get svc)."
   type        = string
+  nullable    = false
 }
 
 variable "aks_pod_cidr" {
@@ -202,40 +213,63 @@ variable "aks_pod_cidr" {
 variable "outbound_type" {
   description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are `loadBalancer` and `userDefinedRouting`."
   type        = string
+  nullable    = false
   default     = "loadBalancer"
 }
 
 variable "nodes_pools" {
   description = "A list of nodes pools to create, each item supports same properties as `local.default_agent_profile`"
   type        = list(any)
+  nullable    = false
   default     = []
 }
 
 variable "container_registries_id" {
   description = "List of Azure Container Registries ids where AKS needs pull access."
   type        = list(string)
+  nullable    = false
   default     = []
 }
 
 variable "oidc_issuer_enabled" {
   description = "Enable or Disable the OIDC issuer URL."
   type        = bool
+  nullable    = false
   default     = true
 }
 
 variable "workload_identity_enabled" {
   description = "Specifies whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature."
   type        = bool
+  nullable    = false
   default     = true
 }
 
 variable "key_vault_secrets_provider" {
   description = "Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module."
   type = object({
-    secret_rotation_enabled  = optional(bool)
+    secret_rotation_enabled  = optional(bool, true)
     secret_rotation_interval = optional(string)
   })
-  default = {
-    secret_rotation_enabled = true
+  default = {}
+}
+
+variable "pod_subnet_id" {
+  description = "ID of the subnet containing the pods."
+  type        = string
+  default     = null
+}
+
+variable "vnet_integration" {
+  description = "Virtual Network integration configuration."
+  type = object({
+    enabled   = optional(bool, false)
+    subnet_id = optional(string)
+  })
+  nullable = false
+  default  = {}
+  validation {
+    condition     = !var.vnet_integration.enabled || var.vnet_integration.subnet_id != null
+    error_message = "var.vnet_integration.subnet_id must be set when VNet integration is enabled"
   }
 }

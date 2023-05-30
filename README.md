@@ -1,18 +1,33 @@
 # Azure Kubernetes Service
 [![Changelog](https://img.shields.io/badge/changelog-release-green.svg)](CHANGELOG.md) [![Notice](https://img.shields.io/badge/notice-copyright-yellow.svg)](NOTICE) [![Apache V2 License](https://img.shields.io/badge/license-Apache%20V2-orange.svg)](LICENSE) [![TF Registry](https://img.shields.io/badge/terraform-registry-blue.svg)](https://registry.terraform.io/modules/claranet/aks-light/azurerm/)
 
-This terraform module creates an [Azure Kubernetes Service](https://azure.microsoft.com/fr-fr/services/kubernetes-service/).
+This Terraform module creates an [Azure Kubernetes Service](https://azure.microsoft.com/fr-fr/services/kubernetes-service/).
 
-Inside the cluster the default node pool is initialized.
+Non-exhaustive feature list, most of them can be overriden:
 
-This module also configures logging to a [Log Analytics Workspace](https://docs.microsoft.com/en-us/azure/azure-monitor/learn/quick-create-workspace), and creates some
-[Storage Classes](https://kubernetes.io/docs/concepts/storage/storage-classes/) with different types of Azure managed disks (Standard HDD retain and delete, Premium SSD retain and delete).
+* Cluster created with [User Assigned identity](https://learn.microsoft.com/en-us/azure/aks/use-managed-identity#bring-your-own-control-plane-managed-identity), and related role assignments are managed, for better dependencies lifecycle management
+* Default [latest stable Kubernetes version](https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli#aks-kubernetes-release-calendar) used at creation
+* [Cluster and containers logs](https://learn.microsoft.com/en-us/azure/aks/monitor-aks) sent to Log Analytics Workspace or Storage Account
+* Kube audit logs disabled by default for cost purpose
+* Cluster is [private](https://learn.microsoft.com/en-us/azure/aks/private-clusters) by default
+* [Virtual Network integration](https://learn.microsoft.com/en-US/azure/aks/api-server-vnet-integration)
+* Azure CNI Overlay network mode by default, support for Azure CNI, Cilium & Kubelet. More in the [Azure documentation](https://learn.microsoft.com/en-us/azure/aks/concepts-network#azure-virtual-networks)
+* [Azure CSI KeyVault](https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-identity-access) enabled by default
+* [Azure Policies](https://learn.microsoft.com/en-us/azure/aks/use-azure-policy) enabled by default
+* [Calico network policy](https://learn.microsoft.com/en-us/azure/aks/use-network-policies) enabled by default
+* [Workload identities](https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity) enabled by default
+* Additional node pools can be configured within the module
+* Azure naming convention for all resources
 
-## Requirements
-- You have to register the `AzureOverlayPreview` feature flag according to the [documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay#register-the-azureoverlaypreview-feature-flag)
-to use [Azure CNI Overlay](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay) included in the module.
-- You have to register the `EnableWorkloadIdentityPreview` feature flag according to the [documentation](https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity#register-the-enableworkloadidentitypreview-feature-flag)
-to use [Azure AD workload identity](https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview) included in the module.
+# Why replacing the previous Claranet AKS module
+
+This modules supersedes the previous [AKS module](https://registry.terraform.io/modules/claranet/aks/azurerm).
+We've built a new module to clean up the technical debt that piled up due to fast-moving AKS product and keep backwards 
+compatibility for existing users. Also, we've decided to remove all Kubernetes resources from this new module as a 
+[recommended best practice](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources) 
+and for better tooling responsibility segregation.
+
+So this module does less, that why `light`, but it should do it better.
 
 <!-- BEGIN_TF_DOCS -->
 ## Global versioning rule for Claranet Azure modules
@@ -58,7 +73,7 @@ module "rg" {
   stack       = var.stack
 }
 
-module "azure_virtual_network" {
+module "vnet" {
   source  = "claranet/vnet/azurerm"
   version = "x.x.x"
 
@@ -89,33 +104,16 @@ module "node_network_subnet" {
   stack          = var.stack
 
   resource_group_name  = module.rg.resource_group_name
-  virtual_network_name = module.azure_virtual_network.virtual_network_name
+  virtual_network_name = module.vnet.virtual_network_name
 
   name_suffix = "nodes"
 
   subnet_cidr_list = ["10.0.0.0/20"]
 
-  service_endpoints = ["Microsoft.Storage"]
+  service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
-module "appgw_network_subnet" {
-  source  = "claranet/subnet/azurerm"
-  version = "x.x.x"
-
-  environment    = var.environment
-  location_short = module.azure_region.location_short
-  client_name    = var.client_name
-  stack          = var.stack
-
-  resource_group_name  = module.rg.resource_group_name
-  virtual_network_name = module.azure_virtual_network.virtual_network_name
-
-  name_suffix = "appgw"
-
-  subnet_cidr_list = ["10.0.20.0/24"]
-}
-
-module "global_run" {
+module "run" {
   source  = "claranet/run/azurerm"
   version = "x.x.x"
 
@@ -125,73 +123,13 @@ module "global_run" {
   environment    = var.environment
   stack          = var.stack
 
-  monitoring_function_splunk_token = var.monitoring_function_splunk_token
+  monitoring_function_enabled = false
 
   resource_group_name = module.rg.resource_group_name
-
-  tenant_id = var.azure_tenant_id
 }
 
 resource "tls_private_key" "key" {
   algorithm = "RSA"
-}
-
-module "aks" {
-  #source  = "claranet/aks-light/azurerm"
-  #version = "x.x.x"
-  source = "git@git.fr.clara.net:claranet/projects/cloud/azure/terraform/modules/aks-light.git?ref=AZ-1027-init--module"
-
-  client_name = var.client_name
-  environment = var.environment
-  stack       = var.stack
-
-  resource_group_name = module.rg.resource_group_name
-  location            = module.azure_region.location
-  location_short      = module.azure_region.location_short
-
-  service_cidr       = "10.0.16.0/22"
-  kubernetes_version = "1.25.5"
-
-  vnet_id         = module.azure_virtual_network.virtual_network_id
-  nodes_subnet_id = module.node_network_subnet.subnet_id
-
-  private_cluster_enabled = true
-  private_dns_zone_type   = "Custom"
-  private_dns_zone_id     = azurerm_private_dns_zone.private_dns_zone.id
-
-  default_node_pool = {
-    max_pods        = 110
-    os_disk_size_gb = 64
-    vm_size         = "Standard_B4ms"
-  }
-
-  nodes_pools = [
-    {
-      name                = "nodepool1"
-      vm_size             = "Standard_B4ms"
-      os_type             = "Linux"
-      os_disk_type        = "Ephemeral"
-      os_disk_size_gb     = 100
-      vnet_subnet_id      = module.node_network_subnet.subnet_id
-      max_pods            = 110
-      enable_auto_scaling = true
-      count               = 1
-      min_count           = 1
-      max_count           = 10
-    },
-  ]
-
-  linux_profile = {
-    username = "nodeadmin"
-    ssh_key  = tls_private_key.key.public_key_openssh
-  }
-
-  oms_log_analytics_workspace_id = module.global_run.log_analytics_workspace_id
-  azure_policy_enabled           = false
-
-  logs_destinations_ids = [module.global_run.log_analytics_workspace_id]
-
-  container_registries_id = [module.acr.acr_id]
 }
 
 module "acr" {
@@ -207,7 +145,60 @@ module "acr" {
   environment = var.environment
   stack       = var.stack
 
-  logs_destinations_ids = [module.global_run.log_analytics_workspace_id]
+  logs_destinations_ids = [module.run.log_analytics_workspace_id]
+}
+
+module "aks" {
+  source  = "claranet/aks-light/azurerm"
+  version = "x.x.x"
+
+  client_name = var.client_name
+  environment = var.environment
+  stack       = var.stack
+
+  resource_group_name = module.rg.resource_group_name
+  location            = module.azure_region.location
+  location_short      = module.azure_region.location_short
+
+  service_cidr       = "10.0.16.0/22"
+  kubernetes_version = "1.25.5"
+
+  vnet_id         = module.vnet.virtual_network_id
+  nodes_subnet_id = module.node_network_subnet.subnet_id
+
+  private_cluster_enabled = true
+  private_dns_zone_type   = "Custom"
+  private_dns_zone_id     = azurerm_private_dns_zone.private_dns_zone.id
+
+  default_node_pool = {
+    os_disk_size_gb = 64
+    vm_size         = "Standard_B4ms"
+  }
+
+  nodes_pools = [
+    {
+      name                = "nodepool1"
+      vm_size             = "Standard_B4ms"
+      os_type             = "Linux"
+      os_disk_type        = "Ephemeral"
+      os_disk_size_gb     = 100
+      vnet_subnet_id      = module.node_network_subnet.subnet_id
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 10
+    },
+  ]
+
+  linux_profile = {
+    username = "nodeadmin"
+    ssh_key  = tls_private_key.key.public_key_openssh
+  }
+
+  oms_log_analytics_workspace_id = module.run.log_analytics_workspace_id
+
+  logs_destinations_ids = [module.run.log_analytics_workspace_id]
+
+  container_registries_id = [module.acr.acr_id]
 }
 ```
 
@@ -251,10 +242,9 @@ module "acr" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| aci\_subnet\_id | Optional subnet Id used for ACI virtual-nodes | `string` | `null` | no |
+| aci\_subnet\_id | Optional ID of the subnet for ACI virtual-nodes. | `string` | `null` | no |
 | aks\_http\_proxy\_settings | AKS HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_url_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR must be added to the URLs list. | <pre>object({<br>    http_proxy_url    = optional(string)<br>    https_proxy_url   = optional(string)<br>    no_proxy_url_list = optional(list(string), [])<br>    trusted_ca        = optional(string)<br>  })</pre> | `null` | no |
-| aks\_network\_plugin | AKS network plugin to use. Possible values are `azure` and `kubenet`. Changing this forces a new resource to be created | `string` | `"azure"` | no |
-| aks\_network\_plugin\_mode | AKS network plugin mode to use for building the Kubernetes network. Possible value is `Overlay`. Set to `null` to use `Azure CNI` instead of `Azure CNI Overlay`. | `string` | `"Overlay"` | no |
+| aks\_network\_plugin | AKS network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `null` for Azure CNI, `Overlay` and `Cilium`, Changing this forces a new resource to be created | <pre>object({<br>    name     = optional(string, "azure")<br>    cni_mode = optional(string, "overlay")<br>  })</pre> | `{}` | no |
 | aks\_network\_policy | AKS network policy to use. | `string` | `"calico"` | no |
 | aks\_pod\_cidr | CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay. | `string` | `null` | no |
 | aks\_sku\_tier | AKS SKU tier. Possible values are Free ou Standard | `string` | `"Standard"` | no |
@@ -263,7 +253,7 @@ module "acr" {
 | aks\_user\_assigned\_identity\_tags | Tags to add to AKS MSI | `map(string)` | `{}` | no |
 | allowed\_cidrs | List of allowed CIDR ranges to access the AKS resource. | `list(string)` | `[]` | no |
 | allowed\_subnet\_ids | List of allowed subnets IDs to access the AKS resource. | `list(string)` | `[]` | no |
-| api\_server\_authorized\_ip\_ranges | Ip ranges allowed to interract with Kubernetes API. Default no restrictions | `list(string)` | `[]` | no |
+| api\_server\_authorized\_ip\_ranges | IP ranges allowed to interact with Kubernetes API for public clusters. Set to `null` to wide open. | `list(string)` | `[]` | no |
 | auto\_scaler\_profile | Configuration of `auto_scaler_profile` block object | <pre>object({<br>    balance_similar_node_groups      = optional(bool, false)<br>    expander                         = optional(string, "random")<br>    max_graceful_termination_sec     = optional(number, 600)<br>    max_node_provisioning_time       = optional(string, "15m")<br>    max_unready_nodes                = optional(number, 3)<br>    max_unready_percentage           = optional(number, 45)<br>    new_pod_scale_up_delay           = optional(string, "10s")<br>    scale_down_delay_after_add       = optional(string, "10m")<br>    scale_down_delay_after_delete    = optional(string, "10s")<br>    scale_down_delay_after_failure   = optional(string, "3m")<br>    scan_interval                    = optional(string, "10s")<br>    scale_down_unneeded              = optional(string, "10m")<br>    scale_down_unready               = optional(string, "20m")<br>    scale_down_utilization_threshold = optional(number, 0.5)<br>    empty_bulk_delete_max            = optional(number, 10)<br>    skip_nodes_with_local_storage    = optional(bool, true)<br>    skip_nodes_with_system_pods      = optional(bool, true)<br>  })</pre> | `null` | no |
 | azure\_policy\_enabled | Should the Azure Policy Add-On be enabled? | `bool` | `true` | no |
 | client\_name | Client name/account used in naming. | `string` | n/a | yes |
@@ -276,9 +266,9 @@ module "acr" {
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
-| key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | <pre>{<br>  "secret_rotation_enabled": true<br>}</pre> | no |
-| kubernetes\_version | Version of Kubernetes to deploy | `string` | `"1.25.5"` | no |
-| linux\_profile | Username and ssh key for accessing AKS Linux nodes with ssh. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
+| key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool, true)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | `{}` | no |
+| kubernetes\_version | Version of Kubernetes to deploy | `string` | `null` | no |
+| linux\_profile | Username and SSH public key for accessing AKS Linux nodes with SSH. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
 | location\_short | Short string for Azure location. | `string` | n/a | yes |
 | logs\_categories | Log categories to send to destinations. | `list(string)` | `null` | no |
@@ -290,21 +280,23 @@ module "acr" {
 | name\_suffix | Optional suffix for the generated name | `string` | `""` | no |
 | network\_bypass | Specify whether traffic is bypassed for 'Logging', 'Metrics', 'AzureServices' or 'None'. | `list(string)` | <pre>[<br>  "Logging",<br>  "Metrics",<br>  "AzureServices"<br>]</pre> | no |
 | node\_pool\_tags | Specific tags for node pool | `map(string)` | `{}` | no |
-| node\_resource\_group\_name | Name of the resource group in which to put AKS nodes. If null default to MC\_<AKS RG Name> | `string` | `null` | no |
 | nodes\_pools | A list of nodes pools to create, each item supports same properties as `local.default_agent_profile` | `list(any)` | `[]` | no |
-| nodes\_subnet\_id | ID of the subnet used for nodes | `string` | n/a | yes |
+| nodes\_resource\_group\_name | Name of the resource group in which to put AKS nodes. If null default to MC\_<AKS RG Name> | `string` | `null` | no |
+| nodes\_subnet\_id | ID of the subnet used for nodes. | `string` | n/a | yes |
 | oidc\_issuer\_enabled | Enable or Disable the OIDC issuer URL. | `bool` | `true` | no |
-| oms\_log\_analytics\_workspace\_id | The ID of the Log Analytics Workspace used to send OMS logs | `string` | n/a | yes |
+| oms\_log\_analytics\_workspace\_id | The ID of the Log Analytics Workspace used to send OMS logs. | `string` | n/a | yes |
 | outbound\_type | The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are `loadBalancer` and `userDefinedRouting`. | `string` | `"loadBalancer"` | no |
+| pod\_subnet\_id | ID of the subnet containing the pods. | `string` | `null` | no |
 | private\_cluster\_enabled | Configure AKS as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled | `bool` | `true` | no |
 | private\_dns\_zone\_id | Id of the private DNS Zone when <private\_dns\_zone\_type> is custom | `string` | `null` | no |
 | private\_dns\_zone\_role\_assignment\_enabled | Option to enable or disable Private DNS Zone role assignment. | `bool` | `true` | no |
 | private\_dns\_zone\_type | Set AKS private dns zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)<br>- "Custom" : You will have to deploy a private Dns Zone on your own and pass the id with <private\_dns\_zone\_id> variable<br>If this settings is used, aks user assigned identity will be "userassigned" instead of "systemassigned"<br>and the aks user must have "Private DNS Zone Contributor" role on the private DNS Zone<br>- "System" : AKS will manage the private zone and create it in the same resource group as the Node Resource Group<br>- "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.<br><br>https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id | `string` | `"System"` | no |
 | public\_network\_access\_enabled | Whether the AKS is available from public network. | `bool` | `false` | no |
 | resource\_group\_name | Name of the resource group. | `string` | n/a | yes |
-| service\_cidr | CIDR used by kubernetes services (kubectl get svc). | `string` | n/a | yes |
+| service\_cidr | CIDR used by Kubernetes services (kubectl get svc). | `string` | n/a | yes |
 | stack | Project stack name. | `string` | n/a | yes |
 | vnet\_id | Vnet id that Aks MSI should be network contributor in a private cluster | `string` | `null` | no |
+| vnet\_integration | Virtual Network integration configuration. | <pre>object({<br>    enabled   = optional(bool, false)<br>    subnet_id = optional(string)<br>  })</pre> | `{}` | no |
 | workload\_identity\_enabled | Specifies whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 
 ## Outputs

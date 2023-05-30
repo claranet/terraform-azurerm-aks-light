@@ -1,21 +1,79 @@
 #tfsec:ignore:azure-container-use-rbac-permissions
 #tfsec:ignore:azure-container-limit-authorized-ips
+#tfsec:ignore:azure-container-logging
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                             = local.aks_name
-  location                         = var.location
-  resource_group_name              = var.resource_group_name
-  dns_prefix                       = replace(local.aks_name, "/[\\W_]/", "-")
+  name                = local.aks_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  dns_prefix          = replace(local.aks_name, "/[\\W_]/", "-")
+
+  tags = merge(local.default_tags, var.extra_tags)
+
+  # Cluster config
   kubernetes_version               = var.kubernetes_version
   sku_tier                         = var.aks_sku_tier
-  api_server_authorized_ip_ranges  = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
   node_resource_group              = local.aks_node_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
   workload_identity_enabled        = var.workload_identity_enabled
 
+  # Network config
   private_cluster_enabled = var.private_cluster_enabled
   private_dns_zone_id     = var.private_cluster_enabled ? local.private_dns_zone : null
 
+  api_server_access_profile {
+    authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges != null ? concat(["0.0.0.0/32"], var.api_server_authorized_ip_ranges) : null
+    vnet_integration_enabled = var.vnet_integration.enabled
+    subnet_id                = var.vnet_integration.subnet_id
+  }
+
+  network_profile {
+    network_plugin      = var.aks_network_plugin.name
+    network_plugin_mode = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "Overlay" : null
+    network_policy      = var.aks_network_policy
+    network_mode        = var.aks_network_plugin == "azure" ? "transparent" : null
+    dns_service_ip      = cidrhost(var.service_cidr, 10)
+    service_cidr        = var.service_cidr
+    load_balancer_sku   = "standard"
+    outbound_type       = var.outbound_type
+    pod_cidr            = var.aks_pod_cidr
+    ebpf_data_plane     = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "cilium" ? "cilium" : null
+  }
+
+  dynamic "http_proxy_config" {
+    for_each = var.aks_http_proxy_settings[*]
+    content {
+      http_proxy  = var.aks_http_proxy_settings.http_proxy_url
+      https_proxy = var.aks_http_proxy_settings.https_proxy_url
+      no_proxy    = distinct(flatten(concat(local.default_no_proxy_url_list, var.aks_http_proxy_settings.no_proxy_url_list)))
+      trusted_ca  = var.aks_http_proxy_settings.trusted_ca
+    }
+  }
+
+  # Azure integration config
+  azure_policy_enabled = var.azure_policy_enabled
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks_user_assigned_identity.id]
+  }
+
+  dynamic "oms_agent" {
+    for_each = var.oms_log_analytics_workspace_id[*]
+    content {
+      log_analytics_workspace_id = var.oms_log_analytics_workspace_id
+    }
+  }
+
+  dynamic "key_vault_secrets_provider" {
+    for_each = var.key_vault_secrets_provider[*]
+    content {
+      secret_rotation_enabled  = key_vault_secrets_provider.value.secret_rotation_enabled
+      secret_rotation_interval = key_vault_secrets_provider.value.secret_rotation_interval
+    }
+  }
+
+  # TODO ACI works with CNI Overlay ?
   dynamic "aci_connector_linux" {
     for_each = var.aci_subnet_id != null && var.aks_network_plugin != "kubenet" ? [true] : []
     content {
@@ -23,6 +81,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  # Nodes config
   default_node_pool {
     name                = local.default_node_pool.name
     vm_size             = local.default_node_pool.vm_size
@@ -39,15 +98,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_taints         = local.default_node_pool.node_taints
     node_labels         = local.default_node_pool.node_labels
     tags                = merge(local.default_tags, var.default_node_pool_tags)
-  }
-
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.aks_user_assigned_identity.id]
+    pod_subnet_id       = var.pod_subnet_id
   }
 
   dynamic "auto_scaler_profile" {
-    for_each = var.auto_scaler_profile != null ? [var.auto_scaler_profile] : []
+    for_each = var.auto_scaler_profile[*]
     content {
       balance_similar_node_groups      = try(auto_scaler_profile.value.balance_similar_node_groups, null)
       expander                         = try(auto_scaler_profile.value.expander, null)
@@ -69,20 +124,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  oms_agent {
-    log_analytics_workspace_id = var.oms_log_analytics_workspace_id
-  }
-
-  azure_policy_enabled = var.azure_policy_enabled
-
-  dynamic "key_vault_secrets_provider" {
-    for_each = var.key_vault_secrets_provider[*]
-    content {
-      secret_rotation_enabled  = key_vault_secrets_provider.value.secret_rotation_enabled
-      secret_rotation_interval = key_vault_secrets_provider.value.secret_rotation_interval
-    }
-  }
-
   dynamic "linux_profile" {
     for_each = var.linux_profile[*]
     content {
@@ -94,63 +135,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  dynamic "http_proxy_config" {
-    for_each = var.aks_http_proxy_settings[*]
-    content {
-      http_proxy  = var.aks_http_proxy_settings.http_proxy_url
-      https_proxy = var.aks_http_proxy_settings.https_proxy_url
-      no_proxy    = distinct(flatten(concat(local.default_no_proxy_url_list, var.aks_http_proxy_settings.no_proxy_url_list)))
-      trusted_ca  = var.aks_http_proxy_settings.trusted_ca
-    }
-  }
-
-  network_profile {
-    network_plugin      = var.aks_network_plugin
-    network_plugin_mode = var.aks_network_plugin == "azure" ? var.aks_network_plugin_mode : null
-    network_policy      = var.aks_network_policy
-    network_mode        = var.aks_network_plugin == "azure" ? "transparent" : null
-    dns_service_ip      = cidrhost(var.service_cidr, 10)
-    service_cidr        = var.service_cidr
-    load_balancer_sku   = "standard"
-    outbound_type       = var.outbound_type
-    pod_cidr            = var.aks_pod_cidr
-  }
-
   depends_on = [
     azurerm_role_assignment.aks_uai_private_dns_zone_contributor,
   ]
 
-  tags = merge(local.default_tags, var.extra_tags)
-}
-
-resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
-  count                  = length(local.nodes_pools)
-  kubernetes_cluster_id  = azurerm_kubernetes_cluster.aks.id
-  name                   = local.nodes_pools[count.index].name
-  vm_size                = local.nodes_pools[count.index].vm_size
-  os_type                = local.nodes_pools[count.index].os_type
-  orchestrator_version   = local.nodes_pools[count.index].orchestrator_version
-  os_disk_type           = local.nodes_pools[count.index].os_disk_type
-  os_disk_size_gb        = local.nodes_pools[count.index].os_disk_size_gb
-  priority               = local.nodes_pools[count.index].priority
-  vnet_subnet_id         = local.nodes_pools[count.index].vnet_subnet_id
-  enable_host_encryption = local.nodes_pools[count.index].enable_host_encryption
-  eviction_policy        = local.nodes_pools[count.index].eviction_policy
-  enable_auto_scaling    = local.nodes_pools[count.index].enable_auto_scaling
-  node_count             = local.nodes_pools[count.index].enable_auto_scaling ? null : local.nodes_pools[count.index].node_count
-  min_count              = local.nodes_pools[count.index].enable_auto_scaling ? local.nodes_pools[count.index].min_count : null
-  max_count              = local.nodes_pools[count.index].enable_auto_scaling ? local.nodes_pools[count.index].max_count : null
-  max_pods               = local.nodes_pools[count.index].max_pods
-  node_labels            = local.nodes_pools[count.index].node_labels
-  node_taints            = local.nodes_pools[count.index].node_taints
-  enable_node_public_ip  = local.nodes_pools[count.index].enable_node_public_ip
-  zones                  = local.nodes_pools[count.index].zones
-  tags                   = merge(local.default_tags, var.node_pool_tags)
-}
-
-# Allow user assigned identity to manage AKS items in MC_xxx RG
-resource "azurerm_role_assignment" "aks_user_assigned" {
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  scope                = format("/subscriptions/%s/resourceGroups/%s", data.azurerm_subscription.current.subscription_id, azurerm_kubernetes_cluster.aks.node_resource_group)
-  role_definition_name = "Contributor"
+  lifecycle {
+    precondition {
+      condition     = !var.workload_identity_enabled || var.oidc_issuer_enabled
+      error_message = "var.oidc_issuer_enabled must be true when Workload Identity is enabled."
+    }
+    precondition {
+      condition     = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pod_subnet_id != null : true
+      error_message = "var.pod_subnet_id must be set when using Azure CNI Cilium network."
+    }
+  }
 }
