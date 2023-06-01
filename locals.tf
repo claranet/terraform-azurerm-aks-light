@@ -25,9 +25,10 @@ locals {
 
   private_dns_zone              = var.private_dns_zone_type == "Custom" ? var.private_dns_zone_id : var.private_dns_zone_type
   is_custom_dns_private_cluster = var.private_dns_zone_type == "Custom" && var.private_cluster_enabled
+  is_network_cni                = var.aks_network_plugin.name == "azure"
 
-  default_no_proxy_url_list = [
-    data.azurerm_virtual_network.aks_vnet[*].address_space,
+  default_no_proxy_url_list = flatten([
+    data.azurerm_subnet.nodes_subnet.address_prefixes,
     var.aks_pod_cidr,
     var.service_cidr,
     "localhost",
@@ -35,5 +36,5 @@ locals {
     "127.0.0.1",       # Localhost
     "168.63.129.16",   # Azure platform global VIP (https://learn.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16)
     "169.254.169.254", # Azure Instance Metadata Service (IMDS)
-  ]
+  ])
 }

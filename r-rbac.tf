@@ -15,26 +15,18 @@ resource "azurerm_role_assignment" "aks_uai_private_dns_zone_contributor" {
 }
 
 resource "azurerm_role_assignment" "aks_uai_vnet_network_contributor" {
-  count = local.is_custom_dns_private_cluster ? 1 : 0
+  for_each = toset(local.is_network_cni ? compact(concat([var.nodes_subnet_id, var.pod_subnet_id], flatten(concat(var.nodes_pools[*].vnet_subnet_id, var.nodes_pools[*].pod_subnet_id)))) : [])
 
-  scope                = var.vnet_id
+  scope                = each.value
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_user_assigned_identity.aks_user_assigned_identity.principal_id
-}
-
-resource "azurerm_role_assignment" "aks_kubelet_uai_vnet_network_contributor" {
-  count = local.is_custom_dns_private_cluster ? 1 : 0
-
-  scope                = var.vnet_id
-  role_definition_name = "Network Contributor"
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
 }
 
 # Role assignment for ACI, if ACI is enabled
 data "azuread_service_principal" "aci_identity" {
   count = length(var.aci_subnet_id[*])
 
-  display_name = "aciconnectorlinux-${coalesce(var.custom_aks_name, local.aks_name)}"
+  display_name = "aciconnectorlinux-${local.aks_name}"
   depends_on   = [azurerm_kubernetes_cluster.aks]
 }
 

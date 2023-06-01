@@ -10,7 +10,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   tags = merge(local.default_tags, var.extra_tags)
 
   # Cluster config
-  kubernetes_version               = var.kubernetes_version
+  kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
   sku_tier                         = var.aks_sku_tier
   node_resource_group              = local.aks_node_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
@@ -73,7 +73,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  # TODO ACI works with CNI Overlay ?
   dynamic "aci_connector_linux" {
     for_each = var.aci_subnet_id != null && var.aks_network_plugin != "kubenet" ? [true] : []
     content {
@@ -97,7 +96,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vnet_subnet_id      = local.default_node_pool.vnet_subnet_id
     node_taints         = local.default_node_pool.node_taints
     node_labels         = local.default_node_pool.node_labels
-    tags                = merge(local.default_tags, var.default_node_pool_tags)
+    tags                = merge(local.default_tags, local.default_node_pool.tags)
     pod_subnet_id       = var.pod_subnet_id
   }
 
@@ -140,6 +139,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   ]
 
   lifecycle {
+    ignore_changes = [kubernetes_version]
+
     precondition {
       condition     = !var.workload_identity_enabled || var.oidc_issuer_enabled
       error_message = "var.oidc_issuer_enabled must be true when Workload Identity is enabled."
@@ -148,5 +149,28 @@ resource "azurerm_kubernetes_cluster" "aks" {
       condition     = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pod_subnet_id != null : true
       error_message = "var.pod_subnet_id must be set when using Azure CNI Cilium network."
     }
+  }
+}
+
+# Taken from https://github.com/Azure/terraform-azurerm-aks
+resource "null_resource" "kubernetes_version_keeper" {
+  triggers = {
+    version = var.kubernetes_version
+  }
+}
+
+resource "azapi_update_resource" "aks_kubernetes_version" {
+  type        = "Microsoft.ContainerService/managedClusters@2023-01-02-preview"
+  resource_id = azurerm_kubernetes_cluster.aks.id
+
+  body = jsonencode({
+    properties = {
+      kubernetesVersion = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
+    }
+  })
+
+  lifecycle {
+    ignore_changes       = all
+    replace_triggered_by = [null_resource.kubernetes_version_keeper.id]
   }
 }

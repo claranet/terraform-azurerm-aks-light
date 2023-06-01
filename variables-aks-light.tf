@@ -1,5 +1,5 @@
 variable "kubernetes_version" {
-  description = "Version of Kubernetes to deploy"
+  description = "Version of Kubernetes to deploy."
   type        = string
   default     = null
 }
@@ -11,7 +11,7 @@ variable "api_server_authorized_ip_ranges" {
 }
 
 variable "nodes_resource_group_name" {
-  description = "Name of the resource group in which to put AKS nodes. If null default to MC_<AKS RG Name>"
+  description = "Name of the resource group in which to put Azure Kubernetes Service nodes."
   type        = string
   default     = null
 }
@@ -24,25 +24,17 @@ variable "http_application_routing_enabled" {
 }
 
 variable "private_cluster_enabled" {
-  description = "Configure AKS as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled"
+  description = "Configure Azure Kubernetes Service as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled"
   type        = bool
   nullable    = false
   default     = true
 }
 
-variable "vnet_id" {
-  description = "Vnet id that Aks MSI should be network contributor in a private cluster"
-  type        = string
-  default     = null
-}
-
 variable "private_dns_zone_type" {
   description = <<EOD
-Set AKS private dns zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)
-- "Custom" : You will have to deploy a private Dns Zone on your own and pass the id with <private_dns_zone_id> variable
-If this settings is used, aks user assigned identity will be "userassigned" instead of "systemassigned"
-and the aks user must have "Private DNS Zone Contributor" role on the private DNS Zone
-- "System" : AKS will manage the private zone and create it in the same resource group as the Node Resource Group
+Set Azure Kubernetes Service private DNS zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)
+- "Custom" : You will have to deploy a private DNS Zone on your own and provide the ID with <private_dns_zone_id> variable
+- "System" : AKS will manage the Private DNS Zone and creates it in the Node Resource Group
 - "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.
 
 https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id
@@ -53,7 +45,7 @@ EOD
 }
 
 variable "private_dns_zone_id" {
-  description = "Id of the private DNS Zone when <private_dns_zone_type> is custom"
+  description = "ID of the Private DNS Zone when <private_dns_zone_type> is `Custom`."
   type        = string
   default     = null
 }
@@ -66,20 +58,20 @@ variable "private_dns_zone_role_assignment_enabled" {
 }
 
 variable "aks_user_assigned_identity_resource_group_name" {
-  description = "Resource Group where to deploy the aks user assigned identity resource. Used when private cluster is enabled and when Azure private dns zone is not managed by aks"
+  description = "Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource."
   type        = string
   default     = null
 }
 
 variable "aks_sku_tier" {
-  description = "AKS SKU tier. Possible values are Free ou Standard"
+  description = "Azure Kubernetes Service SKU tier. Possible values are Free ou Standard"
   type        = string
   nullable    = false
   default     = "Standard"
 }
 
 variable "aks_network_plugin" {
-  description = "AKS network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `null` for Azure CNI, `Overlay` and `Cilium`, Changing this forces a new resource to be created"
+  description = "Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `null` for Azure CNI, `Overlay` and `Cilium`. Changing this forces a new resource to be created"
   type = object({
     name     = optional(string, "azure")
     cni_mode = optional(string, "overlay")
@@ -98,13 +90,13 @@ variable "aks_network_plugin" {
 }
 
 variable "aks_network_policy" {
-  description = "AKS network policy to use."
+  description = "Azure Kubernetes Service network policy to use."
   type        = string
   default     = "calico"
 }
 
 variable "aks_http_proxy_settings" {
-  description = "AKS HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_url_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR must be added to the URLs list."
+  description = "Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_url_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR must be added to the URLs list."
   type = object({
     http_proxy_url    = optional(string)
     https_proxy_url   = optional(string)
@@ -115,7 +107,7 @@ variable "aks_http_proxy_settings" {
 }
 
 variable "default_node_pool" {
-  description = "Default node pool configuration"
+  description = "Default Node Pool configuration"
   type = object({
     name                   = optional(string, "default")
     node_count             = optional(number, 1)
@@ -136,25 +128,26 @@ variable "default_node_pool" {
     os_disk_type           = optional(string, "Managed")
     os_disk_size_gb        = optional(number, 128)
     enable_node_public_ip  = optional(bool, false)
+    tags                   = optional(map(string), {})
   })
   nullable = false
   default  = {}
 }
 
 variable "nodes_subnet_id" {
-  description = "ID of the subnet used for nodes."
+  description = "ID of the Subnet used for nodes."
   type        = string
   nullable    = false
 }
 
 variable "aci_subnet_id" {
-  description = "Optional ID of the subnet for ACI virtual-nodes."
+  description = "ID of the Subnet for ACI virtual-nodes."
   type        = string
   default     = null
 }
 
 variable "auto_scaler_profile" {
-  description = "Configuration of `auto_scaler_profile` block object"
+  description = "Auto Scaler configuration;"
   type = object({
     balance_similar_node_groups      = optional(bool, false)
     expander                         = optional(string, "random")
@@ -178,19 +171,19 @@ variable "auto_scaler_profile" {
 }
 
 variable "oms_log_analytics_workspace_id" {
-  description = "The ID of the Log Analytics Workspace used to send OMS logs."
+  description = "ID of the Log Analytics Workspace for OMS agent logs."
   type        = string
 }
 
 variable "azure_policy_enabled" {
-  description = "Should the Azure Policy Add-On be enabled?"
+  description = "Option to enable Azure Policy addon."
   type        = bool
   nullable    = false
   default     = true
 }
 
 variable "linux_profile" {
-  description = "Username and SSH public key for accessing AKS Linux nodes with SSH."
+  description = "Username and SSH public key for accessing Linux nodes with SSH."
   type = object({
     username = string,
     ssh_key  = string
@@ -211,35 +204,58 @@ variable "aks_pod_cidr" {
 }
 
 variable "outbound_type" {
-  description = "The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are `loadBalancer` and `userDefinedRouting`."
+  description = "The outbound (egress) routing method which should be used. Possible values are `loadBalancer` and `userDefinedRouting`."
   type        = string
   nullable    = false
   default     = "loadBalancer"
 }
 
 variable "nodes_pools" {
-  description = "A list of nodes pools to create, each item supports same properties as `local.default_agent_profile`"
-  type        = list(any)
-  nullable    = false
-  default     = []
+  description = "A list of Nodes Pools to create."
+  type = list(object({
+    name                   = string
+    node_count             = optional(number, 1)
+    vm_size                = optional(string, "Standard_D2_v3")
+    os_type                = optional(string, "Linux")
+    zones                  = optional(list(number), [1, 2, 3])
+    vnet_subnet_id         = optional(string, null)
+    pod_subnet_id          = optional(string, null)
+    enable_auto_scaling    = optional(bool, false)
+    min_count              = optional(number, 1)
+    max_count              = optional(number, 10)
+    node_taints            = optional(list(any), null)
+    node_labels            = optional(map(any), null)
+    orchestrator_version   = optional(string, null)
+    priority               = optional(string, null)
+    enable_host_encryption = optional(bool, null)
+    eviction_policy        = optional(string, null)
+    max_pods               = optional(number, 110)
+    os_disk_type           = optional(string, "Managed")
+    os_disk_size_gb        = optional(number, 128)
+    enable_node_public_ip  = optional(bool, false)
+    tags                   = optional(map(string), {})
+    })
+  )
+  nullable = false
+  default  = []
 }
 
 variable "container_registries_id" {
-  description = "List of Azure Container Registries ids where AKS needs pull access."
+  description = "List of Azure Container Registries ids where Azure Kubernetes Service needs pull access."
   type        = list(string)
   nullable    = false
   default     = []
 }
 
 variable "oidc_issuer_enabled" {
-  description = "Enable or Disable the OIDC issuer URL."
+  description = "Whether the OIDC issuer URL should be anebled."
   type        = bool
   nullable    = false
   default     = true
 }
 
 variable "workload_identity_enabled" {
-  description = "Specifies whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature."
+  description = "Whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature."
   type        = bool
   nullable    = false
   default     = true
@@ -255,7 +271,7 @@ variable "key_vault_secrets_provider" {
 }
 
 variable "pod_subnet_id" {
-  description = "ID of the subnet containing the pods."
+  description = "ID of the Subnet containing the pods."
   type        = string
   default     = null
 }

@@ -1,8 +1,13 @@
 data "azurerm_subscription" "current" {}
 
-data "azurerm_virtual_network" "aks_vnet" {
-  count = local.is_custom_dns_private_cluster ? 1 : 0
+data "azurerm_subnet" "nodes_subnet" {
+  name                 = reverse(split("/", var.nodes_subnet_id))[0]
+  resource_group_name  = split("/", var.nodes_subnet_id)[4]
+  virtual_network_name = split("/", var.nodes_subnet_id)[8]
+}
 
-  name                = reverse(split("/", var.vnet_id))[0]
-  resource_group_name = split("/", var.vnet_id)[4]
+data "azurerm_kubernetes_service_versions" "versions" {
+  location = var.location
+
+  include_preview = false
 }

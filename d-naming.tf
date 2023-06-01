@@ -19,10 +19,10 @@ data "azurecaf_name" "aks_identity" {
 }
 
 data "azurecaf_name" "aks_node_rg" {
-  name          = var.stack
+  name          = local.aks_name
   resource_type = "azurerm_resource_group"
   prefixes      = var.name_prefix == "" ? null : [local.name_prefix]
-  suffixes      = compact([local.aks_name, "nodes"])
+  suffixes      = compact([var.use_caf_naming ? "" : "rg", "nodes"])
   use_slug      = var.use_caf_naming
   clean_input   = true
   separator     = "-"

@@ -1,25 +1,26 @@
 resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
-  count = length(local.nodes_pools)
+  for_each = { for np in local.nodes_pools : np.name => np }
 
   kubernetes_cluster_id  = azurerm_kubernetes_cluster.aks.id
-  name                   = local.nodes_pools[count.index].name
-  vm_size                = local.nodes_pools[count.index].vm_size
-  os_type                = local.nodes_pools[count.index].os_type
-  orchestrator_version   = local.nodes_pools[count.index].orchestrator_version
-  os_disk_type           = local.nodes_pools[count.index].os_disk_type
-  os_disk_size_gb        = local.nodes_pools[count.index].os_disk_size_gb
-  priority               = local.nodes_pools[count.index].priority
-  vnet_subnet_id         = local.nodes_pools[count.index].vnet_subnet_id
-  enable_host_encryption = local.nodes_pools[count.index].enable_host_encryption
-  eviction_policy        = local.nodes_pools[count.index].eviction_policy
-  enable_auto_scaling    = local.nodes_pools[count.index].enable_auto_scaling
-  node_count             = local.nodes_pools[count.index].enable_auto_scaling ? null : local.nodes_pools[count.index].node_count
-  min_count              = local.nodes_pools[count.index].enable_auto_scaling ? local.nodes_pools[count.index].min_count : null
-  max_count              = local.nodes_pools[count.index].enable_auto_scaling ? local.nodes_pools[count.index].max_count : null
-  max_pods               = local.nodes_pools[count.index].max_pods
-  node_labels            = local.nodes_pools[count.index].node_labels
-  node_taints            = local.nodes_pools[count.index].node_taints
-  enable_node_public_ip  = local.nodes_pools[count.index].enable_node_public_ip
-  zones                  = local.nodes_pools[count.index].zones
-  tags                   = merge(local.default_tags, var.node_pool_tags)
+  name                   = each.value.name
+  vm_size                = each.value.vm_size
+  os_type                = each.value.os_type
+  orchestrator_version   = each.value.orchestrator_version
+  os_disk_type           = each.value.os_disk_type
+  os_disk_size_gb        = each.value.os_disk_size_gb
+  priority               = each.value.priority
+  vnet_subnet_id         = each.value.vnet_subnet_id
+  pod_subnet_id          = each.value.pod_subnet_id
+  enable_host_encryption = each.value.enable_host_encryption
+  eviction_policy        = each.value.eviction_policy
+  enable_auto_scaling    = each.value.enable_auto_scaling
+  node_count             = each.value.enable_auto_scaling ? null : each.value.node_count
+  min_count              = each.value.enable_auto_scaling ? each.value.min_count : null
+  max_count              = each.value.enable_auto_scaling ? each.value.max_count : null
+  max_pods               = each.value.max_pods
+  node_labels            = each.value.node_labels
+  node_taints            = each.value.node_taints
+  enable_node_public_ip  = each.value.enable_node_public_ip
+  zones                  = each.value.zones
+  tags                   = merge(local.default_tags, each.value.tags)
 }
