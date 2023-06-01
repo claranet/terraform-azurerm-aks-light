@@ -15,7 +15,7 @@ module "rg" {
   stack       = var.stack
 }
 
-module "azure_virtual_network" {
+module "vnet" {
   source  = "claranet/vnet/azurerm"
   version = "x.x.x"
 
@@ -30,6 +30,12 @@ module "azure_virtual_network" {
   vnet_cidr = ["10.0.0.0/19"]
 }
 
+resource "azurerm_private_dns_zone" "private_dns_zone" {
+  name                = "privatelink.francecentral.azmk8s.io"
+  resource_group_name = module.rg.resource_group_name
+
+}
+
 module "node_network_subnet" {
   source  = "claranet/subnet/azurerm"
   version = "x.x.x"
@@ -40,33 +46,16 @@ module "node_network_subnet" {
   stack          = var.stack
 
   resource_group_name  = module.rg.resource_group_name
-  virtual_network_name = module.azure_virtual_network.virtual_network_name
+  virtual_network_name = module.vnet.virtual_network_name
 
   name_suffix = "nodes"
 
   subnet_cidr_list = ["10.0.0.0/20"]
 
-  service_endpoints = ["Microsoft.Storage"]
+  service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
-module "appgw_network_subnet" {
-  source  = "claranet/subnet/azurerm"
-  version = "x.x.x"
-
-  environment    = var.environment
-  location_short = module.azure_region.location_short
-  client_name    = var.client_name
-  stack          = var.stack
-
-  resource_group_name  = module.rg.resource_group_name
-  virtual_network_name = module.azure_virtual_network.virtual_network_name
-
-  name_suffix = "appgw"
-
-  subnet_cidr_list = ["10.0.20.0/24"]
-}
-
-module "global_run" {
+module "run" {
   source  = "claranet/run/azurerm"
   version = "x.x.x"
 
@@ -76,25 +65,34 @@ module "global_run" {
   environment    = var.environment
   stack          = var.stack
 
-  monitoring_function_splunk_token = var.monitoring_function_splunk_token
+  monitoring_function_enabled = false
 
   resource_group_name = module.rg.resource_group_name
-
-  tenant_id = var.azure_tenant_id
 }
 
 resource "tls_private_key" "key" {
   algorithm = "RSA"
 }
 
-module "aks" {
-  #source  = "claranet/aks-light/azurerm"
-  #version = "x.x.x"
-  source = "git@git.fr.clara.net:claranet/projects/cloud/azure/terraform/modules/aks-light.git?ref=AZ-1027-init--module"
+module "acr" {
+  source  = "claranet/acr/azurerm"
+  version = "x.x.x"
 
-  providers = {
-    kubernetes = kubernetes.aks-module
-  }
+  location            = module.azure_region.location
+  location_short      = module.azure_region.location_short
+  resource_group_name = module.rg.resource_group_name
+  sku                 = "Standard"
+
+  client_name = var.client_name
+  environment = var.environment
+  stack       = var.stack
+
+  logs_destinations_ids = [module.run.log_analytics_workspace_id]
+}
+
+module "aks" {
+  source  = "claranet/aks-light/azurerm"
+  version = "x.x.x"
 
   client_name = var.client_name
   environment = var.environment
@@ -121,7 +119,6 @@ module "aks" {
     },
     {
       name                = "bigpool1"
-      count               = 3
       vm_size             = "Standard_F8s_v2"
       os_type             = "Linux"
       os_disk_size_gb     = 30
@@ -137,26 +134,9 @@ module "aks" {
     ssh_key  = tls_private_key.key.public_key_openssh
   }
 
-  oms_log_analytics_workspace_id = module.global_run.log_analytics_workspace_id
-  azure_policy_enabled           = false
+  oms_log_analytics_workspace_id = module.run.log_analytics_workspace_id
 
-  logs_destinations_ids = [module.global_run.log_analytics_workspace_id]
+  logs_destinations_ids = [module.run.log_analytics_workspace_id]
 
   container_registries_id = [module.acr.acr_id]
-}
-
-module "acr" {
-  source  = "claranet/acr/azurerm"
-  version = "x.x.x"
-
-  location            = module.azure_region.location
-  location_short      = module.azure_region.location_short
-  resource_group_name = module.rg.resource_group_name
-  sku                 = "Standard"
-
-  client_name = var.client_name
-  environment = var.environment
-  stack       = var.stack
-
-  logs_destinations_ids = [module.global_run.log_analytics_workspace_id]
 }

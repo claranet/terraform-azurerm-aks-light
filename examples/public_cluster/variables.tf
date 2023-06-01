@@ -17,13 +17,3 @@ variable "stack" {
   description = "Project stack name"
   type        = string
 }
-
-variable "monitoring_function_splunk_token" {
-  description = "Access Token to send metrics to Splunk Observability"
-  type        = string
-}
-
-variable "azure_tenant_id" {
-  description = "Azure Tenant Id"
-  type        = string
-}
