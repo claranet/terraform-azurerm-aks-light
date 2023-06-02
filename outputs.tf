@@ -1,11 +1,11 @@
 output "aks" {
   description = "AKS output object"
-  value       = azurerm_kubernetes_cluster.aks_light
+  value       = azurerm_kubernetes_cluster.aks
 }
 
 output "identity_principal_id" {
   description = "AKS system identity principal ID"
-  value       = try(azurerm_kubernetes_cluster.aks_light.identity[0].principal_id, null)
+  value       = try(azurerm_kubernetes_cluster.aks.identity[0].principal_id, null)
 }
 
 output "id" {

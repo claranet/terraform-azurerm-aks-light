@@ -22,9 +22,9 @@ Non-exhaustive feature list, most of them can be overriden:
 # Why replacing the previous Claranet AKS module
 
 This modules supersedes the previous [AKS module](https://registry.terraform.io/modules/claranet/aks/azurerm).
-We've built a new module to clean up the technical debt that piled up due to fast-moving AKS product and keep backwards 
-compatibility for existing users. Also, we've decided to remove all Kubernetes resources from this new module as a 
-[recommended best practice](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources) 
+We've built a new module to clean up the technical debt that piled up due to fast-moving AKS product and keep backwards
+compatibility for existing users. Also, we've decided to remove all Kubernetes resources from this new module as a
+[recommended best practice](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources)
 and for better tooling responsibility segregation.
 
 So this module does less, that why `light`, but it should do it better.
@@ -223,7 +223,6 @@ module "aks" {
 |------|------|
 | [azapi_update_resource.aks_kubernetes_version](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/update_resource) | resource |
 | [azurerm_kubernetes_cluster.aks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
-| [azurerm_kubernetes_cluster.aks_light](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
 | [azurerm_kubernetes_cluster_node_pool.node_pools](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
 | [azurerm_role_assignment.aci_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.aks_acr_pull_allowed](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -235,7 +234,6 @@ module "aks" {
 | [azuread_service_principal.aci_identity](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/service_principal) | data source |
 | [azurecaf_name.aks](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_identity](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
-| [azurecaf_name.aks_light](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_node_rg](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurerm_kubernetes_service_versions.versions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_service_versions) | data source |
 | [azurerm_subnet.nodes_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subnet) | data source |
@@ -254,45 +252,23 @@ module "aks" {
 | aks\_user\_assigned\_identity\_custom\_name | Custom name for the aks user assigned identity resource | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource. | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_tags | Tags to add to AKS MSI | `map(string)` | `{}` | no |
-| allowed\_cidrs | List of allowed CIDR ranges to access the AKS resource. | `list(string)` | `[]` | no |
-| allowed\_subnet\_ids | List of allowed subnets IDs to access the AKS resource. | `list(string)` | `[]` | no |
 | api\_server\_authorized\_ip\_ranges | IP ranges allowed to interact with Kubernetes API for public clusters. Set to `null` to wide open. | `list(string)` | `[]` | no |
-<<<<<<< HEAD
-| auto\_scaler\_profile | Configuration of `auto_scaler_profile` block object | <pre>object({<br>    balance_similar_node_groups      = optional(bool, false)<br>    expander                         = optional(string, "random")<br>    max_graceful_termination_sec     = optional(number, 600)<br>    max_node_provisioning_time       = optional(string, "15m")<br>    max_unready_nodes                = optional(number, 3)<br>    max_unready_percentage           = optional(number, 45)<br>    new_pod_scale_up_delay           = optional(string, "10s")<br>    scale_down_delay_after_add       = optional(string, "10m")<br>    scale_down_delay_after_delete    = optional(string, "10s")<br>    scale_down_delay_after_failure   = optional(string, "3m")<br>    scan_interval                    = optional(string, "10s")<br>    scale_down_unneeded              = optional(string, "10m")<br>    scale_down_unready               = optional(string, "20m")<br>    scale_down_utilization_threshold = optional(number, 0.5)<br>    empty_bulk_delete_max            = optional(number, 10)<br>    skip_nodes_with_local_storage    = optional(bool, true)<br>    skip_nodes_with_system_pods      = optional(bool, true)<br>  })</pre> | `null` | no |
-| azure\_policy\_enabled | Should the Azure Policy Add-On be enabled? | `bool` | `true` | no |
+| auto\_scaler\_profile | Auto Scaler configuration; | <pre>object({<br>    balance_similar_node_groups      = optional(bool, false)<br>    expander                         = optional(string, "random")<br>    max_graceful_termination_sec     = optional(number, 600)<br>    max_node_provisioning_time       = optional(string, "15m")<br>    max_unready_nodes                = optional(number, 3)<br>    max_unready_percentage           = optional(number, 45)<br>    new_pod_scale_up_delay           = optional(string, "10s")<br>    scale_down_delay_after_add       = optional(string, "10m")<br>    scale_down_delay_after_delete    = optional(string, "10s")<br>    scale_down_delay_after_failure   = optional(string, "3m")<br>    scan_interval                    = optional(string, "10s")<br>    scale_down_unneeded              = optional(string, "10m")<br>    scale_down_unready               = optional(string, "20m")<br>    scale_down_utilization_threshold = optional(number, 0.5)<br>    empty_bulk_delete_max            = optional(number, 10)<br>    skip_nodes_with_local_storage    = optional(bool, true)<br>    skip_nodes_with_system_pods      = optional(bool, true)<br>  })</pre> | `null` | no |
+| azure\_policy\_enabled | Option to enable Azure Policy addon. | `bool` | `true` | no |
 | client\_name | Client name/account used in naming. | `string` | n/a | yes |
-| container\_registries\_id | List of Azure Container Registries ids where AKS needs pull access. | `list(string)` | `[]` | no |
+| container\_registries\_id | List of Azure Container Registries ids where Azure Kubernetes Service needs pull access. | `list(string)` | `[]` | no |
 | custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
 | custom\_name | Custom AKS, generated if not set | `string` | `""` | no |
-| default\_node\_pool | Default node pool configuration | <pre>object({<br>    name                   = optional(string, "default")<br>    node_count             = optional(number, 1)<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_type                = optional(string, "Linux")<br>    zones                  = optional(list(number), [1, 2, 3])<br>    enable_auto_scaling    = optional(bool, false)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    node_taints            = optional(list(any), null)<br>    node_labels            = optional(map(any), null)<br>    orchestrator_version   = optional(string, null)<br>    priority               = optional(string, null)<br>    enable_host_encryption = optional(bool, null)<br>    eviction_policy        = optional(string, null)<br>    max_pods               = optional(number, 110)<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number, 128)<br>    enable_node_public_ip  = optional(bool, false)<br>  })</pre> | `{}` | no |
-| default\_node\_pool\_tags | Specific tags for default node pool | `map(string)` | `{}` | no |
+| default\_node\_pool | Default Node Pool configuration | <pre>object({<br>    name                   = optional(string, "default")<br>    node_count             = optional(number, 1)<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_type                = optional(string, "Linux")<br>    zones                  = optional(list(number), [1, 2, 3])<br>    enable_auto_scaling    = optional(bool, false)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    node_taints            = optional(list(any), null)<br>    node_labels            = optional(map(any), null)<br>    orchestrator_version   = optional(string, null)<br>    priority               = optional(string, null)<br>    enable_host_encryption = optional(bool, null)<br>    eviction_policy        = optional(string, null)<br>    max_pods               = optional(number, 110)<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number, 128)<br>    enable_node_public_ip  = optional(bool, false)<br>    tags                   = optional(map(string), {})<br>  })</pre> | `{}` | no |
 | default\_tags\_enabled | Option to enable or disable default tags. | `bool` | `true` | no |
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
 | key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool, true)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | `{}` | no |
-| kubernetes\_version | Version of Kubernetes to deploy | `string` | `null` | no |
-| linux\_profile | Username and SSH public key for accessing AKS Linux nodes with SSH. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
-| location | Azure region to use. | `string` | n/a | yes |
-| location\_short | Short string for Azure location. | `string` | n/a | yes |
-=======
-| auto\_scaler\_profile | Auto Scaler configuration; | <pre>object({<br>    balance_similar_node_groups      = optional(bool, false)<br>    expander                         = optional(string, "random")<br>    max_graceful_termination_sec     = optional(number, 600)<br>    max_node_provisioning_time       = optional(string, "15m")<br>    max_unready_nodes                = optional(number, 3)<br>    max_unready_percentage           = optional(number, 45)<br>    new_pod_scale_up_delay           = optional(string, "10s")<br>    scale_down_delay_after_add       = optional(string, "10m")<br>    scale_down_delay_after_delete    = optional(string, "10s")<br>    scale_down_delay_after_failure   = optional(string, "3m")<br>    scan_interval                    = optional(string, "10s")<br>    scale_down_unneeded              = optional(string, "10m")<br>    scale_down_unready               = optional(string, "20m")<br>    scale_down_utilization_threshold = optional(number, 0.5)<br>    empty_bulk_delete_max            = optional(number, 10)<br>    skip_nodes_with_local_storage    = optional(bool, true)<br>    skip_nodes_with_system_pods      = optional(bool, true)<br>  })</pre> | `null` | no |
-| azure\_policy\_enabled | Option to enable Azure Policy addon. | `bool` | `true` | no |
-| client\_name | Client name/account used in naming. | `string` | n/a | yes |
-| container\_registries\_id | List of Azure Container Registries ids where Azure Kubernetes Service needs pull access. | `list(string)` | `[]` | no |
-| custom\_aks\_name | Custom AKS name | `string` | `""` | no |
-| custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
-| default\_node\_pool | Default Node Pool configuration | <pre>object({<br>    name                   = optional(string, "default")<br>    node_count             = optional(number, 1)<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_type                = optional(string, "Linux")<br>    zones                  = optional(list(number), [1, 2, 3])<br>    enable_auto_scaling    = optional(bool, false)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    node_taints            = optional(list(any), null)<br>    node_labels            = optional(map(any), null)<br>    orchestrator_version   = optional(string, null)<br>    priority               = optional(string, null)<br>    enable_host_encryption = optional(bool, null)<br>    eviction_policy        = optional(string, null)<br>    max_pods               = optional(number, 110)<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number, 128)<br>    enable_node_public_ip  = optional(bool, false)<br>    tags                   = optional(map(string), {})<br>  })</pre> | `{}` | no |
-| default\_tags\_enabled | Option to enable or disable default tags | `bool` | `true` | no |
-| environment | Project environment. | `string` | n/a | yes |
-| extra\_tags | Extra tags to add | `map(string)` | `{}` | no |
-| http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
-| key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool, true)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | `{}` | no |
 | kubernetes\_version | Version of Kubernetes to deploy. | `string` | `null` | no |
 | linux\_profile | Username and SSH public key for accessing Linux nodes with SSH. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
-| location\_short | Short name of the Azure region to use. | `string` | n/a | yes |
->>>>>>> f86a485 (AZ-1027: Various improvements #2)
+| location\_short | Short string for Azure location. | `string` | n/a | yes |
 | logs\_categories | Log categories to send to destinations. | `list(string)` | `null` | no |
 | logs\_destinations\_ids | List of destination resources IDs for logs diagnostic destination.<br>Can be `Storage Account`, `Log Analytics Workspace` and `Event Hub`. No more than one of each can be set.<br>If you want to specify an Azure EventHub to send logs and metrics to, you need to provide a formated string with both the EventHub Namespace authorization send ID and the EventHub name (name of the queue to use in the Namespace) separated by the `|` character. | `list(string)` | n/a | yes |
 | logs\_kube\_audit\_enabled | Whether to include `kube-audit` and `kube-audit-admin` logs from diagnostics settings collection. Enabling this can increase your Azure billing. | `bool` | `false` | no |
@@ -300,26 +276,6 @@ module "aks" {
 | logs\_retention\_days | Number of days to keep logs on storage account. | `number` | `30` | no |
 | name\_prefix | Optional prefix for the generated name | `string` | `""` | no |
 | name\_suffix | Optional suffix for the generated name | `string` | `""` | no |
-<<<<<<< HEAD
-| network\_bypass | Specify whether traffic is bypassed for 'Logging', 'Metrics', 'AzureServices' or 'None'. | `list(string)` | <pre>[<br>  "Logging",<br>  "Metrics",<br>  "AzureServices"<br>]</pre> | no |
-| node\_pool\_tags | Specific tags for node pool | `map(string)` | `{}` | no |
-| nodes\_pools | A list of nodes pools to create, each item supports same properties as `local.default_agent_profile` | `list(any)` | `[]` | no |
-| nodes\_resource\_group\_name | Name of the resource group in which to put AKS nodes. If null default to MC\_<AKS RG Name> | `string` | `null` | no |
-| nodes\_subnet\_id | ID of the subnet used for nodes. | `string` | n/a | yes |
-| oidc\_issuer\_enabled | Enable or Disable the OIDC issuer URL. | `bool` | `true` | no |
-| oms\_log\_analytics\_workspace\_id | The ID of the Log Analytics Workspace used to send OMS logs. | `string` | n/a | yes |
-| outbound\_type | The outbound (egress) routing method which should be used for this Kubernetes Cluster. Possible values are `loadBalancer` and `userDefinedRouting`. | `string` | `"loadBalancer"` | no |
-| pod\_subnet\_id | ID of the subnet containing the pods. | `string` | `null` | no |
-| private\_cluster\_enabled | Configure AKS as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled | `bool` | `true` | no |
-| private\_dns\_zone\_id | Id of the private DNS Zone when <private\_dns\_zone\_type> is custom | `string` | `null` | no |
-| private\_dns\_zone\_role\_assignment\_enabled | Option to enable or disable Private DNS Zone role assignment. | `bool` | `true` | no |
-| private\_dns\_zone\_type | Set AKS private dns zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)<br>- "Custom" : You will have to deploy a private Dns Zone on your own and pass the id with <private\_dns\_zone\_id> variable<br>If this settings is used, aks user assigned identity will be "userassigned" instead of "systemassigned"<br>and the aks user must have "Private DNS Zone Contributor" role on the private DNS Zone<br>- "System" : AKS will manage the private zone and create it in the same resource group as the Node Resource Group<br>- "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.<br><br>https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id | `string` | `"System"` | no |
-| public\_network\_access\_enabled | Whether the AKS is available from public network. | `bool` | `false` | no |
-| resource\_group\_name | Name of the resource group. | `string` | n/a | yes |
-| service\_cidr | CIDR used by Kubernetes services (kubectl get svc). | `string` | n/a | yes |
-| stack | Project stack name. | `string` | n/a | yes |
-| vnet\_id | Vnet id that Aks MSI should be network contributor in a private cluster | `string` | `null` | no |
-=======
 | nodes\_pools | A list of Nodes Pools to create. | <pre>list(object({<br>    name                   = string<br>    node_count             = optional(number, 1)<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_type                = optional(string, "Linux")<br>    zones                  = optional(list(number), [1, 2, 3])<br>    vnet_subnet_id         = optional(string, null)<br>    pod_subnet_id          = optional(string, null)<br>    enable_auto_scaling    = optional(bool, false)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    node_taints            = optional(list(any), null)<br>    node_labels            = optional(map(any), null)<br>    orchestrator_version   = optional(string, null)<br>    priority               = optional(string, null)<br>    enable_host_encryption = optional(bool, null)<br>    eviction_policy        = optional(string, null)<br>    max_pods               = optional(number, 110)<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number, 128)<br>    enable_node_public_ip  = optional(bool, false)<br>    tags                   = optional(map(string), {})<br>    })<br>  )</pre> | `[]` | no |
 | nodes\_resource\_group\_name | Name of the resource group in which to put Azure Kubernetes Service nodes. | `string` | `null` | no |
 | nodes\_subnet\_id | ID of the Subnet used for nodes. | `string` | n/a | yes |
@@ -334,8 +290,6 @@ module "aks" {
 | resource\_group\_name | Name of the resource group. | `string` | n/a | yes |
 | service\_cidr | CIDR used by Kubernetes services (kubectl get svc). | `string` | n/a | yes |
 | stack | Project stack name. | `string` | n/a | yes |
-| use\_caf\_naming | Use the Azure CAF naming provider to generate default resource name. `custom_aks_name` override this if set. Legacy default name is used if this is set to `false`. | `bool` | `true` | no |
->>>>>>> f86a485 (AZ-1027: Various improvements #2)
 | vnet\_integration | Virtual Network integration configuration. | <pre>object({<br>    enabled   = optional(bool, false)<br>    subnet_id = optional(string)<br>  })</pre> | `{}` | no |
 | workload\_identity\_enabled | Whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 
@@ -343,25 +297,22 @@ module "aks" {
 
 | Name | Description |
 |------|-------------|
-<<<<<<< HEAD
-| aks\_fqdn | The FQDNs of the Azure Kubernetes Managed Cluster. |
-| aks\_id | AKS resource id |
-| aks\_key\_vault\_secrets\_provider\_identity | The User Managed Identity used by the Key Vault secrets provider. |
-| aks\_kube\_config | Kube configuration of AKS Cluster |
-| aks\_kube\_config\_raw | Raw kube config to be used by kubectl command |
-| aks\_kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the AKS cluster. |
-| aks\_kubernetes\_version | AKS cluster Kubernetes version. |
-| aks\_light | AKS output object |
-| aks\_name | Name of the AKS cluster |
-| aks\_node\_rg | Name of the resource group in which AKS nodes are deployed |
-| aks\_nodes\_pools | AKS nodes pools attributes |
-| aks\_nodes\_pools\_ids | Ids of AKS nodes pools |
-| aks\_nodes\_pools\_names | Names of AKS nodes pools |
-| aks\_oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
-| aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
-| id | AKS ID |
+| aks | AKS output object |
+| id | ID of the Azure Kubernetes Service |
 | identity\_principal\_id | AKS system identity principal ID |
-| name | AKS name |
+| key\_vault\_secrets\_provider\_identity | The User Managed Identity used by the Key Vault secrets provider. |
+| kube\_config | Kube configuration of Azure Kubernetes Service. |
+| kube\_config\_raw | Raw kube config to be used by kubectl command. |
+| kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the Azure Kubernetes Service. |
+| kubernetes\_version | Azure Kubernetes Service Kubernetes version. |
+| name | Name of the Azure Kubernetes Service |
+| nodes\_pools | Map of Azure Kubernetes Service nodes pools attributes. |
+| nodes\_resource\_group\_name | Name of the Resource Group in which Azure Kubernetes Service nodes are deployed |
+| oidc\_issuer\_url | The OIDC issuer URL that is associated with the Azure Kubernetes Service. |
+| portal\_fqdn | Portal FQDN of the Azure Kubernetes Service. |
+| private\_fqdn | Private FQDNs of the Azure Kubernetes Service. |
+| public\_fqdn | Public FQDN of the Azure Kubernetes Service. |
+| user\_managed\_identity | The User Managed Identity used by the Azure Kubernetes Service. |
 <!-- END_TF_DOCS -->
 
 ## Related documentation
@@ -371,9 +322,7 @@ Microsoft Azure documentation: xxxx
 | aks\_kube\_config | Kube configuration of AKS Cluster |
 | aks\_kube\_config\_raw | Raw kube config to be used by kubectl command |
 | aks\_kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the AKS cluster. |
-=======
 | aks\_kubernetes\_version | AKS cluster Kubernetes version. |
->>>>>>> 576d25e (AZ-1027: More outputs)
 | aks\_name | Name of the AKS cluster |
 | aks\_node\_rg | Name of the resource group in which AKS nodes are deployed |
 | aks\_nodes\_pools | AKS nodes pools attributes |
@@ -381,7 +330,7 @@ Microsoft Azure documentation: xxxx
 | aks\_nodes\_pools\_names | Names of AKS nodes pools |
 | aks\_oidc\_issuer\_url | The OIDC issuer URL that is associated with the cluster. |
 | aks\_user\_managed\_identity | The User Managed Identity used by the AKS cluster. |
-=======
+
 | id | ID of the Azure Kubernetes Service |
 | key\_vault\_secrets\_provider\_identity | The User Managed Identity used by the Key Vault secrets provider. |
 | kube\_config | Kube configuration of Azure Kubernetes Service. |
@@ -396,7 +345,7 @@ Microsoft Azure documentation: xxxx
 | private\_fqdn | Private FQDNs of the Azure Kubernetes Service. |
 | public\_fqdn | Public FQDN of the Azure Kubernetes Service. |
 | user\_managed\_identity | The User Managed Identity used by the Azure Kubernetes Service. |
->>>>>>> f86a485 (AZ-1027: Various improvements #2)
+
 <!-- END_TF_DOCS -->
 ## Related documentation
 

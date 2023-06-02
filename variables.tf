@@ -11,11 +11,7 @@ variable "location" {
 }
 
 variable "location_short" {
-<<<<<<< HEAD
   description = "Short string for Azure location."
-=======
-  description = "Short name of the Azure region to use."
->>>>>>> f86a485 (AZ-1027: Various improvements #2)
   type        = string
   nullable    = false
 }
