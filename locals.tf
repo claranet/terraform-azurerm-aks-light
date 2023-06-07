@@ -4,24 +4,23 @@ locals {
     vnet_subnet_id = var.nodes_subnet_id
   })
 
-  # Defaults for Linux profile
-  # Generally smaller images so can run more pods and require smaller HD
-  default_linux_node_profile = {
-    max_pods        = 110
-    os_disk_size_gb = 128
+  default_node_profile = {
+    # Defaults for Linux profile
+    # Generally smaller images so can run more pods and require smaller HD
+    "Linux" = {
+      max_pods        = 110
+      os_disk_size_gb = 128
+    }
+    # Defaults for Windows profile
+    # Do not want to run same number of pods and some images can be quite large
+    "Windows" = {
+      max_pods        = 60
+      os_disk_size_gb = 256
+    }
   }
 
-  # Defaults for Windows profile
-  # Do not want to run same number of pods and some images can be quite large
-  default_windows_node_profile = {
-    max_pods        = 60
-    os_disk_size_gb = 256
-  }
-
-  default_node_pool = merge(local.default_agent_profile, var.default_node_pool)
-
+  default_node_pool         = merge(local.default_agent_profile, var.default_node_pool)
   nodes_pools_with_defaults = [for ap in var.nodes_pools : merge(local.default_agent_profile, ap)]
-  nodes_pools               = [for ap in local.nodes_pools_with_defaults : ap.os_type == "Linux" ? merge(local.default_linux_node_profile, ap) : merge(local.default_windows_node_profile, ap)]
 
   private_dns_zone              = var.private_dns_zone_type == "Custom" ? var.private_dns_zone_id : var.private_dns_zone_type
   is_custom_dns_private_cluster = var.private_dns_zone_type == "Custom" && var.private_cluster_enabled
