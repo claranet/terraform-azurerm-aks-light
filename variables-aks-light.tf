@@ -5,9 +5,16 @@ variable "kubernetes_version" {
 }
 
 variable "api_server_authorized_ip_ranges" {
-  description = "IP ranges allowed to interact with Kubernetes API for public clusters. Set to `null` to wide open."
+  description = <<EOD
+IP ranges allowed to interact with Kubernetes API for public clusters.
+See documentation about "0.0.0.0/32" default value :
+- https://learn.microsoft.com/en-us/azure/aks/api-server-authorized-ip-ranges#allow-only-the-outbound-public-ip-of-the-standard-sku-load-balancer
+- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#public_network_access_enabled
+
+Set to `0.0.0.0/0` to wide open (not recommended)
+EOD
   type        = list(string)
-  default     = []
+  default     = ["0.0.0.0/32"]
 }
 
 variable "nodes_resource_group_name" {

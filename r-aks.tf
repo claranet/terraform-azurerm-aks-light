@@ -22,7 +22,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_dns_zone_id     = var.private_cluster_enabled ? local.private_dns_zone : null
 
   api_server_access_profile {
-    authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges != null ? concat(["0.0.0.0/32"], var.api_server_authorized_ip_ranges) : null
+    authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
     vnet_integration_enabled = var.vnet_integration.enabled
     subnet_id                = var.vnet_integration.subnet_id
   }
