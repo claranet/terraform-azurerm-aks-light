@@ -78,7 +78,7 @@ variable "aks_sku_tier" {
 }
 
 variable "aks_network_plugin" {
-  description = "Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `null` for Azure CNI, `Overlay` and `Cilium`. Changing this forces a new resource to be created"
+  description = "Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None` for Azure CNI, `Overlay` and `Cilium`. Changing this forces a new resource to be created"
   type = object({
     name     = optional(string, "azure")
     cni_mode = optional(string, "overlay")
@@ -91,8 +91,8 @@ variable "aks_network_plugin" {
     error_message = "The network plugin value must be \"azure\" or \"kubenet\"."
   }
   validation {
-    condition     = contains([null, "overlay", "cilium"], lower(var.aks_network_plugin.cni_mode))
-    error_message = "The network plugin value must be null, \"Overlay\" or \"Cilium\"."
+    condition     = contains(["none", "overlay", "cilium"], lower(var.aks_network_plugin.cni_mode))
+    error_message = "The network plugin value must be \"None\", \"Overlay\" or \"Cilium\"."
   }
 }
 
