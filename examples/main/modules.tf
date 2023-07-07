@@ -15,14 +15,46 @@ module "rg" {
   stack       = var.stack
 }
 
+module "run" {
+  source  = "claranet/run/azurerm"
+  version = "x.x.x"
+
+  location       = module.azure_region.location
+  location_short = module.azure_region.location_short
+  client_name    = var.client_name
+  environment    = var.environment
+  stack          = var.stack
+
+  resource_group_name = module.rg.resource_group_name
+
+  monitoring_function_enabled = false
+}
+
+module "acr" {
+  source  = "claranet/acr/azurerm"
+  version = "x.x.x"
+
+  location       = module.azure_region.location
+  location_short = module.azure_region.location_short
+  client_name    = var.client_name
+  environment    = var.environment
+  stack          = var.stack
+
+  resource_group_name = module.rg.resource_group_name
+
+  sku = "Standard"
+
+  logs_destinations_ids = [module.run.log_analytics_workspace_id]
+}
+
 module "vnet" {
   source  = "claranet/vnet/azurerm"
   version = "x.x.x"
 
-  environment    = var.environment
   location       = module.azure_region.location
   location_short = module.azure_region.location_short
   client_name    = var.client_name
+  environment    = var.environment
   stack          = var.stack
 
   resource_group_name = module.rg.resource_group_name
@@ -30,114 +62,88 @@ module "vnet" {
   vnet_cidr = ["10.0.0.0/19"]
 }
 
-resource "azurerm_private_dns_zone" "private_dns_zone" {
-  name                = "privatelink.francecentral.azmk8s.io"
-  resource_group_name = module.rg.resource_group_name
-
-}
-
-module "node_network_subnet" {
+module "nodes_subnet" {
   source  = "claranet/subnet/azurerm"
   version = "x.x.x"
 
-  environment    = var.environment
   location_short = module.azure_region.location_short
   client_name    = var.client_name
+  environment    = var.environment
   stack          = var.stack
 
-  resource_group_name  = module.rg.resource_group_name
-  virtual_network_name = module.vnet.virtual_network_name
+  resource_group_name = module.rg.resource_group_name
 
   name_suffix = "nodes"
 
-  subnet_cidr_list = ["10.0.0.0/20"]
+  virtual_network_name = module.vnet.virtual_network_name
 
+  subnet_cidr_list  = ["10.0.0.0/20"]
   service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
-module "run" {
-  source  = "claranet/run/azurerm"
+module "aks_private_dns_zone" {
+  source  = "claranet/private-endpoint/azurerm//modules/private-dns-zone"
   version = "x.x.x"
 
-  client_name    = var.client_name
-  location       = module.azure_region.location
-  location_short = module.azure_region.location_short
-  environment    = var.environment
-  stack          = var.stack
-
-  monitoring_function_enabled = false
+  environment = var.environment
+  stack       = var.stack
 
   resource_group_name = module.rg.resource_group_name
+
+  private_dns_zone_name      = "privatelink.francecentral.azmk8s.io"
+  private_dns_zone_vnets_ids = [module.vnet.virtual_network_id]
 }
 
 resource "tls_private_key" "key" {
   algorithm = "RSA"
 }
 
-module "acr" {
-  source  = "claranet/acr/azurerm"
-  version = "x.x.x"
-
-  location            = module.azure_region.location
-  location_short      = module.azure_region.location_short
-  resource_group_name = module.rg.resource_group_name
-  sku                 = "Standard"
-
-  client_name = var.client_name
-  environment = var.environment
-  stack       = var.stack
-
-  logs_destinations_ids = [module.run.log_analytics_workspace_id]
-}
-
 module "aks" {
   source  = "claranet/aks-light/azurerm"
   version = "x.x.x"
 
-  client_name = var.client_name
-  environment = var.environment
-  stack       = var.stack
+  location       = module.azure_region.location
+  location_short = module.azure_region.location_short
+  client_name    = var.client_name
+  environment    = var.environment
+  stack          = var.stack
 
   resource_group_name = module.rg.resource_group_name
-  location            = module.azure_region.location
-  location_short      = module.azure_region.location_short
 
-  service_cidr       = "10.0.16.0/22"
   kubernetes_version = "1.25.5"
+  service_cidr       = "10.0.16.0/22"
 
-  nodes_subnet_id = module.node_network_subnet.subnet_id
+  nodes_subnet_id = module.nodes_subnet.subnet_id
 
   private_cluster_enabled = true
   private_dns_zone_type   = "Custom"
-  private_dns_zone_id     = azurerm_private_dns_zone.private_dns_zone.id
+  private_dns_zone_id     = module.aks_private_dns_zone.private_dns_zone_id
 
   default_node_pool = {
     os_disk_size_gb = 64
     vm_size         = "Standard_B4ms"
   }
 
-  nodes_pools = [
-    {
-      name                = "nodepool1"
-      vm_size             = "Standard_B4ms"
-      os_type             = "Linux"
-      os_disk_type        = "Ephemeral"
-      os_disk_size_gb     = 100
-      vnet_subnet_id      = module.node_network_subnet.subnet_id
-      enable_auto_scaling = true
-      min_count           = 1
-      max_count           = 10
-    },
-  ]
+  node_pools = [{
+    name                = "nodepool1"
+    vm_size             = "Standard_B4ms"
+    os_type             = "Linux"
+    os_disk_type        = "Ephemeral"
+    os_disk_size_gb     = 100
+    vnet_subnet_id      = module.nodes_subnet.subnet_id
+    enable_auto_scaling = true
+    min_count           = 1
+    max_count           = 10
+  }]
 
   linux_profile = {
     username = "nodeadmin"
     ssh_key  = tls_private_key.key.public_key_openssh
   }
 
+  container_registries_ids = [module.acr.acr_id]
+
   oms_log_analytics_workspace_id = module.run.log_analytics_workspace_id
 
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
-
-  container_registries_id = [module.acr.acr_id]
 }
