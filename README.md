@@ -305,6 +305,9 @@ module "aks" {
 | kube\_config\_raw | Raw kube config to be used by kubectl command. |
 | kubelet\_user\_managed\_identity | The Kubelet User Managed Identity used by the Azure Kubernetes Service. |
 | kubernetes\_version | Azure Kubernetes Service Kubernetes version. |
+| managed\_private\_dns\_zone\_id | ID of the AKS' managed Private DNS Zone. |
+| managed\_private\_dns\_zone\_name | Name of the AKS' managed Private DNS Zone. |
+| managed\_private\_dns\_zone\_resource\_group\_name | Resource Group name of the AKS' managed Private DNS Zone. |
 | name | Name of the Azure Kubernetes Service |
 | nodes\_pools | Map of Azure Kubernetes Service nodes pools attributes. |
 | nodes\_resource\_group\_name | Name of the Resource Group in which Azure Kubernetes Service nodes are deployed |

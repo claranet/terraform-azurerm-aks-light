@@ -80,3 +80,19 @@ output "oidc_issuer_url" {
   description = "The OIDC issuer URL that is associated with the Azure Kubernetes Service."
   value       = azurerm_kubernetes_cluster.aks.oidc_issuer_url
 }
+
+
+output "managed_private_dns_zone_id" {
+  description = "ID of the AKS' managed Private DNS Zone."
+  value       = local.managed_private_dns_zone_id
+}
+
+output "managed_private_dns_zone_name" {
+  description = "Name of the AKS' managed Private DNS Zone."
+  value       = local.managed_private_dns_zone_name
+}
+
+output "managed_private_dns_zone_resource_group_name" {
+  description = "Resource Group name of the AKS' managed Private DNS Zone."
+  value       = azurerm_kubernetes_cluster.aks.node_resource_group
+}
