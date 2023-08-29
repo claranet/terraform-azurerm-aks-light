@@ -29,7 +29,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin      = var.aks_network_plugin.name
-    network_plugin_mode = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "Overlay" : null
+    network_plugin_mode = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "overlay" : null
     network_policy      = var.aks_network_policy
     network_mode        = local.is_network_cni ? "transparent" : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
