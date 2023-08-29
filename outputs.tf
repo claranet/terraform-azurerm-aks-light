@@ -1,25 +1,25 @@
 output "aks" {
-  description = "AKS output object"
+  description = "AKS output object."
   value       = azurerm_kubernetes_cluster.aks
 }
 
 output "identity_principal_id" {
-  description = "AKS system identity principal ID"
+  description = "AKS System Managed Identity principal ID."
   value       = try(azurerm_kubernetes_cluster.aks.identity[0].principal_id, null)
 }
 
 output "id" {
-  description = "ID of the Azure Kubernetes Service"
+  description = "ID of the Azure Kubernetes Service."
   value       = azurerm_kubernetes_cluster.aks.id
 }
 
 output "name" {
-  description = "Name of the Azure Kubernetes Service"
+  description = "Name of the Azure Kubernetes Service."
   value       = local.aks_name
 }
 
 output "nodes_resource_group_name" {
-  description = "Name of the Resource Group in which Azure Kubernetes Service nodes are deployed"
+  description = "Name of the Resource Group in which Azure Kubernetes Service nodes are deployed."
   value       = azurerm_kubernetes_cluster.aks.node_resource_group
 }
 
@@ -43,19 +43,21 @@ output "kubernetes_version" {
   value       = azurerm_kubernetes_cluster.aks.kubernetes_version
 }
 
-output "nodes_pools" {
-  description = "Map of Azure Kubernetes Service nodes pools attributes."
-  value       = { for i, node in azurerm_kubernetes_cluster_node_pool.node_pools : node.name => node }
+output "node_pools" {
+  description = "Map of Azure Kubernetes Service Node Pools attributes."
+  value = {
+    for np in azurerm_kubernetes_cluster_node_pool.node_pools : np.name => np
+  }
 }
 
 output "kube_config_raw" {
-  description = "Raw kube config to be used by kubectl command."
+  description = "Raw kubeconfig to be used by kubectl command."
   value       = azurerm_kubernetes_cluster.aks.kube_config_raw
   sensitive   = true
 }
 
 output "kube_config" {
-  description = "Kube configuration of Azure Kubernetes Service."
+  description = "Kube configuration of the Azure Kubernetes Service."
   value       = azurerm_kubernetes_cluster.aks.kube_config
   sensitive   = true
 }
@@ -70,7 +72,6 @@ output "kubelet_user_managed_identity" {
   value       = azurerm_kubernetes_cluster.aks.kubelet_identity[0]
 }
 
-
 output "key_vault_secrets_provider_identity" {
   description = "The User Managed Identity used by the Key Vault secrets provider."
   value       = try(azurerm_kubernetes_cluster.aks.key_vault_secrets_provider[0].secret_identity[0], null)
@@ -80,7 +81,6 @@ output "oidc_issuer_url" {
   description = "The OIDC issuer URL that is associated with the Azure Kubernetes Service."
   value       = azurerm_kubernetes_cluster.aks.oidc_issuer_url
 }
-
 
 output "managed_private_dns_zone_id" {
   description = "ID of the AKS' managed Private DNS Zone."

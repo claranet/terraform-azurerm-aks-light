@@ -18,7 +18,7 @@ data "azurecaf_name" "aks_identity" {
   separator     = "-"
 }
 
-data "azurecaf_name" "aks_node_rg" {
+data "azurecaf_name" "aks_nodes_rg" {
   name          = local.aks_name
   resource_type = "azurerm_resource_group"
   prefixes      = var.name_prefix == "" ? null : [local.name_prefix]

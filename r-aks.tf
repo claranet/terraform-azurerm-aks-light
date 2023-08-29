@@ -2,17 +2,17 @@
 #tfsec:ignore:azure-container-limit-authorized-ips
 #tfsec:ignore:azure-container-logging
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = local.aks_name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  dns_prefix          = replace(local.aks_name, "/[\\W_]/", "-")
+  name     = local.aks_name
+  location = var.location
 
-  tags = merge(local.default_tags, var.extra_tags)
+  resource_group_name = var.resource_group_name
+
+  dns_prefix = replace(local.aks_name, "/[\\W_]/", "-")
 
   # Cluster config
   kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
   sku_tier                         = var.aks_sku_tier
-  node_resource_group              = local.aks_node_rg_name
+  node_resource_group              = local.aks_nodes_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
   workload_identity_enabled        = var.workload_identity_enabled
@@ -29,24 +29,27 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin      = var.aks_network_plugin.name
-    network_plugin_mode = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "Overlay" : null
+    network_plugin_mode = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "Overlay" : null
     network_policy      = var.aks_network_policy
-    network_mode        = var.aks_network_plugin == "azure" ? "transparent" : null
+    network_mode        = local.is_network_cni ? "transparent" : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
     service_cidr        = var.service_cidr
-    load_balancer_sku   = "standard"
     outbound_type       = var.outbound_type
     pod_cidr            = var.aks_pod_cidr
-    ebpf_data_plane     = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "cilium" ? "cilium" : null
+    ebpf_data_plane     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? "cilium" : null
+    load_balancer_sku   = "standard"
   }
 
   dynamic "http_proxy_config" {
     for_each = var.aks_http_proxy_settings[*]
     content {
-      http_proxy  = var.aks_http_proxy_settings.http_proxy_url
-      https_proxy = var.aks_http_proxy_settings.https_proxy_url
-      no_proxy    = distinct(flatten(concat(local.default_no_proxy_url_list, var.aks_http_proxy_settings.no_proxy_url_list)))
       trusted_ca  = var.aks_http_proxy_settings.trusted_ca
+      https_proxy = var.aks_http_proxy_settings.https_proxy_url
+      http_proxy  = var.aks_http_proxy_settings.http_proxy_url
+      no_proxy = distinct(flatten(concat(
+        local.default_no_proxy_url_list,
+        var.aks_http_proxy_settings.no_proxy_url_list,
+      )))
     }
   }
 
@@ -80,48 +83,52 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  # Nodes config
+  # Default Node Pool config
   default_node_pool {
-    name                = local.default_node_pool.name
-    vm_size             = local.default_node_pool.vm_size
-    zones               = local.default_node_pool.zones
-    enable_auto_scaling = local.default_node_pool.enable_auto_scaling
-    node_count          = local.default_node_pool.enable_auto_scaling ? null : local.default_node_pool.node_count
-    min_count           = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.min_count : null
-    max_count           = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.max_count : null
-    os_disk_type        = local.default_node_pool.os_disk_type
-    type                = local.default_node_pool.type
-    vnet_subnet_id      = local.default_node_pool.vnet_subnet_id
-    node_taints         = local.default_node_pool.node_taints
-    node_labels         = local.default_node_pool.node_labels
-    tags                = merge(local.default_tags, local.default_node_pool.tags)
-    pod_subnet_id       = var.pod_subnet_id
+    name                   = local.default_node_pool.name
+    type                   = local.default_node_pool.type
+    vm_size                = local.default_node_pool.vm_size
+    os_disk_type           = local.default_node_pool.os_disk_type
+    enable_auto_scaling    = local.default_node_pool.enable_auto_scaling
+    node_count             = local.default_node_pool.enable_auto_scaling ? null : local.default_node_pool.node_count
+    min_count              = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.min_count : null
+    max_count              = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.max_count : null
+    node_labels            = local.default_node_pool.node_labels
+    node_taints            = local.default_node_pool.node_taints
+    enable_host_encryption = local.default_node_pool.enable_host_encryption
+    enable_node_public_ip  = local.default_node_pool.enable_node_public_ip
+    vnet_subnet_id         = local.default_node_pool.vnet_subnet_id
+    pod_subnet_id          = local.default_node_pool.pod_subnet_id
+    orchestrator_version   = local.default_node_pool.orchestrator_version
+    zones                  = local.default_node_pool.zones
+    tags                   = local.default_node_pool_tags
 
-    # Handle default value depending on os_type
-    max_pods        = coalesce(local.default_node_pool.max_pods, local.default_node_profile[local.default_node_pool.os_type].max_pods)
+    # Handle default value depending on `os_type`
+    os_sku          = coalesce(local.default_node_pool.os_sku, local.default_node_profile[local.default_node_pool.os_type].os_sku)
     os_disk_size_gb = coalesce(local.default_node_pool.os_disk_size_gb, local.default_node_profile[local.default_node_pool.os_type].os_disk_size_gb)
+    max_pods        = coalesce(local.default_node_pool.max_pods, local.default_node_profile[local.default_node_pool.os_type].max_pods)
   }
 
   dynamic "auto_scaler_profile" {
     for_each = var.auto_scaler_profile[*]
     content {
-      balance_similar_node_groups      = try(auto_scaler_profile.value.balance_similar_node_groups, null)
-      expander                         = try(auto_scaler_profile.value.expander, null)
-      max_graceful_termination_sec     = try(auto_scaler_profile.value.max_graceful_termination_sec, null)
-      max_node_provisioning_time       = try(auto_scaler_profile.value.max_node_provisioning_time, null)
-      max_unready_nodes                = try(auto_scaler_profile.value.max_unready_nodes, null)
-      max_unready_percentage           = try(auto_scaler_profile.value.max_unready_percentage, null)
-      new_pod_scale_up_delay           = try(auto_scaler_profile.value.new_pod_scale_up_delay, null)
-      scale_down_delay_after_add       = try(auto_scaler_profile.value.scale_down_delay_after_add, null)
-      scale_down_delay_after_delete    = try(auto_scaler_profile.value.scale_down_delay_after_delete, null)
-      scale_down_delay_after_failure   = try(auto_scaler_profile.value.scale_down_delay_after_failure, null)
-      scan_interval                    = try(auto_scaler_profile.value.scan_interval, null)
-      scale_down_unneeded              = try(auto_scaler_profile.value.scale_down_unneeded, null)
-      scale_down_unready               = try(auto_scaler_profile.value.scale_down_unready, null)
-      scale_down_utilization_threshold = try(auto_scaler_profile.value.scale_down_utilization_threshold, null)
-      empty_bulk_delete_max            = try(auto_scaler_profile.value.empty_bulk_delete_max, null)
-      skip_nodes_with_local_storage    = try(auto_scaler_profile.value.skip_nodes_with_local_storage, null)
-      skip_nodes_with_system_pods      = try(auto_scaler_profile.value.skip_nodes_with_system_pods, null)
+      balance_similar_node_groups      = auto_scaler_profile.value.balance_similar_node_groups
+      expander                         = auto_scaler_profile.value.expander
+      max_graceful_termination_sec     = auto_scaler_profile.value.max_graceful_termination_sec
+      max_node_provisioning_time       = auto_scaler_profile.value.max_node_provisioning_time
+      max_unready_nodes                = auto_scaler_profile.value.max_unready_nodes
+      max_unready_percentage           = auto_scaler_profile.value.max_unready_percentage
+      new_pod_scale_up_delay           = auto_scaler_profile.value.new_pod_scale_up_delay
+      scale_down_delay_after_add       = auto_scaler_profile.value.scale_down_delay_after_add
+      scale_down_delay_after_delete    = auto_scaler_profile.value.scale_down_delay_after_delete
+      scale_down_delay_after_failure   = auto_scaler_profile.value.scale_down_delay_after_failure
+      scan_interval                    = auto_scaler_profile.value.scan_interval
+      scale_down_unneeded              = auto_scaler_profile.value.scale_down_unneeded
+      scale_down_unready               = auto_scaler_profile.value.scale_down_unready
+      scale_down_utilization_threshold = auto_scaler_profile.value.scale_down_utilization_threshold
+      empty_bulk_delete_max            = auto_scaler_profile.value.empty_bulk_delete_max
+      skip_nodes_with_local_storage    = auto_scaler_profile.value.skip_nodes_with_local_storage
+      skip_nodes_with_system_pods      = auto_scaler_profile.value.skip_nodes_with_system_pods
     }
   }
 
@@ -136,6 +143,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  tags = merge(local.default_tags, var.extra_tags)
+
   depends_on = [
     azurerm_role_assignment.aks_uai_private_dns_zone_contributor,
   ]
@@ -148,8 +157,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
       error_message = "var.oidc_issuer_enabled must be true when Workload Identity is enabled."
     }
     precondition {
-      condition     = var.aks_network_plugin.name == "azure" && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pod_subnet_id != null : true
-      error_message = "var.pod_subnet_id must be set when using Azure CNI Cilium network."
+      condition     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pods_subnet_id != null : true
+      error_message = "var.pods_subnet_id must be set when using Azure CNI Cilium network."
     }
   }
 }
@@ -170,6 +179,10 @@ resource "azapi_update_resource" "aks_kubernetes_version" {
       kubernetesVersion = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
     }
   })
+
+  depends_on = [
+    azurerm_kubernetes_cluster_node_pool.node_pools,
+  ]
 
   lifecycle {
     ignore_changes       = all

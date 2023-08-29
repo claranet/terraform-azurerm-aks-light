@@ -52,7 +52,7 @@ EOD
 }
 
 variable "private_dns_zone_id" {
-  description = "ID of the Private DNS Zone when <private_dns_zone_type> is `Custom`."
+  description = "ID of the Private DNS Zone when `private_dns_zone_type = \"Custom\"`."
   type        = string
   default     = null
 }
@@ -78,7 +78,7 @@ variable "aks_sku_tier" {
 }
 
 variable "aks_network_plugin" {
-  description = "Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None` for Azure CNI, `Overlay` and `Cilium`. Changing this forces a new resource to be created"
+  description = "Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created."
   type = object({
     name     = optional(string, "azure")
     cni_mode = optional(string, "overlay")
@@ -94,6 +94,12 @@ variable "aks_network_plugin" {
     condition     = contains(["none", "overlay", "cilium"], lower(var.aks_network_plugin.cni_mode))
     error_message = "The network plugin value must be \"None\", \"Overlay\" or \"Cilium\"."
   }
+}
+
+variable "aks_route_table_id" {
+  description = "Provide an existing Route Table ID when `outbound_type = \"userDefinedRouting\"`. Only available with Kubenet."
+  type        = string
+  default     = null
 }
 
 variable "aks_network_policy" {
@@ -114,27 +120,28 @@ variable "aks_http_proxy_settings" {
 }
 
 variable "default_node_pool" {
-  description = "Default Node Pool configuration"
+  description = "Default Node Pool configuration."
   type = object({
     name                   = optional(string, "default")
-    node_count             = optional(number, 1)
+    type                   = optional(string, "VirtualMachineScaleSets")
     vm_size                = optional(string, "Standard_D2_v3")
+    os_sku                 = optional(string)
     os_type                = optional(string, "Linux")
-    zones                  = optional(list(number), [1, 2, 3])
+    os_disk_type           = optional(string, "Managed")
+    os_disk_size_gb        = optional(number)
     enable_auto_scaling    = optional(bool, false)
+    node_count             = optional(number, 1)
     min_count              = optional(number, 1)
     max_count              = optional(number, 10)
-    type                   = optional(string, "VirtualMachineScaleSets")
-    node_taints            = optional(list(any), null)
-    node_labels            = optional(map(any), null)
-    orchestrator_version   = optional(string, null)
-    priority               = optional(string, null)
-    enable_host_encryption = optional(bool, null)
-    eviction_policy        = optional(string, null)
-    max_pods               = optional(number, null)
-    os_disk_type           = optional(string, "Managed")
-    os_disk_size_gb        = optional(number, null)
+    max_pods               = optional(number)
+    node_labels            = optional(map(any))
+    node_taints            = optional(list(any))
+    enable_host_encryption = optional(bool)
     enable_node_public_ip  = optional(bool, false)
+    vnet_subnet_id         = optional(string)
+    pod_subnet_id          = optional(string)
+    orchestrator_version   = optional(string)
+    zones                  = optional(list(number), [1, 2, 3])
     tags                   = optional(map(string), {})
   })
   nullable = false
@@ -154,7 +161,7 @@ variable "aci_subnet_id" {
 }
 
 variable "auto_scaler_profile" {
-  description = "Auto Scaler configuration;"
+  description = "Auto Scaler configuration."
   type = object({
     balance_similar_node_groups      = optional(bool, false)
     expander                         = optional(string, "random")
@@ -178,12 +185,12 @@ variable "auto_scaler_profile" {
 }
 
 variable "oms_log_analytics_workspace_id" {
-  description = "ID of the Log Analytics Workspace for OMS agent logs."
+  description = "ID of the Log Analytics Workspace for OMS Log Analytics Agent."
   type        = string
 }
 
 variable "azure_policy_enabled" {
-  description = "Option to enable Azure Policy addon."
+  description = "Option to enable Azure Policy add-on."
   type        = bool
   nullable    = false
   default     = true
@@ -217,44 +224,46 @@ variable "outbound_type" {
   default     = "loadBalancer"
 }
 
-variable "nodes_pools" {
-  description = "A list of Nodes Pools to create."
+variable "node_pools" {
+  description = "A list of Node Pools to create."
   type = list(object({
     name                   = string
-    node_count             = optional(number, 1)
     vm_size                = optional(string, "Standard_D2_v3")
+    os_sku                 = optional(string)
     os_type                = optional(string, "Linux")
-    zones                  = optional(list(number), [1, 2, 3])
-    vnet_subnet_id         = optional(string, null)
-    pod_subnet_id          = optional(string, null)
+    os_disk_type           = optional(string, "Managed")
+    os_disk_size_gb        = optional(number)
+    kubelet_disk_type      = optional(string)
     enable_auto_scaling    = optional(bool, false)
+    node_count             = optional(number, 1)
     min_count              = optional(number, 1)
     max_count              = optional(number, 10)
-    node_taints            = optional(list(any), null)
-    node_labels            = optional(map(any), null)
-    orchestrator_version   = optional(string, null)
-    priority               = optional(string, null)
-    enable_host_encryption = optional(bool, null)
-    eviction_policy        = optional(string, null)
-    max_pods               = optional(number, null)
-    os_disk_size_gb        = optional(number, null)
-    os_disk_type           = optional(string, "Managed")
+    max_pods               = optional(number)
+    node_labels            = optional(map(any))
+    node_taints            = optional(list(any))
+    enable_host_encryption = optional(bool)
     enable_node_public_ip  = optional(bool, false)
+    vnet_subnet_id         = optional(string)
+    pod_subnet_id          = optional(string)
+    priority               = optional(string)
+    eviction_policy        = optional(string)
+    orchestrator_version   = optional(string)
+    zones                  = optional(list(number), [1, 2, 3])
     tags                   = optional(map(string), {})
   }))
   nullable = false
   default  = []
 }
 
-variable "container_registries_id" {
-  description = "List of Azure Container Registries ids where Azure Kubernetes Service needs pull access."
+variable "container_registries_ids" {
+  description = "List of Azure Container Registries IDs where Azure Kubernetes Service needs pull access."
   type        = list(string)
   nullable    = false
   default     = []
 }
 
 variable "oidc_issuer_enabled" {
-  description = "Whether the OIDC issuer URL should be anebled."
+  description = "Whether the OIDC issuer URL should be enabled."
   type        = bool
   nullable    = false
   default     = true
@@ -273,10 +282,10 @@ variable "key_vault_secrets_provider" {
     secret_rotation_enabled  = optional(bool, true)
     secret_rotation_interval = optional(string)
   })
-  default = {}
+  default = null
 }
 
-variable "pod_subnet_id" {
+variable "pods_subnet_id" {
   description = "ID of the Subnet containing the pods."
   type        = string
   default     = null
