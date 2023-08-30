@@ -2,15 +2,14 @@ locals {
   default_node_profile = {
     # Defaults for Linux profile
     # Generally smaller images so can run more pods and require smaller HD
-    "Linux" = {
-      os_sku          = "Ubuntu"
+    linux = {
       os_disk_size_gb = 128
       max_pods        = 110
     }
+
     # Defaults for Windows profile
     # Do not want to run same number of pods and some images can be quite large
-    "Windows" = {
-      os_sku          = "Windows2022"
+    windows = {
       os_disk_size_gb = 256
       max_pods        = 60
     }
@@ -19,8 +18,20 @@ locals {
   default_node_pool = merge(
     var.default_node_pool,
     {
-      vnet_subnet_id = coalesce(var.default_node_pool.vnet_subnet_id, var.nodes_subnet_id)
-      pod_subnet_id  = try(coalesce(var.default_node_pool.pod_subnet_id, var.pods_subnet_id), null)
+      vnet_subnet_id = format(
+        "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/virtualNetworks/%s/subnets/%s",
+        data.azurerm_subscription.current.subscription_id,
+        coalesce(var.nodes_subnet.resource_group_name, var.resource_group_name),
+        var.nodes_subnet.virtual_network_name,
+        var.nodes_subnet.name,
+      )
+      pod_subnet_id = try(format(
+        "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/virtualNetworks/%s/subnets/%s",
+        data.azurerm_subscription.current.subscription_id,
+        coalesce(var.pods_subnet.resource_group_name, var.resource_group_name),
+        var.pods_subnet.virtual_network_name,
+        var.pods_subnet.name,
+      ), null)
     },
   )
 
@@ -28,15 +39,27 @@ locals {
     for np in var.node_pools : merge(
       np,
       {
-        vnet_subnet_id = coalesce(np.vnet_subnet_id, var.nodes_subnet_id)
-        pod_subnet_id  = try(coalesce(np.pod_subnet_id, var.pods_subnet_id), null)
+        vnet_subnet_id = format(
+          "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/virtualNetworks/%s/subnets/%s",
+          data.azurerm_subscription.current.subscription_id,
+          coalesce(np.node_subnet.resource_group_name, var.nodes_subnet.resource_group_name, var.resource_group_name),
+          coalesce(np.node_subnet.virtual_network_name, var.nodes_subnet.virtual_network_name),
+          coalesce(np.node_subnet.name, var.nodes_subnet.name),
+        )
+        pod_subnet_id = try(format(
+          "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/virtualNetworks/%s/subnets/%s",
+          data.azurerm_subscription.current.subscription_id,
+          coalesce(np.pod_subnet.resource_group_name, var.pods_subnet.resource_group_name, var.resource_group_name),
+          coalesce(np.pod_subnet.virtual_network_name, var.pods_subnet.virtual_network_name),
+          coalesce(np.pod_subnet.name, var.pods_subnet.name),
+        ), null)
       },
     )
   ]
 
   subnet_ids = distinct(compact(concat(
-    var.node_pools[*].vnet_subnet_id,
-    var.node_pools[*].pod_subnet_id,
+    local.node_pools[*].vnet_subnet_id,
+    local.node_pools[*].pod_subnet_id,
     [
       local.default_node_pool.vnet_subnet_id,
       local.default_node_pool.pod_subnet_id,
@@ -48,8 +71,7 @@ locals {
   is_network_cni                = var.aks_network_plugin.name == "azure"
   is_kubenet                    = var.aks_network_plugin.name == "kubenet"
 
-  default_no_proxy_url_list = [
-    values(data.azurerm_subnet.subnets)[*].address_prefixes,
+  default_no_proxy_list = [
     var.aks_pod_cidr,
     var.service_cidr,
     "localhost",

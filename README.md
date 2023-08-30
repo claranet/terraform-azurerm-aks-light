@@ -148,7 +148,7 @@ module "aks_private_dns_zone" {
 
   resource_group_name = module.rg.resource_group_name
 
-  private_dns_zone_name      = "privatelink.francecentral.azmk8s.io"
+  private_dns_zone_name      = "privatelink.${module.azure_region.location_cli}.azmk8s.io"
   private_dns_zone_vnets_ids = [module.vnet.virtual_network_id]
 }
 
@@ -168,24 +168,26 @@ module "aks" {
 
   resource_group_name = module.rg.resource_group_name
 
-  kubernetes_version = "1.25.5"
+  kubernetes_version = "1.27.3"
   service_cidr       = "10.0.16.0/22"
 
-  nodes_subnet_id = module.nodes_subnet.subnet_id
+  nodes_subnet = {
+    name                 = module.nodes_subnet.subnet_name
+    virtual_network_name = module.vnet.virtual_network_name
+  }
 
   private_cluster_enabled = true
   private_dns_zone_type   = "Custom"
   private_dns_zone_id     = module.aks_private_dns_zone.private_dns_zone_id
 
   default_node_pool = {
-    os_disk_size_gb = 64
     vm_size         = "Standard_B4ms"
+    os_disk_size_gb = 64
   }
 
   node_pools = [{
     name                = "nodepool1"
     vm_size             = "Standard_B4ms"
-    os_type             = "Linux"
     os_disk_type        = "Ephemeral"
     os_disk_size_gb     = 100
     vnet_subnet_id      = module.nodes_subnet.subnet_id
@@ -201,7 +203,9 @@ module "aks" {
 
   container_registries_ids = [module.acr.acr_id]
 
-  oms_log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  oms_agent = {
+    log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  }
 
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
 }
@@ -243,7 +247,6 @@ module "aks" {
 | [azurecaf_name.aks_identity](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_nodes_rg](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurerm_kubernetes_service_versions.versions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_service_versions) | data source |
-| [azurerm_subnet.subnets](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subnet) | data source |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 
 ## Inputs
@@ -251,7 +254,8 @@ module "aks" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | aci\_subnet\_id | ID of the Subnet for ACI virtual-nodes. | `string` | `null` | no |
-| aks\_http\_proxy\_settings | Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_url_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR must be added to the URLs list. | <pre>object({<br>    http_proxy_url    = optional(string)<br>    https_proxy_url   = optional(string)<br>    no_proxy_url_list = optional(list(string), [])<br>    trusted_ca        = optional(string)<br>  })</pre> | `null` | no |
+| aks\_http\_proxy\_settings | Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list. | <pre>object({<br>    https_proxy_url = optional(string)<br>    http_proxy_url  = optional(string)<br>    trusted_ca      = optional(string)<br>    no_proxy_list   = optional(list(string), [])<br>  })</pre> | `null` | no |
+| aks\_network\_mode | Azure Kubernetes Service network mode to use. Only available with Azure CNI. | `string` | `null` | no |
 | aks\_network\_plugin | Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created. | <pre>object({<br>    name     = optional(string, "azure")<br>    cni_mode = optional(string, "overlay")<br>  })</pre> | `{}` | no |
 | aks\_network\_policy | Azure Kubernetes Service network policy to use. | `string` | `"calico"` | no |
 | aks\_pod\_cidr | CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay. | `string` | `null` | no |
@@ -267,14 +271,14 @@ module "aks" {
 | container\_registries\_ids | List of Azure Container Registries IDs where Azure Kubernetes Service needs pull access. | `list(string)` | `[]` | no |
 | custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
 | custom\_name | Custom AKS, generated if not set | `string` | `""` | no |
-| default\_node\_pool | Default Node Pool configuration. | <pre>object({<br>    name                   = optional(string, "default")<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_sku                 = optional(string)<br>    os_type                = optional(string, "Linux")<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number)<br>    enable_auto_scaling    = optional(bool, false)<br>    node_count             = optional(number, 1)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    max_pods               = optional(number)<br>    node_labels            = optional(map(any))<br>    node_taints            = optional(list(any))<br>    enable_host_encryption = optional(bool)<br>    enable_node_public_ip  = optional(bool, false)<br>    vnet_subnet_id         = optional(string)<br>    pod_subnet_id          = optional(string)<br>    orchestrator_version   = optional(string)<br>    zones                  = optional(list(number), [1, 2, 3])<br>    tags                   = optional(map(string), {})<br>  })</pre> | `{}` | no |
+| default\_node\_pool | Default Node Pool configuration. | <pre>object({<br>    name                   = optional(string, "default")<br>    type                   = optional(string, "VirtualMachineScaleSets")<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_sku                 = optional(string, "Ubuntu")<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number)<br>    enable_auto_scaling    = optional(bool, false)<br>    node_count             = optional(number, 1)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    max_pods               = optional(number)<br>    node_labels            = optional(map(any))<br>    node_taints            = optional(list(any))<br>    enable_host_encryption = optional(bool)<br>    enable_node_public_ip  = optional(bool, false)<br>    orchestrator_version   = optional(string)<br>    zones                  = optional(list(number), [1, 2, 3])<br>    tags                   = optional(map(string), {})<br>  })</pre> | `{}` | no |
 | default\_tags\_enabled | Option to enable or disable default tags. | `bool` | `true` | no |
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
-| key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool, true)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | `null` | no |
+| key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool, true)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | `{}` | no |
 | kubernetes\_version | Version of Kubernetes to deploy. | `string` | `null` | no |
-| linux\_profile | Username and SSH public key for accessing Linux nodes with SSH. | <pre>object({<br>    username = string,<br>    ssh_key  = string<br>  })</pre> | `null` | no |
+| linux\_profile | Username and SSH public key for accessing Linux nodes with SSH. | <pre>object({<br>    username = string<br>    ssh_key  = string<br>  })</pre> | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
 | location\_short | Short string for Azure location. | `string` | n/a | yes |
 | logs\_categories | Log categories to send to destinations. | `list(string)` | `null` | no |
@@ -284,13 +288,13 @@ module "aks" {
 | logs\_retention\_days | Number of days to keep logs on storage account. | `number` | `30` | no |
 | name\_prefix | Optional prefix for the generated name | `string` | `""` | no |
 | name\_suffix | Optional suffix for the generated name | `string` | `""` | no |
-| node\_pools | A list of Node Pools to create. | <pre>list(object({<br>    name                   = string<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_sku                 = optional(string)<br>    os_type                = optional(string, "Linux")<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number)<br>    kubelet_disk_type      = optional(string)<br>    enable_auto_scaling    = optional(bool, false)<br>    node_count             = optional(number, 1)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    max_pods               = optional(number)<br>    node_labels            = optional(map(any))<br>    node_taints            = optional(list(any))<br>    enable_host_encryption = optional(bool)<br>    enable_node_public_ip  = optional(bool, false)<br>    vnet_subnet_id         = optional(string)<br>    pod_subnet_id          = optional(string)<br>    priority               = optional(string)<br>    eviction_policy        = optional(string)<br>    orchestrator_version   = optional(string)<br>    zones                  = optional(list(number), [1, 2, 3])<br>    tags                   = optional(map(string), {})<br>  }))</pre> | `[]` | no |
-| nodes\_resource\_group\_name | Name of the resource group in which to put Azure Kubernetes Service nodes. | `string` | `null` | no |
-| nodes\_subnet\_id | ID of the Subnet used for nodes. | `string` | n/a | yes |
+| node\_pools | A list of Node Pools to create. | <pre>list(object({<br>    name                   = string<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_sku                 = optional(string, "Ubuntu")<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number)<br>    kubelet_disk_type      = optional(string)<br>    enable_auto_scaling    = optional(bool, false)<br>    node_count             = optional(number, 1)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    max_pods               = optional(number)<br>    node_labels            = optional(map(any))<br>    node_taints            = optional(list(any))<br>    enable_host_encryption = optional(bool)<br>    enable_node_public_ip  = optional(bool, false)<br>    node_subnet = optional(object({<br>      name                 = optional(string)<br>      virtual_network_name = optional(string)<br>      resource_group_name  = optional(string)<br>    }), {})<br>    pod_subnet = optional(object({<br>      name                 = optional(string)<br>      virtual_network_name = optional(string)<br>      resource_group_name  = optional(string)<br>    }), {})<br>    priority             = optional(string)<br>    eviction_policy      = optional(string)<br>    orchestrator_version = optional(string)<br>    zones                = optional(list(number), [1, 2, 3])<br>    tags                 = optional(map(string), {})<br>  }))</pre> | `[]` | no |
+| nodes\_resource\_group\_name | Name of the Resource Group in which to put Azure Kubernetes Service nodes. | `string` | `null` | no |
+| nodes\_subnet | The Subnet used by nodes. | <pre>object({<br>    name                 = string<br>    virtual_network_name = string<br>    resource_group_name  = optional(string)<br>  })</pre> | n/a | yes |
 | oidc\_issuer\_enabled | Whether the OIDC issuer URL should be enabled. | `bool` | `true` | no |
-| oms\_log\_analytics\_workspace\_id | ID of the Log Analytics Workspace for OMS Log Analytics Agent. | `string` | n/a | yes |
+| oms\_agent | OMS Agent configuration. | <pre>object({<br>    log_analytics_workspace_id      = string<br>    msi_auth_for_monitoring_enabled = optional(bool, true)<br>  })</pre> | n/a | yes |
 | outbound\_type | The outbound (egress) routing method which should be used. Possible values are `loadBalancer` and `userDefinedRouting`. | `string` | `"loadBalancer"` | no |
-| pods\_subnet\_id | ID of the Subnet containing the pods. | `string` | `null` | no |
+| pods\_subnet | The Subnet containing the pods. | <pre>object({<br>    name                 = optional(string)<br>    virtual_network_name = optional(string)<br>    resource_group_name  = optional(string)<br>  })</pre> | `{}` | no |
 | private\_cluster\_enabled | Configure Azure Kubernetes Service as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled | `bool` | `true` | no |
 | private\_dns\_zone\_id | ID of the Private DNS Zone when `private_dns_zone_type = "Custom"`. | `string` | `null` | no |
 | private\_dns\_zone\_role\_assignment\_enabled | Option to enable or disable Private DNS Zone role assignment. | `bool` | `true` | no |

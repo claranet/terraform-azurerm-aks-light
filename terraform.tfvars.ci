@@ -11,9 +11,7 @@ node_pools = [
   {
     name                = "nodepool1"
     vm_size             = "Standard_B4ms"
-    os_type             = "Linux"
     os_disk_size_gb     = 100
-    vnet_subnet_id      = "subnet_id"
     max_pods            = 110
     enable_auto_scaling = true
     count               = 1
@@ -23,9 +21,7 @@ node_pools = [
   {
     name                = "nodepool2"
     vm_size             = "Standard_B4ms"
-    os_type             = "Linux"
     os_disk_size_gb     = 100
-    vnet_subnet_id      = "subnet_id"
     max_pods            = 110
     enable_auto_scaling = true
     count               = 1

@@ -90,7 +90,7 @@ module "aks_private_dns_zone" {
 
   resource_group_name = module.rg.resource_group_name
 
-  private_dns_zone_name      = "privatelink.francecentral.azmk8s.io"
+  private_dns_zone_name      = "privatelink.${module.azure_region.location_cli}.azmk8s.io"
   private_dns_zone_vnets_ids = [module.vnet.virtual_network_id]
 }
 
@@ -110,24 +110,26 @@ module "aks" {
 
   resource_group_name = module.rg.resource_group_name
 
-  kubernetes_version = "1.25.5"
+  kubernetes_version = "1.27.3"
   service_cidr       = "10.0.16.0/22"
 
-  nodes_subnet_id = module.nodes_subnet.subnet_id
+  nodes_subnet = {
+    name                 = module.nodes_subnet.subnet_name
+    virtual_network_name = module.vnet.virtual_network_name
+  }
 
   private_cluster_enabled = true
   private_dns_zone_type   = "Custom"
   private_dns_zone_id     = module.aks_private_dns_zone.private_dns_zone_id
 
   default_node_pool = {
-    os_disk_size_gb = 64
     vm_size         = "Standard_B4ms"
+    os_disk_size_gb = 64
   }
 
   node_pools = [{
     name                = "nodepool1"
     vm_size             = "Standard_B4ms"
-    os_type             = "Linux"
     os_disk_type        = "Ephemeral"
     os_disk_size_gb     = 100
     vnet_subnet_id      = module.nodes_subnet.subnet_id
@@ -143,7 +145,9 @@ module "aks" {
 
   container_registries_ids = [module.acr.acr_id]
 
-  oms_log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  oms_agent = {
+    log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  }
 
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
 }

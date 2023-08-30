@@ -18,7 +18,7 @@ EOD
 }
 
 variable "nodes_resource_group_name" {
-  description = "Name of the resource group in which to put Azure Kubernetes Service nodes."
+  description = "Name of the Resource Group in which to put Azure Kubernetes Service nodes."
   type        = string
   default     = null
 }
@@ -96,25 +96,31 @@ variable "aks_network_plugin" {
   }
 }
 
-variable "aks_route_table_id" {
-  description = "Provide an existing Route Table ID when `outbound_type = \"userDefinedRouting\"`. Only available with Kubenet."
-  type        = string
-  default     = null
-}
-
 variable "aks_network_policy" {
   description = "Azure Kubernetes Service network policy to use."
   type        = string
   default     = "calico"
 }
 
+variable "aks_network_mode" {
+  description = "Azure Kubernetes Service network mode to use. Only available with Azure CNI."
+  type        = string
+  default     = null
+}
+
+variable "aks_route_table_id" {
+  description = "Provide an existing Route Table ID when `outbound_type = \"userDefinedRouting\"`. Only available with Kubenet."
+  type        = string
+  default     = null
+}
+
 variable "aks_http_proxy_settings" {
-  description = "Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_url_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR must be added to the URLs list."
+  description = "Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list."
   type = object({
-    http_proxy_url    = optional(string)
-    https_proxy_url   = optional(string)
-    no_proxy_url_list = optional(list(string), [])
-    trusted_ca        = optional(string)
+    https_proxy_url = optional(string)
+    http_proxy_url  = optional(string)
+    trusted_ca      = optional(string)
+    no_proxy_list   = optional(list(string), [])
   })
   default = null
 }
@@ -125,8 +131,7 @@ variable "default_node_pool" {
     name                   = optional(string, "default")
     type                   = optional(string, "VirtualMachineScaleSets")
     vm_size                = optional(string, "Standard_D2_v3")
-    os_sku                 = optional(string)
-    os_type                = optional(string, "Linux")
+    os_sku                 = optional(string, "Ubuntu")
     os_disk_type           = optional(string, "Managed")
     os_disk_size_gb        = optional(number)
     enable_auto_scaling    = optional(bool, false)
@@ -138,8 +143,6 @@ variable "default_node_pool" {
     node_taints            = optional(list(any))
     enable_host_encryption = optional(bool)
     enable_node_public_ip  = optional(bool, false)
-    vnet_subnet_id         = optional(string)
-    pod_subnet_id          = optional(string)
     orchestrator_version   = optional(string)
     zones                  = optional(list(number), [1, 2, 3])
     tags                   = optional(map(string), {})
@@ -148,10 +151,31 @@ variable "default_node_pool" {
   default  = {}
 }
 
-variable "nodes_subnet_id" {
-  description = "ID of the Subnet used for nodes."
-  type        = string
-  nullable    = false
+variable "nodes_subnet" {
+  description = "The Subnet used by nodes."
+  type = object({
+    name                 = string
+    virtual_network_name = string
+    resource_group_name  = optional(string)
+  })
+  nullable = false
+}
+
+variable "pods_subnet" {
+  description = "The Subnet containing the pods."
+  type = object({
+    name                 = optional(string)
+    virtual_network_name = optional(string)
+    resource_group_name  = optional(string)
+  })
+  nullable = false
+  default  = {}
+  validation {
+    condition = var.pods_subnet.name != null || var.pods_subnet.virtual_network_name != null ? length(
+      compact([var.pods_subnet.name, var.pods_subnet.virtual_network_name])
+    ) == 2 : true
+    error_message = "var.pods_subnet.name and var.pods_subnet.virtual_network_name must be specified together."
+  }
 }
 
 variable "aci_subnet_id" {
@@ -184,9 +208,12 @@ variable "auto_scaler_profile" {
   default = null
 }
 
-variable "oms_log_analytics_workspace_id" {
-  description = "ID of the Log Analytics Workspace for OMS Log Analytics Agent."
-  type        = string
+variable "oms_agent" {
+  description = "OMS Agent configuration."
+  type = object({
+    log_analytics_workspace_id      = string
+    msi_auth_for_monitoring_enabled = optional(bool, true)
+  })
 }
 
 variable "azure_policy_enabled" {
@@ -199,7 +226,7 @@ variable "azure_policy_enabled" {
 variable "linux_profile" {
   description = "Username and SSH public key for accessing Linux nodes with SSH."
   type = object({
-    username = string,
+    username = string
     ssh_key  = string
   })
   default = null
@@ -229,8 +256,7 @@ variable "node_pools" {
   type = list(object({
     name                   = string
     vm_size                = optional(string, "Standard_D2_v3")
-    os_sku                 = optional(string)
-    os_type                = optional(string, "Linux")
+    os_sku                 = optional(string, "Ubuntu")
     os_disk_type           = optional(string, "Managed")
     os_disk_size_gb        = optional(number)
     kubelet_disk_type      = optional(string)
@@ -243,13 +269,21 @@ variable "node_pools" {
     node_taints            = optional(list(any))
     enable_host_encryption = optional(bool)
     enable_node_public_ip  = optional(bool, false)
-    vnet_subnet_id         = optional(string)
-    pod_subnet_id          = optional(string)
-    priority               = optional(string)
-    eviction_policy        = optional(string)
-    orchestrator_version   = optional(string)
-    zones                  = optional(list(number), [1, 2, 3])
-    tags                   = optional(map(string), {})
+    node_subnet = optional(object({
+      name                 = optional(string)
+      virtual_network_name = optional(string)
+      resource_group_name  = optional(string)
+    }), {})
+    pod_subnet = optional(object({
+      name                 = optional(string)
+      virtual_network_name = optional(string)
+      resource_group_name  = optional(string)
+    }), {})
+    priority             = optional(string)
+    eviction_policy      = optional(string)
+    orchestrator_version = optional(string)
+    zones                = optional(list(number), [1, 2, 3])
+    tags                 = optional(map(string), {})
   }))
   nullable = false
   default  = []
@@ -282,13 +316,7 @@ variable "key_vault_secrets_provider" {
     secret_rotation_enabled  = optional(bool, true)
     secret_rotation_interval = optional(string)
   })
-  default = null
-}
-
-variable "pods_subnet_id" {
-  description = "ID of the Subnet containing the pods."
-  type        = string
-  default     = null
+  default = {}
 }
 
 variable "vnet_integration" {
@@ -301,6 +329,6 @@ variable "vnet_integration" {
   default  = {}
   validation {
     condition     = !var.vnet_integration.enabled || var.vnet_integration.subnet_id != null
-    error_message = "var.vnet_integration.subnet_id must be set when VNet integration is enabled"
+    error_message = "var.vnet_integration.subnet_id must be set when VNet integration is enabled."
   }
 }
