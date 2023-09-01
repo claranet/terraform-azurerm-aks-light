@@ -7,7 +7,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
 
   name                   = each.value.name
   vm_size                = each.value.vm_size
-  os_type                = each.value.os_type
   os_disk_type           = each.value.os_disk_type
   enable_auto_scaling    = each.value.enable_auto_scaling
   node_count             = each.value.enable_auto_scaling ? null : each.value.node_count
@@ -24,10 +23,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   orchestrator_version   = each.value.orchestrator_version
   zones                  = each.value.zones
 
-  # Handle default value depending on `os_type`
-  os_sku          = coalesce(each.value.os_sku, local.default_node_profile[each.value.os_type].os_sku)
-  os_disk_size_gb = coalesce(each.value.os_disk_size_gb, local.default_node_profile[each.value.os_type].os_disk_size_gb)
-  max_pods        = coalesce(each.value.max_pods, local.default_node_profile[each.value.os_type].max_pods)
+  os_sku          = each.value.os_sku
+  os_disk_size_gb = coalesce(each.value.os_disk_size_gb, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
+  max_pods        = coalesce(each.value.max_pods, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].max_pods : local.default_node_profile["linux"].max_pods)
 
   tags = merge(local.default_tags, var.extra_tags, each.value.tags)
 }

@@ -31,7 +31,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin      = var.aks_network_plugin.name
     network_plugin_mode = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "overlay" : null
     network_policy      = var.aks_network_policy
-    network_mode        = local.is_network_cni ? "transparent" : null
+    network_mode        = local.is_network_cni ? var.aks_network_mode : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
     service_cidr        = var.service_cidr
     outbound_type       = var.outbound_type
@@ -43,13 +43,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "http_proxy_config" {
     for_each = var.aks_http_proxy_settings[*]
     content {
-      trusted_ca  = var.aks_http_proxy_settings.trusted_ca
-      https_proxy = var.aks_http_proxy_settings.https_proxy_url
-      http_proxy  = var.aks_http_proxy_settings.http_proxy_url
-      no_proxy = distinct(flatten(concat(
-        local.default_no_proxy_url_list,
-        var.aks_http_proxy_settings.no_proxy_url_list,
-      )))
+      https_proxy = http_proxy_config.value.https_proxy_url
+      http_proxy  = http_proxy_config.value.http_proxy_url
+      trusted_ca  = http_proxy_config.value.trusted_ca
+      no_proxy = distinct(concat(
+        local.default_no_proxy_list,
+        http_proxy_config.value.no_proxy_list,
+      ))
     }
   }
 
@@ -62,9 +62,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "oms_agent" {
-    for_each = var.oms_log_analytics_workspace_id[*]
+    for_each = var.oms_agent[*]
     content {
-      log_analytics_workspace_id = var.oms_log_analytics_workspace_id
+      log_analytics_workspace_id      = oms_agent.value.log_analytics_workspace_id
+      msi_auth_for_monitoring_enabled = oms_agent.value.msi_auth_for_monitoring_enabled
     }
   }
 
@@ -103,10 +104,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     zones                  = local.default_node_pool.zones
     tags                   = local.default_node_pool_tags
 
-    # Handle default value depending on `os_type`
-    os_sku          = coalesce(local.default_node_pool.os_sku, local.default_node_profile[local.default_node_pool.os_type].os_sku)
-    os_disk_size_gb = coalesce(local.default_node_pool.os_disk_size_gb, local.default_node_profile[local.default_node_pool.os_type].os_disk_size_gb)
-    max_pods        = coalesce(local.default_node_pool.max_pods, local.default_node_profile[local.default_node_pool.os_type].max_pods)
+    os_sku          = local.default_node_pool.os_sku
+    os_disk_size_gb = coalesce(local.default_node_pool.os_disk_size_gb, can(regex("^Windows", local.default_node_pool.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
+    max_pods        = coalesce(local.default_node_pool.max_pods, can(regex("^Windows", local.default_node_pool.os_sku)) ? local.default_node_profile["windows"].max_pods : local.default_node_profile["linux"].max_pods)
   }
 
   dynamic "auto_scaler_profile" {
@@ -135,10 +135,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "linux_profile" {
     for_each = var.linux_profile[*]
     content {
-      admin_username = var.linux_profile.username
-
+      admin_username = linux_profile.value.username
       ssh_key {
-        key_data = var.linux_profile.ssh_key
+        key_data = linux_profile.value.ssh_key
       }
     }
   }
@@ -157,8 +156,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
       error_message = "var.oidc_issuer_enabled must be true when Workload Identity is enabled."
     }
     precondition {
-      condition     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pods_subnet_id != null : true
-      error_message = "var.pods_subnet_id must be set when using Azure CNI Cilium network."
+      condition     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pods_subnet != {} : true
+      error_message = "var.pods_subnet must be set when using Azure CNI Cilium network."
     }
   }
 }
