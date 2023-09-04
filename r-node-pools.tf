@@ -24,6 +24,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   zones                  = each.value.zones
 
   os_sku          = each.value.os_sku
+  os_type         = can(regex("^Windows", each.value.os_sku)) ? "Windows" : "Linux"
   os_disk_size_gb = coalesce(each.value.os_disk_size_gb, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
   max_pods        = coalesce(each.value.max_pods, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].max_pods : local.default_node_profile["linux"].max_pods)
 
