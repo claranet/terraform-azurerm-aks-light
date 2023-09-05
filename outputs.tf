@@ -8,6 +8,11 @@ output "apiserver_endpoint" {
   value       = coalesce(azurerm_kubernetes_cluster.aks.private_fqdn, azurerm_kubernetes_cluster.aks.fqdn)
 }
 
+output "private_cluster_enabled" {
+  description = "Is private cluster enabled ?"
+  value       = azurerm_kubernetes_cluster.aks.private_cluster_enabled
+}
+
 output "identity_principal_id" {
   description = "AKS System Managed Identity principal ID."
   value       = try(azurerm_kubernetes_cluster.aks.identity[0].principal_id, null)
