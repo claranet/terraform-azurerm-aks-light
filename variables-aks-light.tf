@@ -37,6 +37,13 @@ variable "private_cluster_enabled" {
   default     = true
 }
 
+variable "private_cluster_public_fqdn_enabled" {
+  description = "Specifies whether a Public FQDN for this Private Cluster should be added: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_public_fqdn_enabled"
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
 variable "private_dns_zone_type" {
   description = <<EOD
 Set Azure Kubernetes Service private DNS zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)

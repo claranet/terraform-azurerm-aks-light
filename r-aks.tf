@@ -18,8 +18,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   workload_identity_enabled        = var.workload_identity_enabled
 
   # Network config
-  private_cluster_enabled = var.private_cluster_enabled
-  private_dns_zone_id     = var.private_cluster_enabled ? local.private_dns_zone : null
+  private_cluster_enabled             = var.private_cluster_enabled
+  private_cluster_public_fqdn_enabled = var.private_cluster_enabled == true ? var.private_cluster_public_fqdn_enabled : null
+  private_dns_zone_id                 = var.private_cluster_enabled ? local.private_dns_zone : null
 
   api_server_access_profile {
     authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
