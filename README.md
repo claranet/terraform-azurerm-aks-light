@@ -296,6 +296,7 @@ module "aks" {
 | outbound\_type | The outbound (egress) routing method which should be used. Possible values are `loadBalancer` and `userDefinedRouting`. | `string` | `"loadBalancer"` | no |
 | pods\_subnet | The Subnet containing the pods. | <pre>object({<br>    name                 = optional(string)<br>    virtual_network_name = optional(string)<br>    resource_group_name  = optional(string)<br>  })</pre> | `{}` | no |
 | private\_cluster\_enabled | Configure Azure Kubernetes Service as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled | `bool` | `true` | no |
+| private\_cluster\_public\_fqdn\_enabled | Specifies whether a Public FQDN for this Private Cluster should be added: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_public_fqdn_enabled | `bool` | `false` | no |
 | private\_dns\_zone\_id | ID of the Private DNS Zone when `private_dns_zone_type = "Custom"`. | `string` | `null` | no |
 | private\_dns\_zone\_role\_assignment\_enabled | Option to enable or disable Private DNS Zone role assignment. | `bool` | `true` | no |
 | private\_dns\_zone\_type | Set Azure Kubernetes Service private DNS zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)<br>- "Custom" : You will have to deploy a private DNS Zone on your own and provide the ID with <private\_dns\_zone\_id> variable<br>- "System" : AKS will manage the Private DNS Zone and creates it in the Node Resource Group<br>- "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.<br><br>https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id | `string` | `"System"` | no |
@@ -310,6 +311,7 @@ module "aks" {
 | Name | Description |
 |------|-------------|
 | aks | AKS output object. |
+| apiserver\_endpoint | APIServer Endpoint of the Azure Kubernetes Service. |
 | id | ID of the Azure Kubernetes Service. |
 | identity\_principal\_id | AKS System Managed Identity principal ID. |
 | key\_vault\_secrets\_provider\_identity | The User Managed Identity used by the Key Vault secrets provider. |
@@ -325,6 +327,7 @@ module "aks" {
 | nodes\_resource\_group\_name | Name of the Resource Group in which Azure Kubernetes Service nodes are deployed. |
 | oidc\_issuer\_url | The OIDC issuer URL that is associated with the Azure Kubernetes Service. |
 | portal\_fqdn | Portal FQDN of the Azure Kubernetes Service. |
+| private\_cluster\_enabled | Is private cluster enabled ? |
 | private\_fqdn | Private FQDNs of the Azure Kubernetes Service. |
 | public\_fqdn | Public FQDN of the Azure Kubernetes Service. |
 | user\_managed\_identity | The User Managed Identity used by the Azure Kubernetes Service. |
