@@ -9,7 +9,7 @@ output "apiserver_endpoint" {
 }
 
 output "private_cluster_enabled" {
-  description = "Is private cluster enabled ?"
+  description = "Whether private cluster is enabled."
   value       = azurerm_kubernetes_cluster.aks.private_cluster_enabled
 }
 

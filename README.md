@@ -327,7 +327,7 @@ module "aks" {
 | nodes\_resource\_group\_name | Name of the Resource Group in which Azure Kubernetes Service nodes are deployed. |
 | oidc\_issuer\_url | The OIDC issuer URL that is associated with the Azure Kubernetes Service. |
 | portal\_fqdn | Portal FQDN of the Azure Kubernetes Service. |
-| private\_cluster\_enabled | Is private cluster enabled ? |
+| private\_cluster\_enabled | Whether private cluster is enabled. |
 | private\_fqdn | Private FQDNs of the Azure Kubernetes Service. |
 | public\_fqdn | Public FQDN of the Azure Kubernetes Service. |
 | user\_managed\_identity | The User Managed Identity used by the Azure Kubernetes Service. |
