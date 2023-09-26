@@ -160,6 +160,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
       condition     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pods_subnet != {} : true
       error_message = "var.pods_subnet must be set when using Azure CNI Cilium network."
     }
+    precondition {
+      condition     = try(jsondecode(data.azapi_resource.subnet_delegation.output).properties.delegations[0].properties.serviceName, null) == "Microsoft.ContainerInstance/containerGroups"
+      error_message = "ACI subnet should be delegated to Microsoft.ContainerInstance/containerGroups"
+    }
   }
 }
 
