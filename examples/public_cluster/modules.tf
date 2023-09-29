@@ -19,9 +19,9 @@ module "run" {
   source  = "claranet/run/azurerm"
   version = "x.x.x"
 
+  client_name    = var.client_name
   location       = module.azure_region.location
   location_short = module.azure_region.location_short
-  client_name    = var.client_name
   environment    = var.environment
   stack          = var.stack
 
@@ -81,17 +81,8 @@ module "nodes_subnet" {
   service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
-module "aks_private_dns_zone" {
-  source  = "claranet/private-endpoint/azurerm//modules/private-dns-zone"
-  version = "x.x.x"
-
-  environment = var.environment
-  stack       = var.stack
-
-  resource_group_name = module.rg.resource_group_name
-
-  private_dns_zone_name      = "privatelink.${module.azure_region.location_cli}.azmk8s.io"
-  private_dns_zone_vnets_ids = [module.vnet.virtual_network_id]
+data "http" "my_ip" {
+  url = "https://ip.clara.net"
 }
 
 resource "tls_private_key" "key" {
@@ -118,25 +109,28 @@ module "aks" {
     virtual_network_name = module.vnet.virtual_network_name
   }
 
-  private_cluster_enabled = true
-  private_dns_zone_type   = "Custom"
-  private_dns_zone_id     = module.aks_private_dns_zone.private_dns_zone_id
+  private_cluster_enabled         = false
+  api_server_authorized_ip_ranges = ["${chomp(data.http.my_ip.response_body)}/32"]
 
-  default_node_pool = {
-    vm_size         = "Standard_B4ms"
-    os_disk_size_gb = 64
-  }
-
-  node_pools = [{
-    name                = "nodepool1"
-    vm_size             = "Standard_B4ms"
-    os_disk_type        = "Ephemeral"
-    os_disk_size_gb     = 100
-    vnet_subnet_id      = module.nodes_subnet.subnet_id
-    enable_auto_scaling = true
-    min_count           = 1
-    max_count           = 10
-  }]
+  node_pools = [
+    {
+      name            = "pool1"
+      count           = 1
+      vm_size         = "Standard_D1_v2"
+      os_disk_type    = "Ephemeral"
+      os_disk_size_gb = 30
+      vnet_subnet_id  = module.nodes_subnet.subnet_id
+    },
+    {
+      name                = "bigpool1"
+      vm_size             = "Standard_F8s_v2"
+      os_disk_size_gb     = 30
+      vnet_subnet_id      = module.nodes_subnet.subnet_id
+      enable_auto_scaling = true
+      min_count           = 3
+      max_count           = 9
+    },
+  ]
 
   linux_profile = {
     username = "nodeadmin"

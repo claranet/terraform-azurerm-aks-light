@@ -21,14 +21,14 @@ variable "logs_metrics_categories" {
   default     = null
 }
 
-variable "logs_retention_days" {
-  type        = number
-  description = "Number of days to keep logs on storage account."
-  default     = 30
-}
-
 variable "custom_diagnostic_settings_name" {
   description = "Custom name of the diagnostics settings, name will be 'default' if not set."
   type        = string
   default     = "default"
+}
+
+variable "logs_kube_audit_enabled" {
+  description = "Whether to include `kube-audit` and `kube-audit-admin` logs from diagnostics settings collection. Enabling this can increase your Azure billing."
+  type        = bool
+  default     = false
 }
