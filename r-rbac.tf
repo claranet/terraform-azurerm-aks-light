@@ -48,14 +48,14 @@ resource "azurerm_role_assignment" "aks_kubelet_uai_nodes_rg_contributor" {
 
 # Role assignment for ACI, if ACI is enabled
 data "azuread_service_principal" "aci_identity" {
-  count = length(var.aci_subnet_id) > 0 ? 1 : 0
+  count = length(var.aci_subnet_id[*])
 
   display_name = "aciconnectorlinux-${local.aks_name}"
   depends_on   = [azurerm_kubernetes_cluster.aks]
 }
 
 resource "azurerm_role_assignment" "aci_assignment" {
-  count = length(var.aci_subnet_id) > 0 ? 1 : 0
+  count = length(var.aci_subnet_id[*])
 
   scope                = var.aci_subnet_id
   principal_id         = data.azuread_service_principal.aci_identity[0].id

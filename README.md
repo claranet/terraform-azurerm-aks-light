@@ -254,7 +254,7 @@ module "aks" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| aci\_subnet\_id | ID of the Subnet for ACI virtual-nodes. | `string` | `""` | no |
+| aci\_subnet\_id | ID of the Subnet for ACI virtual-nodes. | `string` | `null` | no |
 | aks\_http\_proxy\_settings | Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list. | <pre>object({<br>    https_proxy_url = optional(string)<br>    http_proxy_url  = optional(string)<br>    trusted_ca      = optional(string)<br>    no_proxy_list   = optional(list(string), [])<br>  })</pre> | `null` | no |
 | aks\_network\_mode | Azure Kubernetes Service network mode to use. Only available with Azure CNI. | `string` | `null` | no |
 | aks\_network\_plugin | Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created. | <pre>object({<br>    name     = optional(string, "azure")<br>    cni_mode = optional(string, "overlay")<br>  })</pre> | `{}` | no |

@@ -79,7 +79,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "aci_connector_linux" {
-    for_each = length(var.aci_subnet_id) > 0 && var.aks_network_plugin != "kubenet" ? [true] : []
+    for_each = var.aci_subnet_id != null && var.aks_network_plugin != "kubenet" ? [true] : []
     content {
       subnet_name = element(split("/", var.aci_subnet_id), length(split("/", var.aci_subnet_id)) - 1)
     }
