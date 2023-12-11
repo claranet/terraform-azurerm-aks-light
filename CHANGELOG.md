@@ -1,3 +1,8 @@
+# Unreleased
+
+Fixed
+  * AZ-1305: Fix `aci_subnet_id` variable usage
+
 # v7.0.1 - 2023-12-05
 
 Fixed

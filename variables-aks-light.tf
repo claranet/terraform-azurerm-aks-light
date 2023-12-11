@@ -188,7 +188,8 @@ variable "pods_subnet" {
 variable "aci_subnet_id" {
   description = "ID of the Subnet for ACI virtual-nodes."
   type        = string
-  default     = null
+  default     = ""
+  nullable    = false
 }
 
 variable "auto_scaler_profile" {
