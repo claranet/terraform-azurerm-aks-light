@@ -23,14 +23,6 @@ resource "azurerm_role_assignment" "aks_uai_subnets_network_contributor" {
   role_definition_name = "Network Contributor"
 }
 
-resource "azurerm_role_assignment" "aks_uai_acr_pull" {
-  for_each = toset(var.container_registries_ids)
-
-  scope                = each.key
-  principal_id         = azurerm_user_assigned_identity.aks_user_assigned_identity.principal_id
-  role_definition_name = "AcrPull"
-}
-
 resource "azurerm_role_assignment" "aks_uai_route_table_contributor" {
   count = local.is_kubenet && var.outbound_type == "userDefinedRouting" ? 1 : 0
 
@@ -44,6 +36,15 @@ resource "azurerm_role_assignment" "aks_kubelet_uai_nodes_rg_contributor" {
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   scope                = format("/subscriptions/%s/resourceGroups/%s", data.azurerm_subscription.current.subscription_id, azurerm_kubernetes_cluster.aks.node_resource_group)
   role_definition_name = "Contributor"
+}
+
+# Allow Kubelet Identity to authenticate with Azure Container Registry (ACR)
+resource "azurerm_role_assignment" "aks_kubelet_uai_acr_pull" {
+  for_each = toset(var.container_registries_ids)
+
+  scope                = each.key
+  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  role_definition_name = "AcrPull"
 }
 
 # Role assignment for ACI, if ACI is enabled
