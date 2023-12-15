@@ -1,3 +1,8 @@
+# Unreleased
+
+Fixed
+  * [GH-5](https://github.com/claranet/terraform-azurerm-aks-light/issues/5#issuecomment-1848394273)/AZ-1305: Fix `aci_subnet_id` variable usage
+
 # v7.0.1 - 2023-12-05
 
 Fixed
