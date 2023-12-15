@@ -1,4 +1,4 @@
-# Unreleased
+# v7.0.2 - 2023-12-15
 
 Fixed
   * [GITHUB-5](https://github.com/claranet/terraform-azurerm-aks-light/issues/5)/AZ-1305: Fix `aci_subnet_id` variable usage
