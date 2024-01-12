@@ -110,7 +110,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     max_pods        = coalesce(local.default_node_pool.max_pods, can(regex("^Windows", local.default_node_pool.os_sku)) ? local.default_node_profile["windows"].max_pods : local.default_node_profile["linux"].max_pods)
 
     dynamic "upgrade_settings" {
-      for_each = local.default_node_pool.max_surge == null ? [] : [true]
+      for_each = local.default_node_pool.max_surge[*]
       content {
         max_surge = local.default_node_pool.max_surge
       }
