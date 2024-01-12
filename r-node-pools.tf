@@ -30,7 +30,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
 
 
   dynamic "upgrade_settings" {
-    for_each = local.default_node_pool.max_surge == null ? [] : [true]
+    for_each = local.default_node_pool.max_surge[*]
     content {
       max_surge = local.default_node_pool.max_surge
     }
