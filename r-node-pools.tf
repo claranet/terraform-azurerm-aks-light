@@ -28,5 +28,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   os_disk_size_gb = coalesce(each.value.os_disk_size_gb, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
   max_pods        = coalesce(each.value.max_pods, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].max_pods : local.default_node_profile["linux"].max_pods)
 
+
+  dynamic "upgrade_settings" {
+    for_each = local.default_node_pool.max_surge == null ? [] : [true]
+    content {
+      max_surge = local.default_node_pool.max_surge
+    }
+  }
+
   tags = merge(local.default_tags, var.extra_tags, each.value.tags)
 }
