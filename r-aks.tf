@@ -104,7 +104,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     orchestrator_version        = local.default_node_pool.orchestrator_version
     zones                       = local.default_node_pool.zones
     tags                        = local.default_node_pool_tags
-    temporary_name_for_rotation = local.default_node_pool.temporary_name_for_rotation
+    temporary_name_for_rotation = coalesce(local.default_node_pool.temporary_name_for_rotation, format("%stmp", substr(local.default_node_pool.name, 0, 9)))
 
     os_sku          = local.default_node_pool.os_sku
     os_disk_size_gb = coalesce(local.default_node_pool.os_disk_size_gb, can(regex("^Windows", local.default_node_pool.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
