@@ -1,4 +1,4 @@
-# Unreleased
+# v7.1.0 - 2024-01-26
 
 Added
   * AZ-1341: Add `temporary_name_for_rotation` property for default node pool
