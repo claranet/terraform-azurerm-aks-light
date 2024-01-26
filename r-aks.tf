@@ -87,23 +87,24 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   # Default Node Pool config
   default_node_pool {
-    name                   = local.default_node_pool.name
-    type                   = local.default_node_pool.type
-    vm_size                = local.default_node_pool.vm_size
-    os_disk_type           = local.default_node_pool.os_disk_type
-    enable_auto_scaling    = local.default_node_pool.enable_auto_scaling
-    node_count             = local.default_node_pool.enable_auto_scaling ? null : local.default_node_pool.node_count
-    min_count              = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.min_count : null
-    max_count              = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.max_count : null
-    node_labels            = local.default_node_pool.node_labels
-    node_taints            = local.default_node_pool.node_taints
-    enable_host_encryption = local.default_node_pool.enable_host_encryption
-    enable_node_public_ip  = local.default_node_pool.enable_node_public_ip
-    vnet_subnet_id         = local.default_node_pool.vnet_subnet_id
-    pod_subnet_id          = local.default_node_pool.pod_subnet_id
-    orchestrator_version   = local.default_node_pool.orchestrator_version
-    zones                  = local.default_node_pool.zones
-    tags                   = local.default_node_pool_tags
+    name                        = local.default_node_pool.name
+    type                        = local.default_node_pool.type
+    vm_size                     = local.default_node_pool.vm_size
+    os_disk_type                = local.default_node_pool.os_disk_type
+    enable_auto_scaling         = local.default_node_pool.enable_auto_scaling
+    node_count                  = local.default_node_pool.enable_auto_scaling ? null : local.default_node_pool.node_count
+    min_count                   = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.min_count : null
+    max_count                   = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.max_count : null
+    node_labels                 = local.default_node_pool.node_labels
+    node_taints                 = local.default_node_pool.node_taints
+    enable_host_encryption      = local.default_node_pool.enable_host_encryption
+    enable_node_public_ip       = local.default_node_pool.enable_node_public_ip
+    vnet_subnet_id              = local.default_node_pool.vnet_subnet_id
+    pod_subnet_id               = local.default_node_pool.pod_subnet_id
+    orchestrator_version        = local.default_node_pool.orchestrator_version
+    zones                       = local.default_node_pool.zones
+    tags                        = local.default_node_pool_tags
+    temporary_name_for_rotation = coalesce(local.default_node_pool.temporary_name_for_rotation, format("%stmp", substr(local.default_node_pool.name, 0, 9)))
 
     os_sku          = local.default_node_pool.os_sku
     os_disk_size_gb = coalesce(local.default_node_pool.os_disk_size_gb, can(regex("^Windows", local.default_node_pool.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
