@@ -32,3 +32,40 @@ variable "logs_kube_audit_enabled" {
   type        = bool
   default     = false
 }
+
+variable "data_collection_rule_enabled" {
+  description = "Whether enable the Data Collection Rule."
+  type        = bool
+  default     = true
+}
+
+variable "data_collection_rule" {
+  description = "AKS Data Collection Rule configuration."
+  type = object({
+    log_analytics_workspace_id = optional(string)
+    data_streams = optional(list(string), [
+      "Microsoft-ContainerLog",
+      "Microsoft-ContainerLogV2",
+      "Microsoft-KubeEvents",
+      "Microsoft-KubePodInventory",
+      "Microsoft-InsightsMetrics",
+      "Microsoft-ContainerInventory",
+      "Microsoft-ContainerNodeInventory",
+      "Microsoft-KubeNodeInventory",
+      "Microsoft-KubeServices",
+      "Microsoft-KubePVInventory"
+    ])
+    namespaces_filter = optional(list(string), [
+      "kube-system",
+      "gatekeeper-system",
+      "kube-node-lease",
+      "calico-system",
+    ])
+    namespace_filtering_mode = optional(string, "Exclude")
+    data_collection_interval = optional(string, "5m")
+    container_log_v2_enabled = optional(bool, true)
+
+  })
+  default  = {}
+  nullable = false
+}

@@ -149,5 +149,9 @@ module "aks" {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id
   }
 
+  data_collection_rule = {
+    log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  }
+
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
 }

@@ -207,6 +207,10 @@ module "aks" {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id
   }
 
+  data_collection_rule = {
+    log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  }
+
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
 }
 ```
@@ -234,6 +238,8 @@ module "aks" {
 | [azapi_update_resource.aks_kubernetes_version](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/update_resource) | resource |
 | [azurerm_kubernetes_cluster.aks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
 | [azurerm_kubernetes_cluster_node_pool.node_pools](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
+| [azurerm_monitor_data_collection_rule.dcr](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule) | resource |
+| [azurerm_monitor_data_collection_rule_association.dcr](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule_association) | resource |
 | [azurerm_role_assignment.aci_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.aks_kubelet_uai_acr_pull](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.aks_kubelet_uai_nodes_rg_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -247,6 +253,7 @@ module "aks" {
 | [azurecaf_name.aks](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_identity](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_nodes_rg](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
+| [azurecaf_name.dcr](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurerm_kubernetes_service_versions.versions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_service_versions) | data source |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 
@@ -262,7 +269,7 @@ module "aks" {
 | aks\_pod\_cidr | CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay. | `string` | `null` | no |
 | aks\_route\_table\_id | Provide an existing Route Table ID when `outbound_type = "userDefinedRouting"`. Only available with Kubenet. | `string` | `null` | no |
 | aks\_sku\_tier | Azure Kubernetes Service SKU tier. Possible values are Free ou Standard | `string` | `"Standard"` | no |
-| aks\_user\_assigned\_identity\_custom\_name | Custom name for the aks user assigned identity resource | `string` | `null` | no |
+| aks\_user\_assigned\_identity\_custom\_name | Custom name for the AKS user assigned identity resource. | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource. | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_tags | Tags to add to AKS MSI | `map(string)` | `{}` | no |
 | api\_server\_authorized\_ip\_ranges | IP ranges allowed to interact with Kubernetes API for public clusters.<br>See documentation about "0.0.0.0/32" default value :<br>- https://learn.microsoft.com/en-us/azure/aks/api-server-authorized-ip-ranges#allow-only-the-outbound-public-ip-of-the-standard-sku-load-balancer<br>- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#public_network_access_enabled<br><br>Set to `0.0.0.0/0` to wide open (not recommended) | `list(string)` | <pre>[<br>  "0.0.0.0/32"<br>]</pre> | no |
@@ -271,7 +278,10 @@ module "aks" {
 | client\_name | Client name/account used in naming. | `string` | n/a | yes |
 | container\_registries\_ids | List of Azure Container Registries IDs where Azure Kubernetes Service needs pull access. | `list(string)` | `[]` | no |
 | custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
-| custom\_name | Custom AKS, generated if not set | `string` | `""` | no |
+| custom\_name | Custom AKS, generated if not set. | `string` | `""` | no |
+| data\_collection\_rule | AKS Data Collection Rule configuration. | <pre>object({<br>    log_analytics_workspace_id = optional(string)<br>    data_streams = optional(list(string), [<br>      "Microsoft-ContainerLog",<br>      "Microsoft-ContainerLogV2",<br>      "Microsoft-KubeEvents",<br>      "Microsoft-KubePodInventory",<br>      "Microsoft-InsightsMetrics",<br>      "Microsoft-ContainerInventory",<br>      "Microsoft-ContainerNodeInventory",<br>      "Microsoft-KubeNodeInventory",<br>      "Microsoft-KubeServices",<br>      "Microsoft-KubePVInventory"<br>    ])<br>    namespaces_filter = optional(list(string), [<br>      "kube-system",<br>      "gatekeeper-system",<br>      "kube-node-lease",<br>      "calico-system",<br>    ])<br>    namespace_filtering_mode = optional(string, "Exclude")<br>    data_collection_interval = optional(string, "5m")<br>    container_log_v2_enabled = optional(bool, true)<br><br>  })</pre> | `{}` | no |
+| data\_collection\_rule\_custom\_name | Custom name for the AKS Data Collection Rule. | `string` | `null` | no |
+| data\_collection\_rule\_enabled | Whether enable the Data Collection Rule. | `bool` | `true` | no |
 | default\_node\_pool | Default Node Pool configuration. | <pre>object({<br>    name                        = optional(string, "default")<br>    type                        = optional(string, "VirtualMachineScaleSets")<br>    vm_size                     = optional(string, "Standard_D2_v3")<br>    os_sku                      = optional(string, "Ubuntu")<br>    os_disk_type                = optional(string, "Managed")<br>    os_disk_size_gb             = optional(number)<br>    enable_auto_scaling         = optional(bool, false)<br>    node_count                  = optional(number, 1)<br>    min_count                   = optional(number, 1)<br>    max_count                   = optional(number, 10)<br>    max_pods                    = optional(number)<br>    node_labels                 = optional(map(any))<br>    node_taints                 = optional(list(any))<br>    enable_host_encryption      = optional(bool)<br>    enable_node_public_ip       = optional(bool, false)<br>    orchestrator_version        = optional(string)<br>    zones                       = optional(list(number), [1, 2, 3])<br>    tags                        = optional(map(string), {})<br>    temporary_name_for_rotation = optional(string)<br>  })</pre> | `{}` | no |
 | default\_tags\_enabled | Option to enable or disable default tags. | `bool` | `true` | no |
 | environment | Project environment. | `string` | n/a | yes |
@@ -286,8 +296,8 @@ module "aks" {
 | logs\_destinations\_ids | List of destination resources IDs for logs diagnostic destination.<br>Can be `Storage Account`, `Log Analytics Workspace` and `Event Hub`. No more than one of each can be set.<br>If you want to specify an Azure EventHub to send logs and metrics to, you need to provide a formated string with both the EventHub Namespace authorization send ID and the EventHub name (name of the queue to use in the Namespace) separated by the `pipe` (\\|) character. | `list(string)` | n/a | yes |
 | logs\_kube\_audit\_enabled | Whether to include `kube-audit` and `kube-audit-admin` logs from diagnostics settings collection. Enabling this can increase your Azure billing. | `bool` | `false` | no |
 | logs\_metrics\_categories | Metrics categories to send to destinations. | `list(string)` | `null` | no |
-| name\_prefix | Optional prefix for the generated name | `string` | `""` | no |
-| name\_suffix | Optional suffix for the generated name | `string` | `""` | no |
+| name\_prefix | Optional prefix for the generated name. | `string` | `""` | no |
+| name\_suffix | Optional suffix for the generated name. | `string` | `""` | no |
 | node\_pools | A list of Node Pools to create. | <pre>list(object({<br>    name                   = string<br>    vm_size                = optional(string, "Standard_D2_v3")<br>    os_sku                 = optional(string, "Ubuntu")<br>    os_disk_type           = optional(string, "Managed")<br>    os_disk_size_gb        = optional(number)<br>    kubelet_disk_type      = optional(string)<br>    enable_auto_scaling    = optional(bool, false)<br>    node_count             = optional(number, 1)<br>    min_count              = optional(number, 1)<br>    max_count              = optional(number, 10)<br>    max_pods               = optional(number)<br>    node_labels            = optional(map(any))<br>    node_taints            = optional(list(any))<br>    enable_host_encryption = optional(bool)<br>    enable_node_public_ip  = optional(bool, false)<br>    node_subnet = optional(object({<br>      name                 = optional(string)<br>      virtual_network_name = optional(string)<br>      resource_group_name  = optional(string)<br>    }), {})<br>    pod_subnet = optional(object({<br>      name                 = optional(string)<br>      virtual_network_name = optional(string)<br>      resource_group_name  = optional(string)<br>    }), {})<br>    priority             = optional(string)<br>    eviction_policy      = optional(string)<br>    orchestrator_version = optional(string)<br>    zones                = optional(list(number), [1, 2, 3])<br>    tags                 = optional(map(string), {})<br>  }))</pre> | `[]` | no |
 | nodes\_resource\_group\_name | Name of the Resource Group in which to put Azure Kubernetes Service nodes. | `string` | `null` | no |
 | nodes\_subnet | The Subnet used by nodes. | <pre>object({<br>    name                 = string<br>    virtual_network_name = string<br>    resource_group_name  = optional(string)<br>  })</pre> | n/a | yes |
