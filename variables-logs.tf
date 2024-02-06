@@ -34,7 +34,7 @@ variable "logs_kube_audit_enabled" {
 }
 
 variable "data_collection_rule_enabled" {
-  description = "Whether enable the Data Collection Rule."
+  description = "Whether to enable the Data Collection Rule."
   type        = bool
   default     = true
 }
@@ -64,7 +64,6 @@ variable "data_collection_rule" {
     namespace_filtering_mode = optional(string, "Exclude")
     data_collection_interval = optional(string, "5m")
     container_log_v2_enabled = optional(bool, true)
-
   })
   default  = {}
   nullable = false

@@ -1,5 +1,6 @@
 resource "azurerm_monitor_data_collection_rule" "dcr" {
-  for_each            = var.data_collection_rule_enabled ? toset(["enabled"]) : []
+  for_each = var.data_collection_rule_enabled ? toset(["enabled"]) : []
+
   name                = local.dcr_name
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -31,6 +32,7 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
       })
     }
   }
+
   lifecycle {
     precondition {
       condition     = var.data_collection_rule.log_analytics_workspace_id != null
