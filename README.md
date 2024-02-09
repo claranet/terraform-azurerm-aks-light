@@ -18,6 +18,7 @@ Non-exhaustive feature list, most of them can be overridden:
 * [Workload identities](https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity) enabled by default
 * Additional node pools can be configured within the module
 * Azure naming convention for all resources
+* [Container Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-overview) enabled by default
 
 # Why replacing the previous Claranet AKS module
 
