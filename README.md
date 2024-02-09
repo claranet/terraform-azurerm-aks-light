@@ -279,7 +279,7 @@ module "aks" {
 | client\_name | Client name/account used in naming. | `string` | n/a | yes |
 | container\_registries\_ids | List of Azure Container Registries IDs where Azure Kubernetes Service needs pull access. | `list(string)` | `[]` | no |
 | custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
-| custom\_name | Custom AKS, generated if not set. | `string` | `""` | no |
+| custom\_name | Custom AKS name, generated if not set. | `string` | `""` | no |
 | data\_collection\_rule | AKS Data Collection Rule configuration. | <pre>object({<br>    custom_log_analytics_workspace_id = optional(string)<br>    data_streams = optional(list(string), [<br>      "Microsoft-ContainerLog",<br>      "Microsoft-ContainerLogV2",<br>      "Microsoft-KubeEvents",<br>      "Microsoft-KubePodInventory",<br>      "Microsoft-InsightsMetrics",<br>      "Microsoft-ContainerInventory",<br>      "Microsoft-ContainerNodeInventory",<br>      "Microsoft-KubeNodeInventory",<br>      "Microsoft-KubeServices",<br>      "Microsoft-KubePVInventory"<br>    ])<br>    namespaces_filter = optional(list(string), [<br>      "kube-system",<br>      "gatekeeper-system",<br>      "kube-node-lease",<br>      "calico-system",<br>    ])<br>    namespace_filtering_mode = optional(string, "Exclude")<br>    data_collection_interval = optional(string, "5m")<br>    container_log_v2_enabled = optional(bool, true)<br>  })</pre> | `{}` | no |
 | data\_collection\_rule\_custom\_name | Custom name for the AKS Data Collection Rule. | `string` | `null` | no |
 | data\_collection\_rule\_enabled | Whether to enable the Data Collection Rule. | `bool` | `true` | no |

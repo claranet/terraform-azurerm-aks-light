@@ -13,7 +13,7 @@ variable "name_suffix" {
 
 # Custom naming override
 variable "custom_name" {
-  description = "Custom AKS, generated if not set."
+  description = "Custom AKS name, generated if not set."
   type        = string
   default     = ""
 }
