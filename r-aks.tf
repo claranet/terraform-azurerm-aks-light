@@ -65,7 +65,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "oms_agent" {
     for_each = var.oms_agent[*]
     content {
-      log_analytics_workspace_id      = oms_agent.value.log_analytics_workspace_id
+      log_analytics_workspace_id      = coalesce(oms_agent.value.log_analytics_workspace_id, local.default_log_analytics)
       msi_auth_for_monitoring_enabled = oms_agent.value.msi_auth_for_monitoring_enabled
     }
   }

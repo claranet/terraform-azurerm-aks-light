@@ -8,7 +8,7 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
   destinations {
     log_analytics {
       name                  = "default-workspace"
-      workspace_resource_id = var.data_collection_rule.log_analytics_workspace_id
+      workspace_resource_id = coalesce(var.data_collection_rule.custom_log_analytics_workspace_id, local.default_log_analytics)
     }
   }
 
@@ -33,12 +33,6 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
     }
   }
 
-  lifecycle {
-    precondition {
-      condition     = var.data_collection_rule.log_analytics_workspace_id != null
-      error_message = "You must provide log_analytics_workspace_id in data_collection_rule variable."
-    }
-  }
 
   tags = merge(local.default_tags, var.extra_tags)
 }
