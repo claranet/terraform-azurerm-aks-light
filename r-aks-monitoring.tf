@@ -33,7 +33,6 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
     }
   }
 
-
   tags = merge(local.default_tags, var.extra_tags)
 }
 
