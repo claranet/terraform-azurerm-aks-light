@@ -30,6 +30,9 @@ module "run" {
   monitoring_function_enabled = false
 }
 
+# This must either be created in a separated stack, or targeted with
+# `terraform apply -target module.acr.azurerm_container_registry.registry`
+# as list output must be known by aks module
 module "acr" {
   source  = "claranet/acr/azurerm"
   version = "x.x.x"
@@ -82,7 +85,7 @@ module "nodes_subnet" {
 }
 
 data "http" "my_ip" {
-  url = "https://ip.clara.net"
+  url = "https://ip4.clara.net"
 }
 
 resource "tls_private_key" "key" {
@@ -116,7 +119,7 @@ module "aks" {
     {
       name            = "pool1"
       count           = 1
-      vm_size         = "Standard_D1_v2"
+      vm_size         = "Standard_DS2_v2"
       os_disk_type    = "Ephemeral"
       os_disk_size_gb = 30
       vnet_subnet_id  = module.nodes_subnet.subnet_id
