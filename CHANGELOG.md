@@ -1,3 +1,7 @@
+# v7.1.1 - 2024-02-13
+Fixed
+  * Fix public cluster configuration example
+
 # v7.1.0 - 2024-01-26
 
 Added
