@@ -4,12 +4,6 @@ variable "logs_kube_audit_enabled" {
   default     = false
 }
 
-variable "data_collection_rule_enabled" {
-  description = "Whether to enable the Data Collection Rule."
-  type        = bool
-  default     = true
-}
-
 variable "data_collection_rule" {
   description = "AKS Data Collection Rule configuration."
   type = object({

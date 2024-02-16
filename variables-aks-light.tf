@@ -219,7 +219,7 @@ variable "auto_scaler_profile" {
 variable "oms_agent" {
   description = "OMS Agent configuration."
   type = object({
-    log_analytics_workspace_id      = string
+    log_analytics_workspace_id      = optional(string)
     msi_auth_for_monitoring_enabled = optional(bool, true)
   })
 }
