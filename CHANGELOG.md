@@ -1,4 +1,4 @@
-# Unreleased
+# v7.1.1 - 2024-02-16
 
 Fixed
   * Fix public cluster configuration example
