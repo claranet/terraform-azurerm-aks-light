@@ -40,5 +40,5 @@ resource "azurerm_monitor_data_collection_rule_association" "dcr" {
   count                   = var.data_collection_rule.enabled ? 1 : 0
   name                    = azurerm_kubernetes_cluster.aks.name
   target_resource_id      = azurerm_kubernetes_cluster.aks.id
-  data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr["enabled"].id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr[0].id
 }
