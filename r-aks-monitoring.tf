@@ -1,5 +1,5 @@
 resource "azurerm_monitor_data_collection_rule" "dcr" {
-  for_each = var.data_collection_rule_enabled ? toset(["enabled"]) : []
+  count = var.data_collection_rule.enabled ? 1 : 0
 
   name                = local.dcr_name
   location            = var.location

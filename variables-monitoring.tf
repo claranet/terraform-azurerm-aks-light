@@ -13,6 +13,7 @@ variable "data_collection_rule_enabled" {
 variable "data_collection_rule" {
   description = "AKS Data Collection Rule configuration."
   type = object({
+    enabled                           = optional(bool, true)
     custom_log_analytics_workspace_id = optional(string)
     data_streams = optional(list(string), [
       "Microsoft-ContainerLog",
