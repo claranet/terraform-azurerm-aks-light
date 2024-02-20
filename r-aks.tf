@@ -11,6 +11,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   # Cluster config
   kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
+  automatic_channel_upgrade        = var.aks_automatic_channel_upgrade
   sku_tier                         = var.aks_sku_tier
   node_resource_group              = local.aks_nodes_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled

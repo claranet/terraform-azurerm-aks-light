@@ -346,3 +346,9 @@ variable "vnet_integration" {
     error_message = "var.vnet_integration.subnet_id must be set when VNet integration is enabled."
   }
 }
+
+variable "aks_automatic_channel_upgrade" {
+  description = "The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none."
+  type        = string
+  default     = "patch"
+}
