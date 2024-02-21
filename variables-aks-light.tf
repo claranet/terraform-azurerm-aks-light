@@ -351,4 +351,8 @@ variable "aks_automatic_channel_upgrade" {
   description = "The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none."
   type        = string
   default     = "patch"
+  validation {
+    condition     = try(contains(["patch", "rapid", "node-image", "stable"], var.aks_automatic_channel_upgrade), false) || var.aks_automatic_channel_upgrade == null
+    error_message = "The upgrade channel must be one of the following values: patch, rapid, node-image, stable or null."
+  }
 }
