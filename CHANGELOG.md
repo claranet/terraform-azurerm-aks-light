@@ -1,4 +1,4 @@
-# Unreleased
+# v7.2.0 - 2024-02-23
 
 Added
   * AZ-1348: Add Data Collection Rule management
