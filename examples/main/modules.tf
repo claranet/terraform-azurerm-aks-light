@@ -98,6 +98,20 @@ resource "tls_private_key" "key" {
   algorithm = "RSA"
 }
 
+module "containers_logs" {
+  source = "claranet/run/azurerm//modules/logs"
+
+  client_name         = var.client_name
+  environment         = var.environment
+  location            = module.azure_region.location
+  location_short      = module.azure_region.location_short
+  resource_group_name = module.rg.resource_group_name
+  stack               = var.stack
+
+  logs_storage_account_enabled        = false
+  log_analytics_workspace_custom_name = "log-aks-containers-${var.environment}-${module.azure_region.location_short}"
+}
+
 module "aks" {
   source  = "claranet/aks-light/azurerm"
   version = "x.x.x"
@@ -147,6 +161,10 @@ module "aks" {
 
   oms_agent = {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id
+  }
+
+  data_collection_rule = {
+    custom_log_analytics_workspace_id = module.containers_logs.log_analytics_workspace_id
   }
 
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
