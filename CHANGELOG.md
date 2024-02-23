@@ -2,6 +2,7 @@
 
 Added
   * AZ-1348: Add Data Collection Rule management
+  * AZ-1351: Add `upgrade_settings` parameter
 
 # v7.1.1 - 2024-02-16
 

@@ -22,6 +22,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   eviction_policy        = each.value.eviction_policy
   orchestrator_version   = each.value.orchestrator_version
   zones                  = each.value.zones
+  upgrade_settings {
+    max_surge = each.value.upgrade_settings.max_surge
+  }
 
   os_sku          = each.value.os_sku
   os_type         = can(regex("^Windows", each.value.os_sku)) ? "Windows" : "Linux"

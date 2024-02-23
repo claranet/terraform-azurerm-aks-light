@@ -154,6 +154,9 @@ variable "default_node_pool" {
     zones                       = optional(list(number), [1, 2, 3])
     tags                        = optional(map(string), {})
     temporary_name_for_rotation = optional(string)
+    upgrade_settings = optional(object({
+      max_surge = optional(string, "10%")
+    }), {})
   })
   nullable = false
   default  = {}
@@ -290,8 +293,11 @@ variable "node_pools" {
     priority             = optional(string)
     eviction_policy      = optional(string)
     orchestrator_version = optional(string)
-    zones                = optional(list(number), [1, 2, 3])
-    tags                 = optional(map(string), {})
+    upgrade_settings = optional(object({
+      max_surge = optional(string, "10%")
+    }), {})
+    zones = optional(list(number), [1, 2, 3])
+    tags  = optional(map(string), {})
   }))
   nullable = false
   default  = []
