@@ -45,6 +45,10 @@ resource "azurerm_role_assignment" "aks_kubelet_uai_acr_pull" {
   scope                = var.container_registries_ids[count.index]
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   role_definition_name = "AcrPull"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Role assignment for ACI, if ACI is enabled
