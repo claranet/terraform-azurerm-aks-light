@@ -48,10 +48,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
       https_proxy = http_proxy_config.value.https_proxy_url
       http_proxy  = http_proxy_config.value.http_proxy_url
       trusted_ca  = http_proxy_config.value.trusted_ca
-      no_proxy = distinct(concat(
+      no_proxy = distinct(compact(concat(
         local.default_no_proxy_list,
         http_proxy_config.value.no_proxy_list,
-      ))
+      )))
     }
   }
 

@@ -71,7 +71,7 @@ locals {
   is_network_cni                = var.aks_network_plugin.name == "azure"
   is_kubenet                    = var.aks_network_plugin.name == "kubenet"
 
-  default_no_proxy_list = compact([
+  default_no_proxy_list = [
     var.aks_pod_cidr,
     var.service_cidr,
     "localhost",
@@ -80,7 +80,7 @@ locals {
     "172.17.0.0/16",   # Default Docker bridge CIDR
     "168.63.129.16",   # Azure platform global VIP (https://learn.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16)
     "169.254.169.254", # Azure Instance Metadata Service (IMDS)
-  ])
+  ]
 
   #tflint-ignore: terraform_naming_convention
   _managed_private_dns_zone_name = try(split(".", azurerm_kubernetes_cluster.aks.private_fqdn), null)
