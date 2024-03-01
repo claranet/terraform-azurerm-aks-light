@@ -1,4 +1,4 @@
-# Unreleased
+# v7.2.1 - 2024-03-01
 
 Fixed
   * AZ-1364: Drop null/empty values in `no_proxy_list`
