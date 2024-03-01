@@ -216,7 +216,7 @@ module "aks" {
     ssh_key  = tls_private_key.key.public_key_openssh
   }
 
-  container_registries_ids = [module.acr.acr_id]
+  container_registry_id = module.acr.acr_id
 
   oms_agent = {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id
@@ -292,7 +292,7 @@ module "aks" {
 | auto\_scaler\_profile | Auto Scaler configuration. | <pre>object({<br>    balance_similar_node_groups      = optional(bool, false)<br>    expander                         = optional(string, "random")<br>    max_graceful_termination_sec     = optional(number, 600)<br>    max_node_provisioning_time       = optional(string, "15m")<br>    max_unready_nodes                = optional(number, 3)<br>    max_unready_percentage           = optional(number, 45)<br>    new_pod_scale_up_delay           = optional(string, "10s")<br>    scale_down_delay_after_add       = optional(string, "10m")<br>    scale_down_delay_after_delete    = optional(string, "10s")<br>    scale_down_delay_after_failure   = optional(string, "3m")<br>    scan_interval                    = optional(string, "10s")<br>    scale_down_unneeded              = optional(string, "10m")<br>    scale_down_unready               = optional(string, "20m")<br>    scale_down_utilization_threshold = optional(number, 0.5)<br>    empty_bulk_delete_max            = optional(number, 10)<br>    skip_nodes_with_local_storage    = optional(bool, true)<br>    skip_nodes_with_system_pods      = optional(bool, true)<br>  })</pre> | `null` | no |
 | azure\_policy\_enabled | Option to enable Azure Policy add-on. | `bool` | `true` | no |
 | client\_name | Client name/account used in naming. | `string` | n/a | yes |
-| container\_registries\_ids | List of Azure Container Registries IDs where Azure Kubernetes Service needs pull access. | `list(string)` | `[]` | no |
+| container\_registry\_id | Azure Container Registry ID where Azure Kubernetes Service needs pull access. | `string` | `null` | no |
 | custom\_diagnostic\_settings\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
 | custom\_name | Custom AKS name, generated if not set. | `string` | `""` | no |
 | data\_collection\_rule | AKS Data Collection Rule configuration. | <pre>object({<br>    enabled                           = optional(bool, true)<br>    custom_log_analytics_workspace_id = optional(string)<br>    data_streams = optional(list(string), [<br>      "Microsoft-ContainerLog",<br>      "Microsoft-ContainerLogV2",<br>      "Microsoft-KubeEvents",<br>      "Microsoft-KubePodInventory",<br>      "Microsoft-InsightsMetrics",<br>      "Microsoft-ContainerInventory",<br>      "Microsoft-ContainerNodeInventory",<br>      "Microsoft-KubeNodeInventory",<br>      "Microsoft-KubeServices",<br>      "Microsoft-KubePVInventory"<br>    ])<br>    namespaces_filter = optional(list(string), [<br>      "kube-system",<br>      "gatekeeper-system",<br>      "kube-node-lease",<br>      "calico-system",<br>    ])<br>    namespace_filtering_mode = optional(string, "Exclude")<br>    data_collection_interval = optional(string, "5m")<br>    container_log_v2_enabled = optional(bool, true)<br>  })</pre> | `{}` | no |

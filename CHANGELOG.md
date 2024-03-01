@@ -1,3 +1,8 @@
+# Unreleased
+
+Breaking
+ * [GH-10](https://github.com/claranet/terraform-azurerm-aks-light/issues/10): manage only one ACR attached to the cluster instead of a list, avoid `for_each/toset` terraform errors
+
 # v7.2.1 - 2024-03-01
 
 Fixed

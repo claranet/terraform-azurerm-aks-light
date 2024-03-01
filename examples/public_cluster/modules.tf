@@ -140,7 +140,7 @@ module "aks" {
     ssh_key  = tls_private_key.key.public_key_openssh
   }
 
-  container_registries_ids = [module.acr.acr_id]
+  container_registry_id = module.acr.acr_id
 
   oms_agent = {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id

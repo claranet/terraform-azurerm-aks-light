@@ -40,9 +40,9 @@ resource "azurerm_role_assignment" "aks_kubelet_uai_nodes_rg_contributor" {
 
 # Allow Kubelet Identity to authenticate with Azure Container Registry (ACR)
 resource "azurerm_role_assignment" "aks_kubelet_uai_acr_pull" {
-  count = length(var.container_registries_ids)
+  count = length(var.container_registry_id[*])
 
-  scope                = var.container_registries_ids[count.index]
+  scope                = var.container_registry_id
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   role_definition_name = "AcrPull"
 
