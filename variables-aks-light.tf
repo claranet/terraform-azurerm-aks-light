@@ -303,11 +303,10 @@ variable "node_pools" {
   default  = []
 }
 
-variable "container_registries_ids" {
-  description = "List of Azure Container Registries IDs where Azure Kubernetes Service needs pull access."
-  type        = list(string)
-  nullable    = false
-  default     = []
+variable "container_registry_id" {
+  description = "Azure Container Registry ID where Azure Kubernetes Service needs pull access."
+  type        = string
+  default     = null
 }
 
 variable "oidc_issuer_enabled" {
