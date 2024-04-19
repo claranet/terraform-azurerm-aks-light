@@ -1,3 +1,21 @@
+## 7.4.0 (2024-04-19)
+
+
+### Features
+
+* **AZ-1390:** add Azure active directory role based access control cbcabd6
+
+
+### Continuous Integration
+
+* **AZ-1391:** enable semantic-release [skip ci] 5001712
+
+
+### Miscellaneous Chores
+
+* **deps:** add renovate.json 3221e08
+* **deps:** update renovate.json 728fbe1
+
 # v7.3.0 - 2024-03-08
 
 Breaking
