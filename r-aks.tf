@@ -148,6 +148,19 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.azure_active_directory_rbac[*]
+    content {
+      managed                = var.azure_active_directory_rbac.managed_integration_enabled
+      tenant_id              = var.azure_active_directory_rbac.service_principal_azure_tenant_id
+      admin_group_object_ids = var.azure_active_directory_rbac.admin_group_object_ids
+      azure_rbac_enabled     = var.azure_active_directory_rbac.azure_rbac_enabled
+      client_app_id          = var.azure_active_directory_rbac.service_principal_client_app_id
+      server_app_id          = var.azure_active_directory_rbac.service_principal_server_app_id
+      server_app_secret      = var.azure_active_directory_rbac.service_principal_server_app_secret
+    }
+  }
+
   tags = merge(local.default_tags, var.extra_tags)
 
   depends_on = [
@@ -168,6 +181,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
     precondition {
       condition     = try(jsondecode(data.azapi_resource.subnet_delegation[0].output).properties.delegations[0].properties.serviceName, null) == "Microsoft.ContainerInstance/containerGroups" || var.aci_subnet_id == null
       error_message = "ACI subnet should be delegated to Microsoft.ContainerInstance/containerGroups"
+    }
+
+    precondition {
+      condition     = alltrue([var.azure_active_directory_rbac.managed_integration_enabled, var.azure_active_directory_rbac.service_principal_client_app_id == null, var.azure_active_directory_rbac.service_principal_server_app_id == null, var.azure_active_directory_rbac.service_principal_server_app_secret == null])
+      error_message = "Don't use managed_integration_enabled with service_principal_client_app_id, service_principal_server_app_id and service_principal_server_app_secret."
+    }
+
+    precondition {
+      condition     = alltrue([var.azure_active_directory_rbac.managed_integration_enabled, length(var.azure_active_directory_rbac.admin_group_object_ids) > 0])
+      error_message = "Please specify admin_group_object_ids when managed_integration is enabled."
     }
   }
 }
