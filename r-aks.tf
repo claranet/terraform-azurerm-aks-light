@@ -184,13 +184,21 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
 
     precondition {
-      condition     = alltrue([var.azure_active_directory_rbac.managed_integration_enabled, var.azure_active_directory_rbac.service_principal_client_app_id == null, var.azure_active_directory_rbac.service_principal_server_app_id == null, var.azure_active_directory_rbac.service_principal_server_app_secret == null])
-      error_message = "Don't use managed_integration_enabled with service_principal_client_app_id, service_principal_server_app_id and service_principal_server_app_secret."
+      condition = var.azure_active_directory_rbac == null || try(alltrue([
+        var.azure_active_directory_rbac.managed_integration_enabled,
+        var.azure_active_directory_rbac.service_principal_client_app_id == null,
+        var.azure_active_directory_rbac.service_principal_server_app_id == null,
+        var.azure_active_directory_rbac.service_principal_server_app_secret == null,
+      ]), false)
+      error_message = "`managed_integration_enabled` cannot be used with `service_principal_client_app_id`, `service_principal_server_app_id` and `service_principal_server_app_secret`."
     }
 
     precondition {
-      condition     = alltrue([var.azure_active_directory_rbac.managed_integration_enabled, length(var.azure_active_directory_rbac.admin_group_object_ids) > 0])
-      error_message = "Please specify admin_group_object_ids when managed_integration is enabled."
+      condition = var.azure_active_directory_rbac == null || try(alltrue([
+        var.azure_active_directory_rbac.managed_integration_enabled,
+        length(var.azure_active_directory_rbac.admin_group_object_ids) > 0,
+      ]), false)
+      error_message = "Please specify `admin_group_object_ids` when `managed_integration_enabled = true`."
     }
   }
 }
