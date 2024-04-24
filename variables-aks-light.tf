@@ -361,7 +361,7 @@ variable "azure_active_directory_rbac" {
   type = object({
     managed_integration_enabled         = optional(bool, true)
     service_principal_azure_tenant_id   = optional(string)
-    admin_group_object_ids              = optional(list(string))
+    admin_group_object_ids              = optional(list(string), [])
     azure_rbac_enabled                  = optional(bool, true)
     service_principal_client_app_id     = optional(string)
     service_principal_server_app_id     = optional(string)
