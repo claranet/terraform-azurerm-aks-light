@@ -1,3 +1,21 @@
+## 7.4.1 (2024-04-24)
+
+
+### Bug Fixes
+
+* **AZ-1396:** fix preconditions a804483
+
+
+### Continuous Integration
+
+* **AZ-1391:** update semantic-release config [skip ci] a1fe1de
+
+
+### Miscellaneous Chores
+
+* **deps:** enable automerge on renovate 882f324
+* **deps:** update dependency trivy to v0.50.2 5c777ce
+
 ## 7.4.0 (2024-04-19)
 
 
