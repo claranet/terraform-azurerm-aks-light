@@ -234,7 +234,7 @@ module "aks" {
 
 | Name | Version |
 |------|---------|
-| azapi | ~> 1.9 |
+| azapi | ~> 1.9, < 1.13 |
 | azuread | ~> 2.31 |
 | azurecaf | ~> 1.2, >= 1.2.22 |
 | azurerm | ~> 3.57 |
@@ -250,7 +250,7 @@ module "aks" {
 
 | Name | Type |
 |------|------|
-| [azapi_update_resource.aks_kubernetes_version](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/update_resource) | resource |
+| [azapi_update_resource.aks_kubernetes_version](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/update_resource) | resource |
 | [azurerm_kubernetes_cluster.aks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
 | [azurerm_kubernetes_cluster_node_pool.node_pools](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
 | [azurerm_monitor_data_collection_rule.dcr](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule) | resource |
@@ -263,7 +263,7 @@ module "aks" {
 | [azurerm_role_assignment.aks_uai_subnets_network_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_user_assigned_identity.aks_user_assigned_identity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
 | [null_resource.kubernetes_version_keeper](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
-| [azapi_resource.subnet_delegation](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/resource) | data source |
+| [azapi_resource.subnet_delegation](https://registry.terraform.io/providers/azure/azapi/latest/docs/data-sources/resource) | data source |
 | [azuread_service_principal.aci_identity](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/service_principal) | data source |
 | [azurecaf_name.aks](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
 | [azurecaf_name.aks_identity](https://registry.terraform.io/providers/aztfmod/azurecaf/latest/docs/data-sources/name) | data source |
