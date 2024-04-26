@@ -1,3 +1,17 @@
+## 7.4.2 (2024-04-26)
+
+
+### Bug Fixes
+
+* **AzAPI:** provider pinned `< v1.13` to avoid breaking changes 7ca614b
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency trivy to v0.50.4 a61f32b
+* **pre-commit:** update commitlint hook eb251a0
+* **release:** remove legacy `VERSION` file 1904a73
+
 ## 7.4.1 (2024-04-24)
 
 
