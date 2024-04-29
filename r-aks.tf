@@ -161,6 +161,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "monitor_metrics" {
+    for_each = var.monitor_metrics[*]
+
+    content {
+      annotations_allowed = var.monitor_metrics.annotations_allowed
+      labels_allowed      = var.monitor_metrics.labels_allowed
+    }
+  }
+
   tags = merge(local.default_tags, var.extra_tags)
 
   depends_on = [

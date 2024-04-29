@@ -369,3 +369,12 @@ variable "azure_active_directory_rbac" {
   })
   default = null
 }
+
+variable "monitor_metrics" {
+  description = "Specifies a Prometheus add-on profile for this Kubernetes Cluster."
+  type = object({
+    annotations_allowed = optional(string, null)
+    labels_allowed      = optional(string, null)
+  })
+  default = null
+}
