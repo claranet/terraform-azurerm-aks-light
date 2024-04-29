@@ -1,3 +1,10 @@
+## 7.5.0 (2024-04-29)
+
+
+### Features
+
+* **AZ-1398:** add feature block `monitor_metrics` 7883fc2
+
 ## 7.4.2 (2024-04-26)
 
 
