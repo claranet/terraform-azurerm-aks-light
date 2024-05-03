@@ -33,8 +33,8 @@ resource "azurerm_role_assignment" "aks_uai_route_table_contributor" {
 
 # Allow Kubelet Identity to manage AKS items in nodes RG
 resource "azurerm_role_assignment" "aks_kubelet_uai_nodes_rg_contributor" {
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  scope                = format("/subscriptions/%s/resourceGroups/%s", data.azurerm_subscription.current.subscription_id, azurerm_kubernetes_cluster.aks.node_resource_group)
+  principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
+  scope                = format("/subscriptions/%s/resourceGroups/%s", data.azurerm_subscription.current.subscription_id, azurerm_kubernetes_cluster.main.node_resource_group)
   role_definition_name = "Contributor"
 }
 
@@ -43,7 +43,7 @@ resource "azurerm_role_assignment" "aks_kubelet_uai_acr_pull" {
   count = length(var.container_registry_id[*])
 
   scope                = var.container_registry_id
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
   role_definition_name = "AcrPull"
 
   lifecycle {
@@ -56,7 +56,7 @@ data "azuread_service_principal" "aci_identity" {
   count = length(var.aci_subnet_id[*])
 
   display_name = "aciconnectorlinux-${local.aks_name}"
-  depends_on   = [azurerm_kubernetes_cluster.aks]
+  depends_on   = [azurerm_kubernetes_cluster.main]
 }
 
 resource "azurerm_role_assignment" "aci_assignment" {

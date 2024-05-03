@@ -76,15 +76,22 @@ locals {
     var.service_cidr,
     "localhost",
     "konnectivity",
-    "127.0.0.1",       # Localhost
-    "172.17.0.0/16",   # Default Docker bridge CIDR
-    "168.63.129.16",   # Azure platform global VIP (https://learn.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16)
+    "127.0.0.1",     # Localhost
+    "172.17.0.0/16", # Default Docker bridge CIDR
+    "168.63.129.16",
+    # Azure platform global VIP (https://learn.microsoft.com/en-us/azure/virtual-network/what-is-ip-address-168-63-129-16)
     "169.254.169.254", # Azure Instance Metadata Service (IMDS)
   ]
 
   #tflint-ignore: terraform_naming_convention
-  _managed_private_dns_zone_name = try(split(".", azurerm_kubernetes_cluster.aks.private_fqdn), null)
-  managed_private_dns_zone_name  = try(join(".", [for x in local._managed_private_dns_zone_name : x if index(local._managed_private_dns_zone_name, x) > 0]), null)
-  managed_private_dns_zone_id    = azurerm_kubernetes_cluster.aks.private_dns_zone_id == "System" ? format("%s/resourceGroups/%s/providers/Microsoft.Network/privateDnsZones/%s", data.azurerm_subscription.current.id, azurerm_kubernetes_cluster.aks.node_resource_group, local.managed_private_dns_zone_name) : null
-  default_log_analytics          = coalescelist([for r in var.logs_destinations_ids : r if contains(split("/", lower(r)), "microsoft.operationalinsights")], [null])[0]
+  _managed_private_dns_zone_name = try(split(".", azurerm_kubernetes_cluster.main.private_fqdn), null)
+  managed_private_dns_zone_name = try(join(".", [
+    for x in local._managed_private_dns_zone_name : x if index(local._managed_private_dns_zone_name, x) > 0
+  ]), null)
+  managed_private_dns_zone_id = azurerm_kubernetes_cluster.main.private_dns_zone_id == "System" ? format("%s/resourceGroups/%s/providers/Microsoft.Network/privateDnsZones/%s", data.azurerm_subscription.current.id, azurerm_kubernetes_cluster.main.node_resource_group, local.managed_private_dns_zone_name) : null
+  default_log_analytics = coalescelist([
+    for r in var.logs_destinations_ids : r if contains(split("/", lower(r)), "microsoft.operationalinsights")
+    ], [null])[
+    0
+  ]
 }

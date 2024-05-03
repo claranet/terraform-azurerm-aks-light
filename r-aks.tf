@@ -1,7 +1,7 @@
 #tfsec:ignore:azure-container-use-rbac-permissions
 #tfsec:ignore:azure-container-limit-authorized-ips
 #tfsec:ignore:azure-container-logging
-resource "azurerm_kubernetes_cluster" "aks" {
+resource "azurerm_kubernetes_cluster" "main" {
   name     = local.aks_name
   location = var.location
 
@@ -310,6 +310,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
+moved {
+  from = azurerm_kubernetes_cluster.aks
+  to   = azurerm_kubernetes_cluster.main
+}
+
 # Taken from https://github.com/Azure/terraform-azurerm-aks
 resource "null_resource" "kubernetes_version_keeper" {
   triggers = {
@@ -319,7 +324,7 @@ resource "null_resource" "kubernetes_version_keeper" {
 
 resource "azapi_update_resource" "aks_kubernetes_version" {
   type        = "Microsoft.ContainerService/managedClusters@2023-01-02-preview"
-  resource_id = azurerm_kubernetes_cluster.aks.id
+  resource_id = azurerm_kubernetes_cluster.main.id
 
   body = jsonencode({
     properties = {
@@ -328,7 +333,7 @@ resource "azapi_update_resource" "aks_kubernetes_version" {
   })
 
   depends_on = [
-    azurerm_kubernetes_cluster_node_pool.node_pools,
+    azurerm_kubernetes_cluster_node_pool.main,
   ]
 
   lifecycle {

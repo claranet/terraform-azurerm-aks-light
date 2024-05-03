@@ -1,4 +1,4 @@
-resource "azurerm_monitor_data_collection_rule" "dcr" {
+resource "azurerm_monitor_data_collection_rule" "main" {
   count = var.data_collection_rule.enabled ? 1 : 0
 
   name                = local.dcr_name
@@ -36,9 +36,20 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
   tags = merge(local.default_tags, var.extra_tags)
 }
 
-resource "azurerm_monitor_data_collection_rule_association" "dcr" {
-  count                   = var.data_collection_rule.enabled ? 1 : 0
-  name                    = azurerm_kubernetes_cluster.aks.name
-  target_resource_id      = azurerm_kubernetes_cluster.aks.id
-  data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr[0].id
+moved {
+  from = azurerm_monitor_data_collection_rule.dcr
+  to   = azurerm_monitor_data_collection_rule.main
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "main" {
+  count = var.data_collection_rule.enabled ? 1 : 0
+
+  name                    = azurerm_kubernetes_cluster.main.name
+  target_resource_id      = azurerm_kubernetes_cluster.main.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.main[0].id
+}
+
+moved {
+  from = azurerm_monitor_data_collection_rule_association.dcr
+  to   = azurerm_monitor_data_collection_rule_association.main
 }

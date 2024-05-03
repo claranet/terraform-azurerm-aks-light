@@ -1,9 +1,9 @@
-resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
+resource "azurerm_kubernetes_cluster_node_pool" "main" {
   for_each = {
     for np in local.node_pools : np.name => np
   }
 
-  kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
 
   name                   = each.value.name
   vm_size                = each.value.vm_size
@@ -75,4 +75,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   }
 
   tags = merge(local.default_tags, var.extra_tags, each.value.tags)
+}
+
+moved {
+  from = azurerm_kubernetes_cluster_node_pool.node_pools
+  to   = azurerm_kubernetes_cluster_node_pool.main
 }

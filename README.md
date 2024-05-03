@@ -61,38 +61,6 @@ More details about variables set by the `terraform-wrapper` available in the [do
 [Hashicorp Terraform](https://github.com/hashicorp/terraform/). Instead, we recommend to use [OpenTofu](https://github.com/opentofu/opentofu/).
 
 ```hcl
-module "azure_region" {
-  source  = "claranet/regions/azurerm"
-  version = "x.x.x"
-
-  azure_region = var.azure_region
-}
-
-module "rg" {
-  source  = "claranet/rg/azurerm"
-  version = "x.x.x"
-
-  location    = module.azure_region.location
-  client_name = var.client_name
-  environment = var.environment
-  stack       = var.stack
-}
-
-module "run" {
-  source  = "claranet/run/azurerm"
-  version = "x.x.x"
-
-  location       = module.azure_region.location
-  location_short = module.azure_region.location_short
-  client_name    = var.client_name
-  environment    = var.environment
-  stack          = var.stack
-
-  resource_group_name = module.rg.resource_group_name
-
-  monitoring_function_enabled = false
-}
-
 module "acr" {
   source  = "claranet/acr/azurerm"
   version = "x.x.x"
@@ -204,16 +172,18 @@ module "aks" {
     os_disk_size_gb = 64
   }
 
-  node_pools = [{
-    name                = "nodepool1"
-    vm_size             = "Standard_B4ms"
-    os_disk_type        = "Ephemeral"
-    os_disk_size_gb     = 100
-    vnet_subnet_id      = module.nodes_subnet.subnet_id
-    enable_auto_scaling = true
-    min_count           = 1
-    max_count           = 10
-  }]
+  node_pools = [
+    {
+      name                = "nodepool1"
+      vm_size             = "Standard_B4ms"
+      os_disk_type        = "Ephemeral"
+      os_disk_size_gb     = 100
+      vnet_subnet_id      = module.nodes_subnet.subnet_id
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 10
+    }
+  ]
 
   linux_profile = {
     username = "nodeadmin"
@@ -272,10 +242,10 @@ module "aks" {
 | Name | Type |
 |------|------|
 | [azapi_update_resource.aks_kubernetes_version](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/update_resource) | resource |
-| [azurerm_kubernetes_cluster.aks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
-| [azurerm_kubernetes_cluster_node_pool.node_pools](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
-| [azurerm_monitor_data_collection_rule.dcr](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule) | resource |
-| [azurerm_monitor_data_collection_rule_association.dcr](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule_association) | resource |
+| [azurerm_kubernetes_cluster.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
+| [azurerm_kubernetes_cluster_node_pool.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
+| [azurerm_monitor_data_collection_rule.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule) | resource |
+| [azurerm_monitor_data_collection_rule_association.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule_association) | resource |
 | [azurerm_role_assignment.aci_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.aks_kubelet_uai_acr_pull](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.aks_kubelet_uai_nodes_rg_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -297,19 +267,19 @@ module "aks" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| aci\_subnet\_id | ID of the Subnet for ACI virtual-nodes. | `string` | `null` | no |
-| aks\_automatic\_channel\_upgrade | The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none. | `string` | `"patch"` | no |
+| aci\_subnet\_id | ID of the subnet for ACI virtual-nodes. | `string` | `null` | no |
+| aks\_automatic\_channel\_upgrade | The upgrade channel for this Kubernetes cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none. | `string` | `"patch"` | no |
 | aks\_http\_proxy\_settings | Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list. | <pre>object({<br/>    https_proxy_url = optional(string)<br/>    http_proxy_url  = optional(string)<br/>    trusted_ca      = optional(string)<br/>    no_proxy_list   = optional(list(string), [])<br/>  })</pre> | `null` | no |
 | aks\_network\_mode | Azure Kubernetes Service network mode to use. Only available with Azure CNI. | `string` | `null` | no |
 | aks\_network\_plugin | Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created. | <pre>object({<br/>    name     = optional(string, "azure")<br/>    cni_mode = optional(string, "overlay")<br/>  })</pre> | `{}` | no |
 | aks\_network\_policy | Azure Kubernetes Service network policy to use. | `string` | `"calico"` | no |
 | aks\_pod\_cidr | CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay. | `string` | `null` | no |
 | aks\_route\_table\_id | Provide an existing Route Table ID when `outbound_type = "userDefinedRouting"`. Only available with Kubenet. | `string` | `null` | no |
-| aks\_sku\_tier | Azure Kubernetes Service SKU tier. Possible values are Free ou Standard | `string` | `"Standard"` | no |
+| aks\_sku\_tier | Azure Kubernetes Service SKU tier. Possible values are `Free` ou `Standard` | `string` | `"Standard"` | no |
 | aks\_user\_assigned\_identity\_custom\_name | Custom name for the AKS user assigned identity resource. | `string` | `null` | no |
 | aks\_user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource. | `string` | `null` | no |
-| aks\_user\_assigned\_identity\_tags | Tags to add to AKS MSI | `map(string)` | `{}` | no |
-| api\_server\_authorized\_ip\_ranges | IP ranges allowed to interact with Kubernetes API for public clusters.<br/>See documentation about "0.0.0.0/32" default value :<br/>- https://learn.microsoft.com/en-us/azure/aks/api-server-authorized-ip-ranges#allow-only-the-outbound-public-ip-of-the-standard-sku-load-balancer<br/>- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#public_network_access_enabled<br/><br/>Set to `0.0.0.0/0` to wide open (not recommended) | `list(string)` | <pre>[<br/>  "0.0.0.0/32"<br/>]</pre> | no |
+| aks\_user\_assigned\_identity\_tags | Tags to add to AKS MSI. | `map(string)` | `{}` | no |
+| api\_server\_authorized\_ip\_ranges | IP ranges allowed to interact with Kubernetes API for public clusters.<br/>See documentation about "0.0.0.0/32" default value :<br/>- https://learn.microsoft.com/en-us/azure/aks/api-server-authorized-ip-ranges#allow-only-the-outbound-public-ip-of-the-standard-sku-load-balancer<br/>- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#public_network_access_enabled<br/><br/>Set to `0.0.0.0/0` to wide open (not recommended). | `list(string)` | <pre>[<br/>  "0.0.0.0/32"<br/>]</pre> | no |
 | auto\_scaler\_profile | Auto Scaler configuration. | <pre>object({<br/>    balance_similar_node_groups      = optional(bool, false)<br/>    expander                         = optional(string, "random")<br/>    max_graceful_termination_sec     = optional(number, 600)<br/>    max_node_provisioning_time       = optional(string, "15m")<br/>    max_unready_nodes                = optional(number, 3)<br/>    max_unready_percentage           = optional(number, 45)<br/>    new_pod_scale_up_delay           = optional(string, "10s")<br/>    scale_down_delay_after_add       = optional(string, "10m")<br/>    scale_down_delay_after_delete    = optional(string, "10s")<br/>    scale_down_delay_after_failure   = optional(string, "3m")<br/>    scan_interval                    = optional(string, "10s")<br/>    scale_down_unneeded              = optional(string, "10m")<br/>    scale_down_unready               = optional(string, "20m")<br/>    scale_down_utilization_threshold = optional(number, 0.5)<br/>    empty_bulk_delete_max            = optional(number, 10)<br/>    skip_nodes_with_local_storage    = optional(bool, true)<br/>    skip_nodes_with_system_pods      = optional(bool, true)<br/>  })</pre> | `null` | no |
 | azure\_active\_directory\_rbac | Active Directory role based access control configuration. | <pre>object({<br/>    managed_integration_enabled         = optional(bool, true)<br/>    service_principal_azure_tenant_id   = optional(string)<br/>    admin_group_object_ids              = optional(list(string), [])<br/>    azure_rbac_enabled                  = optional(bool, true)<br/>    service_principal_client_app_id     = optional(string)<br/>    service_principal_server_app_id     = optional(string)<br/>    service_principal_server_app_secret = optional(string)<br/>  })</pre> | `null` | no |
 | azure\_policy\_enabled | Option to enable Azure Policy add-on. | `bool` | `true` | no |
@@ -320,8 +290,9 @@ module "aks" {
 | custom\_name | Custom AKS name, generated if not set. | `string` | `""` | no |
 | data\_collection\_rule | AKS Data Collection Rule configuration. | <pre>object({<br/>    enabled                           = optional(bool, true)<br/>    custom_log_analytics_workspace_id = optional(string)<br/>    data_streams = optional(list(string), [<br/>      "Microsoft-ContainerLog",<br/>      "Microsoft-ContainerLogV2",<br/>      "Microsoft-KubeEvents",<br/>      "Microsoft-KubePodInventory",<br/>      "Microsoft-InsightsMetrics",<br/>      "Microsoft-ContainerInventory",<br/>      "Microsoft-ContainerNodeInventory",<br/>      "Microsoft-KubeNodeInventory",<br/>      "Microsoft-KubeServices",<br/>      "Microsoft-KubePVInventory"<br/>    ])<br/>    namespaces_filter = optional(list(string), [<br/>      "kube-system",<br/>      "gatekeeper-system",<br/>      "kube-node-lease",<br/>      "calico-system",<br/>    ])<br/>    namespace_filtering_mode = optional(string, "Exclude")<br/>    data_collection_interval = optional(string, "5m")<br/>    container_log_v2_enabled = optional(bool, true)<br/>  })</pre> | `{}` | no |
 | data\_collection\_rule\_custom\_name | Custom name for the AKS Data Collection Rule. | `string` | `null` | no |
-| default\_node\_pool | Default Node Pool configuration. | <pre>object({<br/>    name                        = optional(string, "default")<br/>    type                        = optional(string, "VirtualMachineScaleSets")<br/>    vm_size                     = optional(string, "Standard_D2_v3")<br/>    os_sku                      = optional(string, "Ubuntu")<br/>    os_disk_type                = optional(string, "Managed")<br/>    os_disk_size_gb             = optional(number)<br/>    enable_auto_scaling         = optional(bool, false)<br/>    node_count                  = optional(number, 1)<br/>    min_count                   = optional(number, 1)<br/>    max_count                   = optional(number, 10)<br/>    max_pods                    = optional(number)<br/>    node_labels                 = optional(map(any))<br/>    enable_host_encryption      = optional(bool)<br/>    enable_node_public_ip       = optional(bool, false)<br/>    orchestrator_version        = optional(string)<br/>    zones                       = optional(list(number), [1, 2, 3])<br/>    tags                        = optional(map(string), {})<br/>    temporary_name_for_rotation = optional(string)<br/>    upgrade_settings = optional(object({<br/>      max_surge = optional(string, "10%")<br/>    }), {})<br/>    linux_os_config = optional(object({<br/>      swap_file_size_mb             = optional(number)<br/>      transparent_huge_page_enabled = optional(string)<br/>      transparent_huge_page_defrag  = optional(string)<br/>      sysctl_config = optional(object({<br/>        fs_aio_max_nr                      = optional(number)<br/>        fs_file_max                        = optional(number)<br/>        fs_inotify_max_user_watches        = optional(number)<br/>        fs_nr_open                         = optional(number)<br/>        kernel_threads_max                 = optional(number)<br/>        net_core_netdev_max_backlog        = optional(number)<br/>        net_core_optmem_max                = optional(number)<br/>        net_core_rmem_default              = optional(number)<br/>        net_core_rmem_max                  = optional(number)<br/>        net_core_somaxconn                 = optional(number)<br/>        net_core_wmem_default              = optional(number)<br/>        net_core_wmem_max                  = optional(number)<br/>        net_ipv4_ip_local_port_range_max   = optional(number)<br/>        net_ipv4_ip_local_port_range_min   = optional(number)<br/>        net_ipv4_neigh_default_gc_thresh1  = optional(number)<br/>        net_ipv4_neigh_default_gc_thresh2  = optional(number)<br/>        net_ipv4_neigh_default_gc_thresh3  = optional(number)<br/>        net_ipv4_tcp_fin_timeout           = optional(number)<br/>        net_ipv4_tcp_keepalive_intvl       = optional(number)<br/>        net_ipv4_tcp_keepalive_probes      = optional(number)<br/>        net_ipv4_tcp_keepalive_time        = optional(number)<br/>        net_ipv4_tcp_max_syn_backlog       = optional(number)<br/>        net_ipv4_tcp_max_tw_buckets        = optional(number)<br/>        net_ipv4_tcp_tw_reuse              = optional(bool)<br/>        net_netfilter_nf_conntrack_buckets = optional(number)<br/>        net_netfilter_nf_conntrack_max     = optional(number)<br/>        vm_max_map_count                   = optional(number)<br/>        vm_swappiness                      = optional(number)<br/>        vm_vfs_cache_pressure              = optional(number)<br/>      }))<br/>    }))<br/>  })</pre> | `{}` | no |
+| default\_node\_pool | Default Node Pool configuration. | <pre>object({<br/>    name                        = optional(string, "default")<br/>    type                        = optional(string, "VirtualMachineScaleSets")<br/>    vm_size                     = optional(string, "Standard_D2_v3")<br/>    os_sku                      = optional(string, "Ubuntu")<br/>    os_disk_type                = optional(string, "Managed")<br/>    os_disk_size_gb             = optional(number)<br/>    enable_auto_scaling         = optional(bool, false)<br/>    node_count                  = optional(number, 1)<br/>    min_count                   = optional(number, 1)<br/>    max_count                   = optional(number, 10)<br/>    max_pods                    = optional(number)<br/>    node_labels                 = optional(map(any))<br/>    node_taints                 = optional(list(any))<br/>    enable_host_encryption      = optional(bool)<br/>    enable_node_public_ip       = optional(bool, false)<br/>    orchestrator_version        = optional(string)<br/>    zones                       = optional(list(number), [1, 2, 3])<br/>    tags                        = optional(map(string), {})<br/>    temporary_name_for_rotation = optional(string)<br/>    upgrade_settings = optional(object({<br/>      max_surge = optional(string, "10%")<br/>    }), {})<br/>  })</pre> | `{}` | no |
 | default\_tags\_enabled | Option to enable or disable default tags. | `bool` | `true` | no |
+| diagnostic\_settings\_custom\_name | Custom name of the diagnostics settings, name will be 'default' if not set. | `string` | `"default"` | no |
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
@@ -332,26 +303,26 @@ module "aks" {
 | location | Azure region to use. | `string` | n/a | yes |
 | location\_short | Short string for Azure location. | `string` | n/a | yes |
 | logs\_categories | Log categories to send to destinations. | `list(string)` | `null` | no |
-| logs\_destinations\_ids | List of destination resources IDs for logs diagnostic destination.<br/>Can be `Storage Account`, `Log Analytics Workspace` and `Event Hub`. No more than one of each can be set.<br/>If you want to specify an Azure EventHub to send logs and metrics to, you need to provide a formated string with both the EventHub Namespace authorization send ID and the EventHub name (name of the queue to use in the Namespace) separated by the `pipe` (\\|) character. | `list(string)` | n/a | yes |
+| logs\_destinations\_ids | List of destination resources IDs for logs diagnostic destination.<br/>Can be `Storage Account`, `Log Analytics Workspace` and `Event Hub`. No more than one of each can be set.<br/>If you want to specify an Azure EventHub to send logs and metrics to, you need to provide a formatted string with both the EventHub Namespace authorization send ID and the EventHub name (name of the queue to use in the Namespace) separated by the `pipe` (\\|) character. | `list(string)` | n/a | yes |
 | logs\_kube\_audit\_enabled | Whether to include `kube-audit` and `kube-audit-admin` logs from diagnostics settings collection. Enabling this can increase your Azure billing. | `bool` | `false` | no |
 | logs\_metrics\_categories | Metrics categories to send to destinations. | `list(string)` | `null` | no |
 | maintenance\_window | Maintenance window configuration. This is the basic configuration for controlling AKS releases. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli | <pre>object({<br/>    allowed = optional(list(object({<br/>      day   = string<br/>      hours = list(number)<br/>    })), [])<br/>    not_allowed = optional(list(object({<br/>      start = string<br/>      end   = string<br/>    })), [])<br/>  })</pre> | `null` | no |
 | maintenance\_window\_auto\_upgrade | Controls when to perform cluster upgrade whith more finely controlled cadence and recurrence settings compared to the basic one. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli | <pre>object({<br/>    frequency    = string<br/>    interval     = string<br/>    duration     = number<br/>    day_of_week  = optional(string)<br/>    day_of_month = optional(string)<br/>    week_index   = optional(string)<br/>    start_time   = string<br/>    utc_offset   = optional(string)<br/>    start_date   = optional(string)<br/>    not_allowed = optional(list(object({<br/>      start = string<br/>      end   = string<br/>    })), [])<br/>  })</pre> | `null` | no |
-| monitor\_metrics | Specifies a Prometheus add-on profile for this Kubernetes Cluster. | <pre>object({<br/>    annotations_allowed = optional(string, null)<br/>    labels_allowed      = optional(string, null)<br/>  })</pre> | `null` | no |
+| monitor\_metrics | Specifies a Prometheus add-on profile for this Kubernetes cluster. | <pre>object({<br/>    annotations_allowed = optional(string, null)<br/>    labels_allowed      = optional(string, null)<br/>  })</pre> | `null` | no |
 | name\_prefix | Optional prefix for the generated name. | `string` | `""` | no |
 | name\_suffix | Optional suffix for the generated name. | `string` | `""` | no |
-| node\_pools | A list of Node Pools to create. | <pre>list(object({<br/>    name              = string<br/>    vm_size           = optional(string, "Standard_D2_v3")<br/>    os_sku            = optional(string, "Ubuntu")<br/>    os_disk_type      = optional(string, "Managed")<br/>    os_disk_size_gb   = optional(number)<br/>    kubelet_disk_type = optional(string)<br/>    linux_os_config = optional(object({<br/>      swap_file_size_mb             = optional(number)<br/>      transparent_huge_page_enabled = optional(string)<br/>      transparent_huge_page_defrag  = optional(string)<br/>      sysctl_config = optional(object({<br/>        fs_aio_max_nr                      = optional(number)<br/>        fs_file_max                        = optional(number)<br/>        fs_inotify_max_user_watches        = optional(number)<br/>        fs_nr_open                         = optional(number)<br/>        kernel_threads_max                 = optional(number)<br/>        net_core_netdev_max_backlog        = optional(number)<br/>        net_core_optmem_max                = optional(number)<br/>        net_core_rmem_default              = optional(number)<br/>        net_core_rmem_max                  = optional(number)<br/>        net_core_somaxconn                 = optional(number)<br/>        net_core_wmem_default              = optional(number)<br/>        net_core_wmem_max                  = optional(number)<br/>        net_ipv4_ip_local_port_range_max   = optional(number)<br/>        net_ipv4_ip_local_port_range_min   = optional(number)<br/>        net_ipv4_neigh_default_gc_thresh1  = optional(number)<br/>        net_ipv4_neigh_default_gc_thresh2  = optional(number)<br/>        net_ipv4_neigh_default_gc_thresh3  = optional(number)<br/>        net_ipv4_tcp_fin_timeout           = optional(number)<br/>        net_ipv4_tcp_keepalive_intvl       = optional(number)<br/>        net_ipv4_tcp_keepalive_probes      = optional(number)<br/>        net_ipv4_tcp_keepalive_time        = optional(number)<br/>        net_ipv4_tcp_max_syn_backlog       = optional(number)<br/>        net_ipv4_tcp_max_tw_buckets        = optional(number)<br/>        net_ipv4_tcp_tw_reuse              = optional(bool)<br/>        net_netfilter_nf_conntrack_buckets = optional(number)<br/>        net_netfilter_nf_conntrack_max     = optional(number)<br/>        vm_max_map_count                   = optional(number)<br/>        vm_swappiness                      = optional(number)<br/>        vm_vfs_cache_pressure              = optional(number)<br/>      }))<br/>    }))<br/>    enable_auto_scaling    = optional(bool, false)<br/>    node_count             = optional(number, 1)<br/>    min_count              = optional(number, 1)<br/>    max_count              = optional(number, 10)<br/>    max_pods               = optional(number)<br/>    node_labels            = optional(map(any))<br/>    node_taints            = optional(list(any))<br/>    enable_host_encryption = optional(bool)<br/>    enable_node_public_ip  = optional(bool, false)<br/>    node_subnet = optional(object({<br/>      name                 = optional(string)<br/>      virtual_network_name = optional(string)<br/>      resource_group_name  = optional(string)<br/>    }), {})<br/>    pod_subnet = optional(object({<br/>      name                 = optional(string)<br/>      virtual_network_name = optional(string)<br/>      resource_group_name  = optional(string)<br/>    }), {})<br/>    priority             = optional(string)<br/>    eviction_policy      = optional(string)<br/>    orchestrator_version = optional(string)<br/>    upgrade_settings = optional(object({<br/>      max_surge = optional(string, "10%")<br/>    }), {})<br/>    zones = optional(list(number), [1, 2, 3])<br/>    tags  = optional(map(string), {})<br/>  }))</pre> | `[]` | no |
+| node\_pools | A list of node pools to create. | <pre>list(object({<br/>    name                   = string<br/>    vm_size                = optional(string, "Standard_D2_v3")<br/>    os_sku                 = optional(string, "Ubuntu")<br/>    os_disk_type           = optional(string, "Managed")<br/>    os_disk_size_gb        = optional(number)<br/>    kubelet_disk_type      = optional(string)<br/>    enable_auto_scaling    = optional(bool, false)<br/>    node_count             = optional(number, 1)<br/>    min_count              = optional(number, 1)<br/>    max_count              = optional(number, 10)<br/>    max_pods               = optional(number)<br/>    node_labels            = optional(map(any))<br/>    node_taints            = optional(list(any))<br/>    enable_host_encryption = optional(bool)<br/>    enable_node_public_ip  = optional(bool, false)<br/>    node_subnet = optional(object({<br/>      name                 = optional(string)<br/>      virtual_network_name = optional(string)<br/>      resource_group_name  = optional(string)<br/>    }), {})<br/>    pod_subnet = optional(object({<br/>      name                 = optional(string)<br/>      virtual_network_name = optional(string)<br/>      resource_group_name  = optional(string)<br/>    }), {})<br/>    priority             = optional(string)<br/>    eviction_policy      = optional(string)<br/>    orchestrator_version = optional(string)<br/>    upgrade_settings = optional(object({<br/>      max_surge = optional(string, "10%")<br/>    }), {})<br/>    zones = optional(list(number), [1, 2, 3])<br/>    tags  = optional(map(string), {})<br/>  }))</pre> | `[]` | no |
 | nodes\_resource\_group\_name | Name of the Resource Group in which to put Azure Kubernetes Service nodes. | `string` | `null` | no |
-| nodes\_subnet | The Subnet used by nodes. | <pre>object({<br/>    name                 = string<br/>    virtual_network_name = string<br/>    resource_group_name  = optional(string)<br/>  })</pre> | n/a | yes |
+| nodes\_subnet | The subnet used by nodes. | <pre>object({<br/>    name                 = string<br/>    virtual_network_name = string<br/>    resource_group_name  = optional(string)<br/>  })</pre> | n/a | yes |
 | oidc\_issuer\_enabled | Whether the OIDC issuer URL should be enabled. | `bool` | `true` | no |
 | oms\_agent | OMS Agent configuration. | <pre>object({<br/>    log_analytics_workspace_id      = optional(string)<br/>    msi_auth_for_monitoring_enabled = optional(bool, true)<br/>  })</pre> | n/a | yes |
 | outbound\_type | The outbound (egress) routing method which should be used. Possible values are `loadBalancer` and `userDefinedRouting`. | `string` | `"loadBalancer"` | no |
-| pods\_subnet | The Subnet containing the pods. | <pre>object({<br/>    name                 = optional(string)<br/>    virtual_network_name = optional(string)<br/>    resource_group_name  = optional(string)<br/>  })</pre> | `{}` | no |
-| private\_cluster\_enabled | Configure Azure Kubernetes Service as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled | `bool` | `true` | no |
-| private\_cluster\_public\_fqdn\_enabled | Specifies whether a Public FQDN for this Private Cluster should be added: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_public_fqdn_enabled | `bool` | `false` | no |
+| pods\_subnet | The subnet containing the pods. | <pre>object({<br/>    name                 = optional(string)<br/>    virtual_network_name = optional(string)<br/>    resource_group_name  = optional(string)<br/>  })</pre> | `{}` | no |
+| private\_cluster\_enabled | Configure Azure Kubernetes Service as a private cluster. See [documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled). | `bool` | `true` | no |
+| private\_cluster\_public\_fqdn\_enabled | Specifies whether a public FQDN for this private cluster should be added. See [documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_public_fqdn_enabled). | `bool` | `false` | no |
 | private\_dns\_zone\_id | ID of the Private DNS Zone when `private_dns_zone_type = "Custom"`. | `string` | `null` | no |
 | private\_dns\_zone\_role\_assignment\_enabled | Option to enable or disable Private DNS Zone role assignment. | `bool` | `true` | no |
-| private\_dns\_zone\_type | Set Azure Kubernetes Service private DNS zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io)<br/>- "Custom" : You will have to deploy a private DNS Zone on your own and provide the ID with <private\_dns\_zone\_id> variable<br/>- "System" : AKS will manage the Private DNS Zone and creates it in the Node Resource Group<br/>- "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.<br/><br/>https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id | `string` | `"System"` | no |
+| private\_dns\_zone\_type | Set Azure Kubernetes Service private DNS zone if needed and if private cluster is enabled (privatelink.<region>.azmk8s.io).<br/>- "Custom" : You will have to deploy a private DNS Zone on your own and provide the ID with <private\_dns\_zone\_id> variable.<br/>- "System" : AKS will manage the Private DNS Zone and creates it in the Node Resource Group.<br/>- "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.<br/><br/>https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id | `string` | `"System"` | no |
 | resource\_group\_name | Name of the resource group. | `string` | n/a | yes |
 | service\_cidr | CIDR used by Kubernetes services (kubectl get svc). | `string` | n/a | yes |
 | stack | Project stack name. | `string` | n/a | yes |
@@ -363,7 +334,6 @@ module "aks" {
 
 | Name | Description |
 |------|-------------|
-| aks | AKS output object. |
 | apiserver\_endpoint | APIServer Endpoint of the Azure Kubernetes Service. |
 | id | ID of the Azure Kubernetes Service. |
 | identity\_principal\_id | AKS System Managed Identity principal ID. |
@@ -375,6 +345,7 @@ module "aks" {
 | managed\_private\_dns\_zone\_id | ID of the AKS' managed Private DNS Zone. |
 | managed\_private\_dns\_zone\_name | Name of the AKS' managed Private DNS Zone. |
 | managed\_private\_dns\_zone\_resource\_group\_name | Resource Group name of the AKS' managed Private DNS Zone. |
+| module\_diagnostics | Diagnostics Settings module output. |
 | name | Name of the Azure Kubernetes Service. |
 | node\_pools | Map of Azure Kubernetes Service Node Pools attributes. |
 | nodes\_resource\_group\_name | Name of the Resource Group in which Azure Kubernetes Service nodes are deployed. |
@@ -383,6 +354,9 @@ module "aks" {
 | private\_cluster\_enabled | Whether private cluster is enabled. |
 | private\_fqdn | Private FQDNs of the Azure Kubernetes Service. |
 | public\_fqdn | Public FQDN of the Azure Kubernetes Service. |
+| resource | Resource output. |
+| resource\_data\_collection\_rule | Data Collection Rule resource output. |
+| resource\_node\_pools | Azure Kubernetes Node Pools resource output. |
 | user\_managed\_identity | The User Managed Identity used by the Azure Kubernetes Service. |
 <!-- END_TF_DOCS -->
 
