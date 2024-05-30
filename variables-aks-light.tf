@@ -378,3 +378,38 @@ variable "monitor_metrics" {
   })
   default = null
 }
+
+variable "maintenance_window" {
+  description = "Maintenance window configuration."
+  type = object({
+    allowed = optional(list(object({
+      day   = string
+      hours = list(number)
+    })), [])
+    not_allowed = optional(list(object({
+      start = string
+      end   = string
+    })), [])
+  })
+  default = null
+}
+
+variable "maintenance_window_auto_upgrade" {
+  description = "Cluster auto ugprade maintenance window."
+  type = object({
+    frequency    = string
+    interval     = string
+    duration     = number
+    day_of_week  = optional(string)
+    day_of_month = optional(string)
+    week_index   = optional(string)
+    start_time   = string
+    utc_offset   = optional(string)
+    start_date   = optional(string)
+    not_allowed = optional(list(object({
+      start = string
+      end   = string
+    })), [])
+  })
+  default = null
+}
