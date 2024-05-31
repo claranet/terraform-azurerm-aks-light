@@ -380,7 +380,7 @@ variable "monitor_metrics" {
 }
 
 variable "maintenance_window" {
-  description = "Maintenance window configuration."
+  description = "Maintenance window configuration. This is the basic configuration for controlling AKS releases. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli"
   type = object({
     allowed = optional(list(object({
       day   = string
@@ -395,7 +395,7 @@ variable "maintenance_window" {
 }
 
 variable "maintenance_window_auto_upgrade" {
-  description = "Cluster auto ugprade maintenance window."
+  description = "Controls when to perform cluster upgrade whith more finely controlled cadence and recurrence settings compared to the basic one. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli"
   type = object({
     frequency    = string
     interval     = string

@@ -167,5 +167,22 @@ module "aks" {
     custom_log_analytics_workspace_id = module.containers_logs.log_analytics_workspace_id
   }
 
+  maintenance_window = {
+    allowed = [{
+      day   = "Monday"
+      hours = [10, 11, 12, 13, 14]
+    }]
+  }
+
+  maintenance_window_auto_upgrade = {
+    frequency   = "RelativeMonthly"
+    interval    = 1
+    duration    = 4
+    week_index  = "First"
+    day_of_week = "Monday"
+    start_time  = "10:00"
+    utc_offset  = "+02:00"
+  }
+
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
 }
