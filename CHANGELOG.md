@@ -1,3 +1,27 @@
+## 7.6.0 (2024-05-31)
+
+
+### Features
+
+* **AZ-1416:** add maintenance window configuration cd8431f
+
+
+### Miscellaneous Chores
+
+* **AZ-1416:** bump AzureRM min version to 3.63 3befa97
+* **AZ-1416:** update Example and variable description 020b414
+* **deps:** update dependency opentofu to v1.7.0 8f35463
+* **deps:** update dependency opentofu to v1.7.1 1719b82
+* **deps:** update dependency pre-commit to v3.7.1 b00435a
+* **deps:** update dependency terraform-docs to v0.18.0 52f461d
+* **deps:** update dependency tflint to v0.51.0 a8a22cc
+* **deps:** update dependency tflint to v0.51.1 9ebdf16
+* **deps:** update dependency trivy to v0.51.0 a69eb0b
+* **deps:** update dependency trivy to v0.51.1 1cda4ad
+* **deps:** update dependency trivy to v0.51.2 bbcadae
+* **deps:** update dependency trivy to v0.51.3 7fe2729
+* **deps:** update dependency trivy to v0.51.4 4e66369
+
 ## 7.5.0 (2024-04-29)
 
 
