@@ -170,6 +170,48 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "maintenance_window" {
+    for_each = var.maintenance_window[*]
+    content {
+      dynamic "allowed" {
+        for_each = maintenance_window.value.allowed[*]
+        content {
+          day   = allowed.value.day
+          hours = allowed.value.hours
+        }
+      }
+      dynamic "not_allowed" {
+        for_each = maintenance_window.value.not_allowed[*]
+        content {
+          start = not_allowed.value.start
+          end   = not_allowed.value.end
+        }
+      }
+    }
+  }
+
+  dynamic "maintenance_window_auto_upgrade" {
+    for_each = var.maintenance_window_auto_upgrade[*]
+    content {
+      frequency    = maintenance_window_auto_upgrade.value.frequency
+      interval     = maintenance_window_auto_upgrade.value.interval
+      duration     = maintenance_window_auto_upgrade.value.duration
+      day_of_week  = maintenance_window_auto_upgrade.value.day_of_week
+      day_of_month = maintenance_window_auto_upgrade.value.day_of_month
+      week_index   = maintenance_window_auto_upgrade.value.week_index
+      start_time   = maintenance_window_auto_upgrade.value.start_time
+      utc_offset   = maintenance_window_auto_upgrade.value.utc_offset
+      start_date   = maintenance_window_auto_upgrade.value.start_date
+      dynamic "not_allowed" {
+        for_each = maintenance_window_auto_upgrade.value.not_allowed[*]
+        content {
+          start = not_allowed.value.start
+          end   = not_allowed.value.end
+        }
+      }
+    }
+  }
+
   tags = merge(local.default_tags, var.extra_tags)
 
   depends_on = [

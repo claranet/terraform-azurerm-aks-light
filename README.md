@@ -226,6 +226,23 @@ module "aks" {
     custom_log_analytics_workspace_id = module.containers_logs.log_analytics_workspace_id
   }
 
+  maintenance_window = {
+    allowed = [{
+      day   = "Monday"
+      hours = [10, 11, 12, 13, 14]
+    }]
+  }
+
+  maintenance_window_auto_upgrade = {
+    frequency   = "RelativeMonthly"
+    interval    = 1
+    duration    = 4
+    week_index  = "First"
+    day_of_week = "Monday"
+    start_time  = "10:00"
+    utc_offset  = "+02:00"
+  }
+
   logs_destinations_ids = [module.run.log_analytics_workspace_id]
 }
 ```
@@ -237,7 +254,7 @@ module "aks" {
 | azapi | ~> 1.9, < 1.13 |
 | azuread | ~> 2.31 |
 | azurecaf | ~> 1.2, >= 1.2.22 |
-| azurerm | ~> 3.57 |
+| azurerm | ~> 3.63 |
 | null | >= 3.0 |
 
 ## Modules
@@ -312,6 +329,8 @@ module "aks" {
 | logs\_destinations\_ids | List of destination resources IDs for logs diagnostic destination.<br>Can be `Storage Account`, `Log Analytics Workspace` and `Event Hub`. No more than one of each can be set.<br>If you want to specify an Azure EventHub to send logs and metrics to, you need to provide a formated string with both the EventHub Namespace authorization send ID and the EventHub name (name of the queue to use in the Namespace) separated by the `pipe` (\\|) character. | `list(string)` | n/a | yes |
 | logs\_kube\_audit\_enabled | Whether to include `kube-audit` and `kube-audit-admin` logs from diagnostics settings collection. Enabling this can increase your Azure billing. | `bool` | `false` | no |
 | logs\_metrics\_categories | Metrics categories to send to destinations. | `list(string)` | `null` | no |
+| maintenance\_window | Maintenance window configuration. This is the basic configuration for controlling AKS releases. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli | <pre>object({<br>    allowed = optional(list(object({<br>      day   = string<br>      hours = list(number)<br>    })), [])<br>    not_allowed = optional(list(object({<br>      start = string<br>      end   = string<br>    })), [])<br>  })</pre> | `null` | no |
+| maintenance\_window\_auto\_upgrade | Controls when to perform cluster upgrade whith more finely controlled cadence and recurrence settings compared to the basic one. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli | <pre>object({<br>    frequency    = string<br>    interval     = string<br>    duration     = number<br>    day_of_week  = optional(string)<br>    day_of_month = optional(string)<br>    week_index   = optional(string)<br>    start_time   = string<br>    utc_offset   = optional(string)<br>    start_date   = optional(string)<br>    not_allowed = optional(list(object({<br>      start = string<br>      end   = string<br>    })), [])<br>  })</pre> | `null` | no |
 | monitor\_metrics | Specifies a Prometheus add-on profile for this Kubernetes Cluster. | <pre>object({<br>    annotations_allowed = optional(string, null)<br>    labels_allowed      = optional(string, null)<br>  })</pre> | `null` | no |
 | name\_prefix | Optional prefix for the generated name. | `string` | `""` | no |
 | name\_suffix | Optional suffix for the generated name. | `string` | `""` | no |
