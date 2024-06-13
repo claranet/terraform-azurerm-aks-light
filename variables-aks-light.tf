@@ -243,6 +243,18 @@ variable "linux_profile" {
   default = null
 }
 
+variable "storage_profile" {
+  description = "Select the CSI drivers to be enabled."
+  type = object({
+    blob_driver_enabled         = optional(bool, false)
+    disk_driver_enabled         = optional(bool, true)
+    disk_driver_version         = optional(string, "v1") # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#disk_driver_version
+    file_driver_enabled         = optional(bool, true)
+    snapshot_controller_enabled = optional(bool, true)
+  })
+  default = null
+}
+
 variable "service_cidr" {
   description = "CIDR used by Kubernetes services (kubectl get svc)."
   type        = string

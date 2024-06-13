@@ -349,6 +349,7 @@ module "aks" {
 | resource\_group\_name | Name of the resource group. | `string` | n/a | yes |
 | service\_cidr | CIDR used by Kubernetes services (kubectl get svc). | `string` | n/a | yes |
 | stack | Project stack name. | `string` | n/a | yes |
+| storage\_profile | Select the CSI drivers to be enabled. | <pre>object({<br>    blob_driver_enabled         = optional(bool, false)<br>    disk_driver_enabled         = optional(bool, true)<br>    disk_driver_version         = optional(string, "v1") # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#disk_driver_version<br>    file_driver_enabled         = optional(bool, true)<br>    snapshot_controller_enabled = optional(bool, true)<br>  })</pre> | `null` | no |
 | vnet\_integration | Virtual Network integration configuration. | <pre>object({<br>    enabled   = optional(bool, false)<br>    subnet_id = optional(string)<br>  })</pre> | `{}` | no |
 | workload\_identity\_enabled | Whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 
