@@ -1,3 +1,17 @@
+## 7.7.0 (2024-06-14)
+
+
+### Features
+
+* **AZ-1424:** add `storage_profile` block e59bdb2
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.7.2 766c8df
+* **deps:** update dependency trivy to v0.52.0 14cbcee
+* **deps:** update dependency trivy to v0.52.1 6f6ec5a
+
 ## 7.6.0 (2024-05-31)
 
 
