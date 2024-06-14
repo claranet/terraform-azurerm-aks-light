@@ -148,6 +148,17 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "storage_profile" {
+    for_each = var.storage_profile[*]
+    content {
+      blob_driver_enabled         = var.storage_profile.blob_driver_enabled
+      disk_driver_enabled         = var.storage_profile.disk_driver_enabled
+      disk_driver_version         = var.storage_profile.disk_driver_version
+      file_driver_enabled         = var.storage_profile.file_driver_enabled
+      snapshot_controller_enabled = var.storage_profile.snapshot_controller_enabled
+    }
+  }
+
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.azure_active_directory_rbac[*]
     content {
@@ -163,7 +174,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   dynamic "monitor_metrics" {
     for_each = var.monitor_metrics[*]
-
     content {
       annotations_allowed = var.monitor_metrics.annotations_allowed
       labels_allowed      = var.monitor_metrics.labels_allowed
