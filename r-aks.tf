@@ -97,7 +97,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     min_count                   = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.min_count : null
     max_count                   = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.max_count : null
     node_labels                 = local.default_node_pool.node_labels
-    node_taints                 = local.default_node_pool.node_taints
     enable_host_encryption      = local.default_node_pool.enable_host_encryption
     enable_node_public_ip       = local.default_node_pool.enable_node_public_ip
     vnet_subnet_id              = local.default_node_pool.vnet_subnet_id
