@@ -1,3 +1,29 @@
+## 7.7.1 (2024-08-23)
+
+### Documentation
+
+* update README d239885
+
+### Code Refactoring
+
+* remove use of deprecated default_node_pool.node_taints d1dfa09, closes #12
+
+### Miscellaneous Chores
+
+* bump minimum required AzureRM provider cdb2059
+* **deps:** update dependency opentofu to v1.7.3 d4af9b5
+* **deps:** update dependency opentofu to v1.8.0 90cba62
+* **deps:** update dependency opentofu to v1.8.1 ee89cb0
+* **deps:** update dependency pre-commit to v3.8.0 43fa6de
+* **deps:** update dependency tflint to v0.51.2 c8aae76
+* **deps:** update dependency tflint to v0.52.0 8534e1e
+* **deps:** update dependency tflint to v0.53.0 b93352c
+* **deps:** update dependency trivy to v0.52.2 7f194ef
+* **deps:** update dependency trivy to v0.53.0 99b077d
+* **deps:** update pre-commit hook antonbabenko/pre-commit-terraform to v1.92.0 66a3b70
+* **deps:** update pre-commit hook antonbabenko/pre-commit-terraform to v1.92.2 bc2cfe5
+* **deps:** update tools 533d8ae
+
 ## 7.7.0 (2024-06-14)
 
 
