@@ -147,7 +147,6 @@ variable "default_node_pool" {
     max_count                   = optional(number, 10)
     max_pods                    = optional(number)
     node_labels                 = optional(map(any))
-    node_taints                 = optional(list(any))
     enable_host_encryption      = optional(bool)
     enable_node_public_ip       = optional(bool, false)
     orchestrator_version        = optional(string)
