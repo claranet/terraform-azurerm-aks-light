@@ -23,6 +23,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_cluster_public_fqdn_enabled = var.private_cluster_enabled == true ? var.private_cluster_public_fqdn_enabled : null
   private_dns_zone_id                 = var.private_cluster_enabled ? local.private_dns_zone : null
 
+  image_cleaner_enabled        = var.image_cleaner_configuration.enabled
+  image_cleaner_interval_hours = var.image_cleaner_configuration.interval_hours
+
   api_server_access_profile {
     authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
     vnet_integration_enabled = var.vnet_integration.enabled

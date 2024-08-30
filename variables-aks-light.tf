@@ -424,3 +424,13 @@ variable "maintenance_window_auto_upgrade" {
   })
   default = null
 }
+
+variable "image_cleaner_configuration" {
+  description = "Kubernetes image cleaner configuration."
+  type = object({
+    enabled        = optional(bool, true)
+    interval_hours = optional(number, 0)
+  })
+  nullable = false
+  default  = {}
+}
