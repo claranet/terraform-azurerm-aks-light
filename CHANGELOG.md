@@ -1,3 +1,17 @@
+## 7.8.0 (2024-08-30)
+
+### Features
+
+* **AZ-1450:** image cleaner support 88e3386
+
+### Miscellaneous Chores
+
+* default `interval_hours` to null d599eba
+* **deps:** update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.17.0 4098886
+* **deps:** update pre-commit hook antonbabenko/pre-commit-terraform to v1.92.3 7a38e84
+* **deps:** update pre-commit hook antonbabenko/pre-commit-terraform to v1.93.0 243a341
+* **deps:** update pre-commit hook antonbabenko/pre-commit-terraform to v1.94.0 7ccb397
+
 ## 7.7.1 (2024-08-23)
 
 ### Documentation
