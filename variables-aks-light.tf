@@ -429,7 +429,7 @@ variable "image_cleaner_configuration" {
   description = "Kubernetes image cleaner configuration."
   type = object({
     enabled        = optional(bool, true)
-    interval_hours = optional(number, 0)
+    interval_hours = optional(number)
   })
   nullable = false
   default  = {}
