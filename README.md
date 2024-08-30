@@ -320,6 +320,7 @@ module "aks" {
 | environment | Project environment. | `string` | n/a | yes |
 | extra\_tags | Additional tags to add on resources. | `map(string)` | `{}` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
+| image\_cleaner\_configuration | Kubernetes image cleaner configuration. | <pre>object({<br>    enabled        = optional(bool, true)<br>    interval_hours = optional(number)<br>  })</pre> | `{}` | no |
 | key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br>    secret_rotation_enabled  = optional(bool, true)<br>    secret_rotation_interval = optional(string)<br>  })</pre> | `{}` | no |
 | kubernetes\_version | Version of Kubernetes to deploy. | `string` | `null` | no |
 | linux\_profile | Username and SSH public key for accessing Linux nodes with SSH. | <pre>object({<br>    username = string<br>    ssh_key  = string<br>  })</pre> | `null` | no |
