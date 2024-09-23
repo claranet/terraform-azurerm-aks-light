@@ -156,6 +156,42 @@ variable "default_node_pool" {
     upgrade_settings = optional(object({
       max_surge = optional(string, "10%")
     }), {})
+    linux_os_config = optional(object({
+      swap_file_size_mb             = optional(number)
+      transparent_huge_page_enabled = optional(string)
+      transparent_huge_page_defrag  = optional(string)
+      sysctl_config = optional(object({
+        fs_aio_max_nr                      = optional(number)
+        fs_file_max                        = optional(number)
+        fs_inotify_max_user_watches        = optional(number)
+        fs_nr_open                         = optional(number)
+        kernel_threads_max                 = optional(number)
+        net_core_netdev_max_backlog        = optional(number)
+        net_core_optmem_max                = optional(number)
+        net_core_rmem_default              = optional(number)
+        net_core_rmem_max                  = optional(number)
+        net_core_somaxconn                 = optional(number)
+        net_core_wmem_default              = optional(number)
+        net_core_wmem_max                  = optional(number)
+        net_ipv4_ip_local_port_range_max   = optional(number)
+        net_ipv4_ip_local_port_range_min   = optional(number)
+        net_ipv4_neigh_default_gc_thresh1  = optional(number)
+        net_ipv4_neigh_default_gc_thresh2  = optional(number)
+        net_ipv4_neigh_default_gc_thresh3  = optional(number)
+        net_ipv4_tcp_fin_timeout           = optional(number)
+        net_ipv4_tcp_keepalive_intvl       = optional(number)
+        net_ipv4_tcp_keepalive_probes      = optional(number)
+        net_ipv4_tcp_keepalive_time        = optional(number)
+        net_ipv4_tcp_max_syn_backlog       = optional(number)
+        net_ipv4_tcp_max_tw_buckets        = optional(number)
+        net_ipv4_tcp_tw_reuse              = optional(bool)
+        net_netfilter_nf_conntrack_buckets = optional(number)
+        net_netfilter_nf_conntrack_max     = optional(number)
+        vm_max_map_count                   = optional(number)
+        vm_swappiness                      = optional(number)
+        vm_vfs_cache_pressure              = optional(number)
+      }))
+    }))
   })
   nullable = false
   default  = {}
@@ -245,9 +281,10 @@ variable "linux_profile" {
 variable "storage_profile" {
   description = "Select the CSI drivers to be enabled."
   type = object({
-    blob_driver_enabled         = optional(bool, false)
-    disk_driver_enabled         = optional(bool, true)
-    disk_driver_version         = optional(string, "v1") # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#disk_driver_version
+    blob_driver_enabled = optional(bool, false)
+    disk_driver_enabled = optional(bool, true)
+    disk_driver_version = optional(string, "v1")
+    # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#disk_driver_version
     file_driver_enabled         = optional(bool, true)
     snapshot_controller_enabled = optional(bool, true)
   })
@@ -276,12 +313,48 @@ variable "outbound_type" {
 variable "node_pools" {
   description = "A list of Node Pools to create."
   type = list(object({
-    name                   = string
-    vm_size                = optional(string, "Standard_D2_v3")
-    os_sku                 = optional(string, "Ubuntu")
-    os_disk_type           = optional(string, "Managed")
-    os_disk_size_gb        = optional(number)
-    kubelet_disk_type      = optional(string)
+    name              = string
+    vm_size           = optional(string, "Standard_D2_v3")
+    os_sku            = optional(string, "Ubuntu")
+    os_disk_type      = optional(string, "Managed")
+    os_disk_size_gb   = optional(number)
+    kubelet_disk_type = optional(string)
+    linux_os_config = optional(object({
+      swap_file_size_mb             = optional(number)
+      transparent_huge_page_enabled = optional(string)
+      transparent_huge_page_defrag  = optional(string)
+      sysctl_config = optional(object({
+        fs_aio_max_nr                      = optional(number)
+        fs_file_max                        = optional(number)
+        fs_inotify_max_user_watches        = optional(number)
+        fs_nr_open                         = optional(number)
+        kernel_threads_max                 = optional(number)
+        net_core_netdev_max_backlog        = optional(number)
+        net_core_optmem_max                = optional(number)
+        net_core_rmem_default              = optional(number)
+        net_core_rmem_max                  = optional(number)
+        net_core_somaxconn                 = optional(number)
+        net_core_wmem_default              = optional(number)
+        net_core_wmem_max                  = optional(number)
+        net_ipv4_ip_local_port_range_max   = optional(number)
+        net_ipv4_ip_local_port_range_min   = optional(number)
+        net_ipv4_neigh_default_gc_thresh1  = optional(number)
+        net_ipv4_neigh_default_gc_thresh2  = optional(number)
+        net_ipv4_neigh_default_gc_thresh3  = optional(number)
+        net_ipv4_tcp_fin_timeout           = optional(number)
+        net_ipv4_tcp_keepalive_intvl       = optional(number)
+        net_ipv4_tcp_keepalive_probes      = optional(number)
+        net_ipv4_tcp_keepalive_time        = optional(number)
+        net_ipv4_tcp_max_syn_backlog       = optional(number)
+        net_ipv4_tcp_max_tw_buckets        = optional(number)
+        net_ipv4_tcp_tw_reuse              = optional(bool)
+        net_netfilter_nf_conntrack_buckets = optional(number)
+        net_netfilter_nf_conntrack_max     = optional(number)
+        vm_max_map_count                   = optional(number)
+        vm_swappiness                      = optional(number)
+        vm_vfs_cache_pressure              = optional(number)
+      }))
+    }))
     enable_auto_scaling    = optional(bool, false)
     node_count             = optional(number, 1)
     min_count              = optional(number, 1)
@@ -362,7 +435,9 @@ variable "aks_automatic_channel_upgrade" {
   type        = string
   default     = "patch"
   validation {
-    condition     = try(contains(["patch", "rapid", "node-image", "stable"], var.aks_automatic_channel_upgrade), false) || var.aks_automatic_channel_upgrade == null
+    condition = try(contains([
+      "patch", "rapid", "node-image", "stable"
+    ], var.aks_automatic_channel_upgrade), false) || var.aks_automatic_channel_upgrade == null
     error_message = "The upgrade channel must be one of the following values: patch, rapid, node-image, stable or null."
   }
 }
