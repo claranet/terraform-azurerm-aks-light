@@ -1,5 +1,5 @@
 # Azure Kubernetes Service
-[![Changelog](https://img.shields.io/badge/changelog-release-green.svg)](CHANGELOG.md) [![Notice](https://img.shields.io/badge/notice-copyright-yellow.svg)](NOTICE) [![Apache V2 License](https://img.shields.io/badge/license-Apache%20V2-orange.svg)](LICENSE) [![TF Registry](https://img.shields.io/badge/terraform-registry-blue.svg)](https://registry.terraform.io/modules/claranet/aks-light/azurerm/)
+[![Changelog](https://img.shields.io/badge/changelog-release-green.svg)](CHANGELOG.md) [![Notice](https://img.shields.io/badge/notice-copyright-blue.svg)](NOTICE) [![Apache V2 License](https://img.shields.io/badge/license-Apache%20V2-orange.svg)](LICENSE) [![OpenTofu Registry](https://img.shields.io/badge/opentofu-registry-yellow.svg)](https://search.opentofu.org/module/claranet/aks-light/azurerm/)
 
 This Terraform module creates an [Azure Kubernetes Service](https://azure.microsoft.com/fr-fr/services/kubernetes-service/).
 
@@ -22,7 +22,7 @@ Non-exhaustive feature list, most of them can be overridden:
 
 # Why replacing the previous Claranet AKS module
 
-This modules supersedes the previous [AKS module](https://registry.terraform.io/modules/claranet/aks/azurerm).
+This modules supersedes the previous [AKS module](https://search.opentofu.org/module/claranet/aks/azurerm).
 We've built a new module to clean up the technical debt that piled up due to fast-moving AKS product and keep backwards
 compatibility for existing users. Also, we've decided to remove all Kubernetes resources from this new module as a
 [recommended best practice](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources)
