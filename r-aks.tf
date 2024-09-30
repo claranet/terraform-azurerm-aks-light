@@ -153,7 +153,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
           }
         }
       }
-
     }
 
     os_sku          = local.default_node_pool.os_sku
