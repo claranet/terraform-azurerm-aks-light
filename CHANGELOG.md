@@ -1,3 +1,18 @@
+## 7.10.0 (2024-10-03)
+
+### Features
+
+* **AZ-1462:** add linux_os_config block 06f6eb3
+
+### Documentation
+
+* **AZ-1462:** update README 139c7df
+
+### Miscellaneous Chores
+
+* **AZ-1462:** apply suggestion 54fdcf4
+* **deps:** update dependency trivy to v0.56.0 52a4d8a
+
 ## 7.9.0 (2024-10-03)
 
 ### Features
