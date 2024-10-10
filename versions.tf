@@ -12,7 +12,7 @@ terraform {
     # tflint-ignore: terraform_unused_required_providers
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 2.31"
+      version = "~> 3.0"
     }
     azapi = {
       source  = "azure/azapi"
