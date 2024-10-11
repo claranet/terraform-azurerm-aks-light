@@ -11,7 +11,7 @@ module "acr" {
   environment    = var.environment
   stack          = var.stack
 
-  resource_group_name = module.rg.resource_group_name
+  resource_group_name = module.rg.name
 
   sku = "Standard"
 
@@ -22,33 +22,31 @@ module "vnet" {
   source  = "claranet/vnet/azurerm"
   version = "x.x.x"
 
-  location       = module.azure_region.location
-  location_short = module.azure_region.location_short
-  client_name    = var.client_name
-  environment    = var.environment
-  stack          = var.stack
+  location            = module.azure_region.location
+  location_short      = module.azure_region.location_short
+  client_name         = var.client_name
+  environment         = var.environment
+  stack               = var.stack
+  resource_group_name = module.rg.name
 
-  resource_group_name = module.rg.resource_group_name
-
-  vnet_cidr = ["10.0.0.0/19"]
+  cidrs = ["10.0.0.0/19"]
 }
 
 module "nodes_subnet" {
   source  = "claranet/subnet/azurerm"
   version = "x.x.x"
 
-  location_short = module.azure_region.location_short
-  client_name    = var.client_name
-  environment    = var.environment
-  stack          = var.stack
-
-  resource_group_name = module.rg.resource_group_name
+  location_short      = module.azure_region.location_short
+  client_name         = var.client_name
+  environment         = var.environment
+  stack               = var.stack
+  resource_group_name = module.rg.name
 
   name_suffix = "nodes"
 
-  virtual_network_name = module.vnet.virtual_network_name
+  virtual_network_name = module.vnet.name
 
-  subnet_cidr_list  = ["10.0.0.0/20"]
+  cidrs             = ["10.0.0.0/20"]
   service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
@@ -56,7 +54,7 @@ data "http" "my_ip" {
   url = "https://ip4.clara.net"
 }
 
-resource "tls_private_key" "key" {
+resource "tls_private_key" "main" {
   algorithm = "RSA"
 }
 
@@ -64,20 +62,19 @@ module "aks" {
   source  = "claranet/aks-light/azurerm"
   version = "x.x.x"
 
-  location       = module.azure_region.location
-  location_short = module.azure_region.location_short
-  client_name    = var.client_name
-  environment    = var.environment
-  stack          = var.stack
+  location            = module.azure_region.location
+  location_short      = module.azure_region.location_short
+  client_name         = var.client_name
+  environment         = var.environment
+  stack               = var.stack
+  resource_group_name = module.rg.name
 
-  resource_group_name = module.rg.resource_group_name
-
-  kubernetes_version = "1.27.3"
+  kubernetes_version = "1.30.4"
   service_cidr       = "10.0.16.0/22"
 
   nodes_subnet = {
-    name                 = module.nodes_subnet.subnet_name
-    virtual_network_name = module.vnet.virtual_network_name
+    name                 = module.nodes_subnet.name
+    virtual_network_name = module.vnet.name
   }
 
   private_cluster_enabled         = false
@@ -90,13 +87,13 @@ module "aks" {
       vm_size         = "Standard_DS2_v2"
       os_disk_type    = "Ephemeral"
       os_disk_size_gb = 30
-      vnet_subnet_id  = module.nodes_subnet.subnet_id
+      vnet_subnet_id  = module.nodes_subnet.id
     },
     {
       name                = "bigpool1"
       vm_size             = "Standard_F8s_v2"
       os_disk_size_gb     = 30
-      vnet_subnet_id      = module.nodes_subnet.subnet_id
+      vnet_subnet_id      = module.nodes_subnet.id
       enable_auto_scaling = true
       min_count           = 3
       max_count           = 9
@@ -105,10 +102,10 @@ module "aks" {
 
   linux_profile = {
     username = "nodeadmin"
-    ssh_key  = tls_private_key.key.public_key_openssh
+    ssh_key  = tls_private_key.main.public_key_openssh
   }
 
-  container_registry_id = module.acr.acr_id
+  container_registry_id = module.acr.id
 
   oms_agent = {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id

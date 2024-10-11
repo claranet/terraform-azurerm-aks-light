@@ -5,23 +5,23 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
 
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
 
-  name                   = each.value.name
-  vm_size                = each.value.vm_size
-  os_disk_type           = each.value.os_disk_type
-  enable_auto_scaling    = each.value.enable_auto_scaling
-  node_count             = each.value.enable_auto_scaling ? null : each.value.node_count
-  min_count              = each.value.enable_auto_scaling ? each.value.min_count : null
-  max_count              = each.value.enable_auto_scaling ? each.value.max_count : null
-  node_labels            = each.value.node_labels
-  node_taints            = each.value.node_taints
-  enable_host_encryption = each.value.enable_host_encryption
-  enable_node_public_ip  = each.value.enable_node_public_ip
-  vnet_subnet_id         = each.value.vnet_subnet_id
-  pod_subnet_id          = each.value.pod_subnet_id
-  priority               = each.value.priority
-  eviction_policy        = each.value.eviction_policy
-  orchestrator_version   = each.value.orchestrator_version
-  zones                  = each.value.zones
+  name                    = each.value.name
+  vm_size                 = each.value.vm_size
+  os_disk_type            = each.value.os_disk_type
+  auto_scaling_enabled    = each.value.auto_scaling_enabled
+  node_count              = each.value.auto_scaling_enabled ? null : each.value.node_count
+  min_count               = each.value.auto_scaling_enabled ? each.value.min_count : null
+  max_count               = each.value.auto_scaling_enabled ? each.value.max_count : null
+  node_labels             = each.value.node_labels
+  node_taints             = each.value.node_taints
+  host_encryption_enabled = each.value.host_encryption_enabled
+  node_public_ip_enabled  = each.value.node_public_ip_enabled
+  vnet_subnet_id          = each.value.vnet_subnet_id
+  pod_subnet_id           = each.value.pod_subnet_id
+  priority                = each.value.priority
+  eviction_policy         = each.value.eviction_policy
+  orchestrator_version    = each.value.orchestrator_version
+  zones                   = each.value.zones
   upgrade_settings {
     max_surge = each.value.upgrade_settings.max_surge
   }

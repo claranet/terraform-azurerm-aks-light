@@ -10,7 +10,7 @@ variable "extra_tags" {
   default     = {}
 }
 
-variable "aks_user_assigned_identity_tags" {
+variable "user_assigned_identity_tags" {
   description = "Tags to add to AKS MSI."
   type        = map(string)
   default     = {}

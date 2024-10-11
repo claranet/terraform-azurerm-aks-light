@@ -141,15 +141,15 @@ variable "default_node_pool" {
     os_sku                      = optional(string, "Ubuntu")
     os_disk_type                = optional(string, "Managed")
     os_disk_size_gb             = optional(number)
-    enable_auto_scaling         = optional(bool, false)
+    auto_scaling_enabled        = optional(bool, false)
     node_count                  = optional(number, 1)
     min_count                   = optional(number, 1)
     max_count                   = optional(number, 10)
     max_pods                    = optional(number)
     node_labels                 = optional(map(any))
     node_taints                 = optional(list(any))
-    enable_host_encryption      = optional(bool)
-    enable_node_public_ip       = optional(bool, false)
+    host_encryption_enabled     = optional(bool)
+    node_public_ip_enabled      = optional(bool, false)
     orchestrator_version        = optional(string)
     zones                       = optional(list(number), [1, 2, 3])
     tags                        = optional(map(string), {})
@@ -295,10 +295,8 @@ variable "service_cidr" {
 variable "storage_profile" {
   description = "Select the CSI drivers to be enabled."
   type = object({
-    blob_driver_enabled = optional(bool, false)
-    disk_driver_enabled = optional(bool, true)
-    disk_driver_version = optional(string, "v1")
-    # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#disk_driver_version
+    blob_driver_enabled         = optional(bool, false)
+    disk_driver_enabled         = optional(bool, true)
     file_driver_enabled         = optional(bool, true)
     snapshot_controller_enabled = optional(bool, true)
   })
@@ -424,26 +422,12 @@ variable "key_vault_secrets_provider" {
   default = {}
 }
 
-variable "vnet_integration" {
-  description = "Virtual Network integration configuration."
-  type = object({
-    enabled   = optional(bool, false)
-    subnet_id = optional(string)
-  })
-  nullable = false
-  default  = {}
-  validation {
-    condition     = !var.vnet_integration.enabled || var.vnet_integration.subnet_id != null
-    error_message = "var.vnet_integration.subnet_id must be set when VNet integration is enabled."
-  }
-}
-
-variable "automatic_channel_upgrade" {
+variable "automatic_upgrade_channel" {
   description = "The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none."
   type        = string
   default     = "patch"
   validation {
-    condition     = try(contains(["patch", "rapid", "node-image", "stable"], var.automatic_channel_upgrade), false) || var.automatic_channel_upgrade == null
+    condition     = try(contains(["patch", "rapid", "node-image", "stable"], var.automatic_upgrade_channel), false) || var.automatic_upgrade_channel == null
     error_message = "The upgrade channel must be one of the following values: patch, rapid, node-image, stable or null."
   }
 }

@@ -1,6 +1,6 @@
 data "azurerm_subscription" "current" {}
 
-data "azurerm_kubernetes_service_versions" "versions" {
+data "azurerm_kubernetes_service_versions" "main" {
   location        = var.location
   include_preview = false
 }

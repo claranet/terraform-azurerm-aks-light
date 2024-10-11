@@ -1,5 +1,5 @@
 output "resource" {
-  description = "Resource output."
+  description = "Azure Kubernetes Cluster resource object."
   value       = azurerm_kubernetes_cluster.main
 }
 
@@ -30,7 +30,7 @@ output "private_cluster_enabled" {
 
 output "identity_principal_id" {
   description = "AKS System Managed Identity principal ID."
-  value       = try(azurerm_kubernetes_cluster.main.identity[0].principal_id, null)
+  value       = one(azurerm_kubernetes_cluster.main.identity[*].principal_id)
 }
 
 output "id" {
@@ -40,7 +40,7 @@ output "id" {
 
 output "name" {
   description = "Name of the Azure Kubernetes Service."
-  value       = local.aks_name
+  value       = local.name
 }
 
 output "nodes_resource_group_name" {
@@ -89,7 +89,7 @@ output "kube_config" {
 
 output "user_managed_identity" {
   description = "The User Managed Identity used by the Azure Kubernetes Service."
-  value       = azurerm_user_assigned_identity.aks_user_assigned_identity
+  value       = azurerm_user_assigned_identity.main
 }
 
 output "kubelet_user_managed_identity" {
