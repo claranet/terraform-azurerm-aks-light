@@ -2,7 +2,7 @@ resource "azurerm_user_assigned_identity" "aks_user_assigned_identity" {
   name     = local.aks_identity_name
   location = var.location
 
-  resource_group_name = coalesce(var.aks_user_assigned_identity_resource_group_name, var.resource_group_name)
+  resource_group_name = coalesce(var.user_assigned_identity_resource_group_name, var.resource_group_name)
 
   tags = local.aks_uai_tags
 }
@@ -26,7 +26,7 @@ resource "azurerm_role_assignment" "aks_uai_subnets_network_contributor" {
 resource "azurerm_role_assignment" "aks_uai_route_table_contributor" {
   count = local.is_kubenet && var.outbound_type == "userDefinedRouting" ? 1 : 0
 
-  scope                = var.aks_route_table_id
+  scope                = var.route_table_id
   principal_id         = azurerm_user_assigned_identity.aks_user_assigned_identity.principal_id
   role_definition_name = "Contributor"
 }

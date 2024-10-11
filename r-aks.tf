@@ -11,8 +11,8 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   # Cluster config
   kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
-  automatic_channel_upgrade        = var.aks_automatic_channel_upgrade
-  sku_tier                         = var.aks_sku_tier
+  automatic_channel_upgrade        = var.automatic_channel_upgrade
+  sku_tier                         = var.sku_tier
   node_resource_group              = local.aks_nodes_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
@@ -33,20 +33,19 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   network_profile {
-    network_plugin      = var.aks_network_plugin.name
-    network_plugin_mode = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "overlay" : null
-    network_policy      = var.aks_network_policy
-    network_mode        = local.is_network_cni ? var.aks_network_mode : null
+    network_plugin      = var.network_plugin.name
+    network_plugin_mode = local.is_network_cni && lower(var.network_plugin.cni_mode) == "overlay" ? "overlay" : null
+    network_policy      = var.network_policy
+    network_mode        = local.is_network_cni ? var.network_mode : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
     service_cidr        = var.service_cidr
     outbound_type       = var.outbound_type
-    pod_cidr            = var.aks_pod_cidr
-    ebpf_data_plane     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? "cilium" : null
+    pod_cidr            = var.pod_cidr
     load_balancer_sku   = "standard"
   }
 
   dynamic "http_proxy_config" {
-    for_each = var.aks_http_proxy_settings[*]
+    for_each = var.http_proxy_settings[*]
     content {
       https_proxy = http_proxy_config.value.https_proxy_url
       http_proxy  = http_proxy_config.value.http_proxy_url
@@ -84,7 +83,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   dynamic "aci_connector_linux" {
-    for_each = var.aci_subnet_id != null && var.aks_network_plugin != "kubenet" ? [true] : []
+    for_each = var.aci_subnet_id != null && var.network_plugin != "kubenet" ? [true] : []
     content {
       subnet_name = element(split("/", var.aci_subnet_id), length(split("/", var.aci_subnet_id)) - 1)
     }
@@ -208,13 +207,9 @@ resource "azurerm_kubernetes_cluster" "main" {
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.azure_active_directory_rbac[*]
     content {
-      managed                = var.azure_active_directory_rbac.managed_integration_enabled
       tenant_id              = var.azure_active_directory_rbac.service_principal_azure_tenant_id
       admin_group_object_ids = var.azure_active_directory_rbac.admin_group_object_ids
       azure_rbac_enabled     = var.azure_active_directory_rbac.azure_rbac_enabled
-      client_app_id          = var.azure_active_directory_rbac.service_principal_client_app_id
-      server_app_id          = var.azure_active_directory_rbac.service_principal_server_app_id
-      server_app_secret      = var.azure_active_directory_rbac.service_principal_server_app_secret
     }
   }
 
@@ -282,7 +277,7 @@ resource "azurerm_kubernetes_cluster" "main" {
       error_message = "var.oidc_issuer_enabled must be true when Workload Identity is enabled."
     }
     precondition {
-      condition     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pods_subnet != {} : true
+      condition     = local.is_network_cni && lower(var.network_plugin.cni_mode) == "cilium" ? var.pods_subnet != {} : true
       error_message = "var.pods_subnet must be set when using Azure CNI Cilium network."
     }
     precondition {

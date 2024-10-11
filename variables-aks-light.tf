@@ -31,14 +31,14 @@ variable "http_application_routing_enabled" {
 }
 
 variable "private_cluster_enabled" {
-  description = "Configure Azure Kubernetes Service as a Private Cluster: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled"
+  description = "Configure Azure Kubernetes Service as a Private Cluster. See [documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_enabled)."
   type        = bool
   nullable    = false
   default     = true
 }
 
 variable "private_cluster_public_fqdn_enabled" {
-  description = "Specifies whether a Public FQDN for this Private Cluster should be added: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_public_fqdn_enabled"
+  description = "Specifies whether a Public FQDN for this Private Cluster should be added. See [documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_cluster_public_fqdn_enabled)."
   type        = bool
   nullable    = false
   default     = false
@@ -51,7 +51,7 @@ Set Azure Kubernetes Service private DNS zone if needed and if private cluster i
 - "System" : AKS will manage the Private DNS Zone and creates it in the Node Resource Group
 - "None" : In case of None you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning.
 
-https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id
+See [documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#private_dns_zone_id).
 EOD
   type        = string
   nullable    = false
@@ -71,20 +71,20 @@ variable "private_dns_zone_role_assignment_enabled" {
   default     = true
 }
 
-variable "aks_user_assigned_identity_resource_group_name" {
+variable "user_assigned_identity_resource_group_name" {
   description = "Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource."
   type        = string
   default     = null
 }
 
-variable "aks_sku_tier" {
-  description = "Azure Kubernetes Service SKU tier. Possible values are Free ou Standard"
+variable "sku_tier" {
+  description = "Azure Kubernetes Service SKU tier. Possible values are `Free` ou `Standard`."
   type        = string
   nullable    = false
   default     = "Standard"
 }
 
-variable "aks_network_plugin" {
+variable "network_plugin" {
   description = "Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created."
   type = object({
     name     = optional(string, "azure")
@@ -94,34 +94,34 @@ variable "aks_network_plugin" {
   default  = {}
 
   validation {
-    condition     = contains(["azure", "kubenet"], var.aks_network_plugin.name)
+    condition     = contains(["azure", "kubenet"], var.network_plugin.name)
     error_message = "The network plugin value must be \"azure\" or \"kubenet\"."
   }
   validation {
-    condition     = contains(["none", "overlay", "cilium"], lower(var.aks_network_plugin.cni_mode))
+    condition     = contains(["none", "overlay", "cilium"], lower(var.network_plugin.cni_mode))
     error_message = "The network plugin value must be \"None\", \"Overlay\" or \"Cilium\"."
   }
 }
 
-variable "aks_network_policy" {
+variable "network_policy" {
   description = "Azure Kubernetes Service network policy to use."
   type        = string
   default     = "calico"
 }
 
-variable "aks_network_mode" {
+variable "network_mode" {
   description = "Azure Kubernetes Service network mode to use. Only available with Azure CNI."
   type        = string
   default     = null
 }
 
-variable "aks_route_table_id" {
+variable "route_table_id" {
   description = "Provide an existing Route Table ID when `outbound_type = \"userDefinedRouting\"`. Only available with Kubenet."
   type        = string
   default     = null
 }
 
-variable "aks_http_proxy_settings" {
+variable "http_proxy_settings" {
   description = "Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list."
   type = object({
     https_proxy_url = optional(string)
@@ -147,6 +147,7 @@ variable "default_node_pool" {
     max_count                   = optional(number, 10)
     max_pods                    = optional(number)
     node_labels                 = optional(map(any))
+    node_taints                 = optional(list(any))
     enable_host_encryption      = optional(bool)
     enable_node_public_ip       = optional(bool, false)
     orchestrator_version        = optional(string)
@@ -285,6 +286,12 @@ variable "linux_profile" {
   default = null
 }
 
+variable "service_cidr" {
+  description = "CIDR used by Kubernetes services (kubectl get svc)."
+  type        = string
+  nullable    = false
+}
+
 variable "storage_profile" {
   description = "Select the CSI drivers to be enabled."
   type = object({
@@ -298,13 +305,7 @@ variable "storage_profile" {
   default = null
 }
 
-variable "service_cidr" {
-  description = "CIDR used by Kubernetes services (kubectl get svc)."
-  type        = string
-  nullable    = false
-}
-
-variable "aks_pod_cidr" {
+variable "pod_cidr" {
   description = "CIDR used by pods when network plugin is set to `kubenet` or `azure` CNI Overlay."
   type        = string
   default     = null
@@ -437,14 +438,12 @@ variable "vnet_integration" {
   }
 }
 
-variable "aks_automatic_channel_upgrade" {
+variable "automatic_channel_upgrade" {
   description = "The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none."
   type        = string
   default     = "patch"
   validation {
-    condition = try(contains([
-      "patch", "rapid", "node-image", "stable"
-    ], var.aks_automatic_channel_upgrade), false) || var.aks_automatic_channel_upgrade == null
+    condition     = try(contains(["patch", "rapid", "node-image", "stable"], var.automatic_channel_upgrade), false) || var.automatic_channel_upgrade == null
     error_message = "The upgrade channel must be one of the following values: patch, rapid, node-image, stable or null."
   }
 }
@@ -452,13 +451,9 @@ variable "aks_automatic_channel_upgrade" {
 variable "azure_active_directory_rbac" {
   description = "Active Directory role based access control configuration."
   type = object({
-    managed_integration_enabled         = optional(bool, true)
-    service_principal_azure_tenant_id   = optional(string)
-    admin_group_object_ids              = optional(list(string), [])
-    azure_rbac_enabled                  = optional(bool, true)
-    service_principal_client_app_id     = optional(string)
-    service_principal_server_app_id     = optional(string)
-    service_principal_server_app_secret = optional(string)
+    tenant_id              = optional(string, null)
+    admin_group_object_ids = optional(list(string), [])
+    azure_rbac_enabled     = optional(bool, true)
   })
   default = null
 }
@@ -473,7 +468,7 @@ variable "monitor_metrics" {
 }
 
 variable "maintenance_window" {
-  description = "Maintenance window configuration. This is the basic configuration for controlling AKS releases. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli"
+  description = "Maintenance window configuration. This is the basic configuration for controlling AKS releases. See [documentation](https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli)."
   type = object({
     allowed = optional(list(object({
       day   = string
@@ -488,7 +483,7 @@ variable "maintenance_window" {
 }
 
 variable "maintenance_window_auto_upgrade" {
-  description = "Controls when to perform cluster upgrade whith more finely controlled cadence and recurrence settings compared to the basic one. https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli"
+  description = "Controls when to perform cluster upgrade whith more finely controlled cadence and recurrence settings compared to the basic one. See [documentation](https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli)."
   type = object({
     frequency    = string
     interval     = string
