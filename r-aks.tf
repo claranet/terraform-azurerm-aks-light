@@ -59,7 +59,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   # Azure integration config
-  azure_policy_enabled = var.azure_policy_enabled
+  azure_policy_enabled  = var.azure_policy_enabled
+  cost_analysis_enabled = var.cost_analysis_enabled
 
   identity {
     type         = "UserAssigned"
