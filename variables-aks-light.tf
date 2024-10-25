@@ -269,6 +269,13 @@ variable "azure_policy_enabled" {
   default     = true
 }
 
+variable "cost_analysis_enabled" {
+  description = "Option to enable cost analysis in the Azure portal for this Kubernetes cluster. The `sku_tier` must be set to `Standard` or `Premium` to enable this feature."
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
 variable "linux_profile" {
   description = "Username and SSH public key for accessing Linux nodes with SSH."
   type = object({
