@@ -1,3 +1,24 @@
+## 7.11.0 (2024-10-25)
+
+### Features
+
+* support for `cost_analysis_enabled` property of azurerm_kubernetes_cluster 9e8a64f
+
+### Miscellaneous Chores
+
+* **deps:** update dependency claranet/diagnostic-settings/azurerm to v7 6ef7275
+* **deps:** update dependency opentofu to v1.8.3 6b5dfd4
+* **deps:** update dependency opentofu to v1.8.4 1de12c1
+* **deps:** update dependency pre-commit to v4 8fec423
+* **deps:** update dependency pre-commit to v4.0.1 8fd017a
+* **deps:** update dependency trivy to v0.56.1 10d4443
+* **deps:** update dependency trivy to v0.56.2 2d9c47b
+* **deps:** update pre-commit hook pre-commit/pre-commit-hooks to v5 dafb3ae
+* **deps:** update pre-commit hook tofuutils/pre-commit-opentofu to v2.1.0 8d91bcb
+* prepare for new examples structure 712b9f9
+* require AzureRM `v3.106+` 1944857, closes /github.com/hashicorp/terraform-provider-azurerm/blob/main/CHANGELOG-v3.md#31060-may-31-2024
+* update examples structure 99a8611
+
 ## 7.10.0 (2024-10-03)
 
 ### Features
