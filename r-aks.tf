@@ -81,9 +81,9 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   dynamic "aci_connector_linux" {
-    for_each = var.aci_subnet_id != null && var.network_plugin != "kubenet" ? [true] : []
+    for_each = var.aci_subnet != null && var.network_plugin != "kubenet" ? [true] : []
     content {
-      subnet_name = element(split("/", var.aci_subnet_id), length(split("/", var.aci_subnet_id)) - 1)
+      subnet_name = local.parsed_aci_subnet_id.name
     }
   }
 
@@ -278,7 +278,7 @@ resource "azurerm_kubernetes_cluster" "main" {
       error_message = "var.pods_subnet must be set when using Azure CNI Cilium network."
     }
     precondition {
-      condition     = try(jsondecode(data.azapi_resource.subnet_delegation[0].output).properties.delegations[0].properties.serviceName, null) == "Microsoft.ContainerInstance/containerGroups" || var.aci_subnet_id == null
+      condition     = try(data.azapi_resource.subnet_delegation[0].output.properties.delegations[0].properties.serviceName, null) == "Microsoft.ContainerInstance/containerGroups" || var.aci_subnet == null
       error_message = "ACI subnet should be delegated to Microsoft.ContainerInstance/containerGroups"
     }
 
@@ -318,11 +318,11 @@ resource "azapi_update_resource" "aks_kubernetes_version" {
   type        = "Microsoft.ContainerService/managedClusters@2023-01-02-preview"
   resource_id = azurerm_kubernetes_cluster.main.id
 
-  body = jsonencode({
+  body = {
     properties = {
       kubernetesVersion = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.main.latest_version)
     }
-  })
+  }
 
   depends_on = [
     azurerm_kubernetes_cluster_node_pool.main,

@@ -225,10 +225,12 @@ variable "pods_subnet" {
   }
 }
 
-variable "aci_subnet_id" {
+variable "aci_subnet" {
   description = "ID of the Subnet for ACI virtual-nodes."
-  type        = string
-  default     = null
+  type = object({
+    id = string
+  })
+  default = null
 }
 
 variable "auto_scaler_profile" {
