@@ -467,7 +467,7 @@ variable "maintenance_window" {
 }
 
 variable "maintenance_window_auto_upgrade" {
-  description = "Controls when to perform cluster upgrade whith more finely controlled cadence and recurrence settings compared to the basic one. See [documentation](https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli)."
+  description = "Controls when to perform cluster upgrade with more finely controlled cadence and recurrence settings compared to the basic one. See [documentation](https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli)."
   type = object({
     frequency    = string
     interval     = string
