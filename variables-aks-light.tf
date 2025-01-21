@@ -297,7 +297,7 @@ variable "service_cidr" {
 variable "storage_profile" {
   description = "Select the CSI drivers to be enabled."
   type = object({
-    blob_driver_enabled         = optional(bool, false)
+    blob_driver_enabled         = optional(bool, true)
     disk_driver_enabled         = optional(bool, true)
     file_driver_enabled         = optional(bool, true)
     snapshot_controller_enabled = optional(bool, true)
