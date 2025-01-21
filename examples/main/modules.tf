@@ -40,7 +40,7 @@ module "nodes_subnet" {
 
   name_suffix = "nodes"
 
-  virtual_network_name = module.vnet.virtual_network_name
+  virtual_network_name = module.vnet.name
 
   cidrs             = ["10.0.0.0/20"]
   service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
@@ -54,8 +54,8 @@ module "private_dns_zone" {
   stack               = var.stack
   resource_group_name = module.rg.name
 
-  private_dns_zone_name      = "privatelink.${module.azure_region.location_cli}.azmk8s.io"
-  private_dns_zone_vnets_ids = [module.vnet.id]
+  name                = "privatelink.${module.azure_region.location_cli}.azmk8s.io"
+  virtual_network_ids = [module.vnet.id]
 }
 
 resource "tls_private_key" "main" {
@@ -63,7 +63,8 @@ resource "tls_private_key" "main" {
 }
 
 module "containers_logs" {
-  source = "claranet/run/azurerm//modules/logs"
+  source  = "claranet/run/azurerm//modules/logs"
+  version = "x.x.x"
 
   client_name         = var.client_name
   environment         = var.environment
@@ -72,8 +73,8 @@ module "containers_logs" {
   stack               = var.stack
   resource_group_name = module.rg.name
 
-  logs_storage_account_enabled        = false
-  log_analytics_workspace_custom_name = "log-aks-containers-${var.environment}-${module.azure_region.location_short}"
+  storage_account_enabled = true
+  workspace_custom_name   = "log-aks-containers-${var.environment}-${module.azure_region.location_short}"
 }
 
 module "aks" {
@@ -129,7 +130,7 @@ module "aks" {
   }
 
   data_collection_rule = {
-    custom_log_analytics_workspace_id = module.containers_logs.log_analytics_workspace_id
+    custom_log_analytics_workspace_id = module.containers_logs.id
   }
 
   maintenance_window = {
