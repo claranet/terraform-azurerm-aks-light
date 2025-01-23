@@ -507,6 +507,14 @@ variable "maintenance_window_auto_upgrade" {
   default = null
 }
 
+variable "microsoft_defender" {
+  description = "Specifies the ID of the Log Analytics Workspace where the audit logs collected by Microsoft Defender should be sent to"
+  type = object({
+    log_analytics_workspace_id = string
+  })
+  default = null
+}
+
 variable "image_cleaner_configuration" {
   description = "Kubernetes image cleaner configuration."
   type = object({
