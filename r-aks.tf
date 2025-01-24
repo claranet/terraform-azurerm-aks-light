@@ -1,19 +1,19 @@
 #tfsec:ignore:azure-container-use-rbac-permissions
 #tfsec:ignore:azure-container-limit-authorized-ips
 #tfsec:ignore:azure-container-logging
-resource "azurerm_kubernetes_cluster" "aks" {
-  name     = local.aks_name
+resource "azurerm_kubernetes_cluster" "main" {
+  name     = local.name
   location = var.location
 
   resource_group_name = var.resource_group_name
 
-  dns_prefix = replace(local.aks_name, "/[\\W_]/", "-")
+  dns_prefix = replace(local.name, "/[\\W_]/", "-")
 
   # Cluster config
-  kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
-  automatic_channel_upgrade        = var.aks_automatic_channel_upgrade
-  sku_tier                         = var.aks_sku_tier
-  node_resource_group              = local.aks_nodes_rg_name
+  kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.main.latest_version)
+  automatic_upgrade_channel        = var.automatic_upgrade_channel
+  sku_tier                         = var.sku_tier
+  node_resource_group              = local.nodes_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
   workload_identity_enabled        = var.workload_identity_enabled
@@ -27,26 +27,23 @@ resource "azurerm_kubernetes_cluster" "aks" {
   image_cleaner_interval_hours = var.image_cleaner_configuration.interval_hours
 
   api_server_access_profile {
-    authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
-    vnet_integration_enabled = var.vnet_integration.enabled
-    subnet_id                = var.vnet_integration.subnet_id
+    authorized_ip_ranges = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
   }
 
   network_profile {
-    network_plugin      = var.aks_network_plugin.name
-    network_plugin_mode = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "overlay" ? "overlay" : null
-    network_policy      = var.aks_network_policy
-    network_mode        = local.is_network_cni ? var.aks_network_mode : null
+    network_plugin      = var.network_plugin.name
+    network_plugin_mode = local.is_network_cni && lower(var.network_plugin.cni_mode) == "overlay" ? "overlay" : null
+    network_policy      = var.network_policy
+    network_mode        = local.is_network_cni ? var.network_mode : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
     service_cidr        = var.service_cidr
     outbound_type       = var.outbound_type
-    pod_cidr            = var.aks_pod_cidr
-    ebpf_data_plane     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? "cilium" : null
+    pod_cidr            = var.pod_cidr
     load_balancer_sku   = "standard"
   }
 
   dynamic "http_proxy_config" {
-    for_each = var.aks_http_proxy_settings[*]
+    for_each = var.http_proxy_settings[*]
     content {
       https_proxy = http_proxy_config.value.https_proxy_url
       http_proxy  = http_proxy_config.value.http_proxy_url
@@ -64,7 +61,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.aks_user_assigned_identity.id]
+    identity_ids = [azurerm_user_assigned_identity.main.id]
   }
 
   dynamic "oms_agent" {
@@ -84,9 +81,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "aci_connector_linux" {
-    for_each = var.aci_subnet_id != null && var.aks_network_plugin != "kubenet" ? [true] : []
+    for_each = var.aci_subnet != null && var.network_plugin != "kubenet" ? [true] : []
     content {
-      subnet_name = element(split("/", var.aci_subnet_id), length(split("/", var.aci_subnet_id)) - 1)
+      subnet_name = local.parsed_aci_subnet_id.name
     }
   }
 
@@ -96,13 +93,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                        = local.default_node_pool.type
     vm_size                     = local.default_node_pool.vm_size
     os_disk_type                = local.default_node_pool.os_disk_type
-    enable_auto_scaling         = local.default_node_pool.enable_auto_scaling
-    node_count                  = local.default_node_pool.enable_auto_scaling ? null : local.default_node_pool.node_count
-    min_count                   = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.min_count : null
-    max_count                   = local.default_node_pool.enable_auto_scaling ? local.default_node_pool.max_count : null
+    auto_scaling_enabled        = local.default_node_pool.auto_scaling_enabled
+    node_count                  = local.default_node_pool.auto_scaling_enabled ? null : local.default_node_pool.node_count
+    min_count                   = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.min_count : null
+    max_count                   = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.max_count : null
     node_labels                 = local.default_node_pool.node_labels
-    enable_host_encryption      = local.default_node_pool.enable_host_encryption
-    enable_node_public_ip       = local.default_node_pool.enable_node_public_ip
+    host_encryption_enabled     = local.default_node_pool.host_encryption_enabled
+    node_public_ip_enabled      = local.default_node_pool.node_public_ip_enabled
     vnet_subnet_id              = local.default_node_pool.vnet_subnet_id
     pod_subnet_id               = local.default_node_pool.pod_subnet_id
     orchestrator_version        = local.default_node_pool.orchestrator_version
@@ -199,7 +196,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       blob_driver_enabled         = var.storage_profile.blob_driver_enabled
       disk_driver_enabled         = var.storage_profile.disk_driver_enabled
-      disk_driver_version         = var.storage_profile.disk_driver_version
       file_driver_enabled         = var.storage_profile.file_driver_enabled
       snapshot_controller_enabled = var.storage_profile.snapshot_controller_enabled
     }
@@ -208,13 +204,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.azure_active_directory_rbac[*]
     content {
-      managed                = var.azure_active_directory_rbac.managed_integration_enabled
       tenant_id              = var.azure_active_directory_rbac.service_principal_azure_tenant_id
       admin_group_object_ids = var.azure_active_directory_rbac.admin_group_object_ids
       azure_rbac_enabled     = var.azure_active_directory_rbac.azure_rbac_enabled
-      client_app_id          = var.azure_active_directory_rbac.service_principal_client_app_id
-      server_app_id          = var.azure_active_directory_rbac.service_principal_server_app_id
-      server_app_secret      = var.azure_active_directory_rbac.service_principal_server_app_secret
     }
   }
 
@@ -271,7 +263,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   tags = merge(local.default_tags, var.extra_tags)
 
   depends_on = [
-    azurerm_role_assignment.aks_uai_private_dns_zone_contributor,
+    azurerm_role_assignment.uai_private_dns_zone_contributor,
   ]
 
   lifecycle {
@@ -282,11 +274,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
       error_message = "var.oidc_issuer_enabled must be true when Workload Identity is enabled."
     }
     precondition {
-      condition     = local.is_network_cni && lower(var.aks_network_plugin.cni_mode) == "cilium" ? var.pods_subnet != {} : true
+      condition     = local.is_network_cni && lower(var.network_plugin.cni_mode) == "cilium" ? var.pods_subnet != {} : true
       error_message = "var.pods_subnet must be set when using Azure CNI Cilium network."
     }
     precondition {
-      condition     = try(jsondecode(data.azapi_resource.subnet_delegation[0].output).properties.delegations[0].properties.serviceName, null) == "Microsoft.ContainerInstance/containerGroups" || var.aci_subnet_id == null
+      condition     = try(data.azapi_resource.subnet_delegation[0].output.properties.delegations[0].properties.serviceName, null) == "Microsoft.ContainerInstance/containerGroups" || var.aci_subnet == null
       error_message = "ACI subnet should be delegated to Microsoft.ContainerInstance/containerGroups"
     }
 
@@ -310,6 +302,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
+moved {
+  from = azurerm_kubernetes_cluster.aks
+  to   = azurerm_kubernetes_cluster.main
+}
+
 # Taken from https://github.com/Azure/terraform-azurerm-aks
 resource "null_resource" "kubernetes_version_keeper" {
   triggers = {
@@ -319,16 +316,16 @@ resource "null_resource" "kubernetes_version_keeper" {
 
 resource "azapi_update_resource" "aks_kubernetes_version" {
   type        = "Microsoft.ContainerService/managedClusters@2023-01-02-preview"
-  resource_id = azurerm_kubernetes_cluster.aks.id
+  resource_id = azurerm_kubernetes_cluster.main.id
 
-  body = jsonencode({
+  body = {
     properties = {
-      kubernetesVersion = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.versions.latest_version)
+      kubernetesVersion = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.main.latest_version)
     }
-  })
+  }
 
   depends_on = [
-    azurerm_kubernetes_cluster_node_pool.node_pools,
+    azurerm_kubernetes_cluster_node_pool.main,
   ]
 
   lifecycle {

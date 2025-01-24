@@ -19,7 +19,7 @@ data "azurecaf_name" "aks_identity" {
 }
 
 data "azurecaf_name" "aks_nodes_rg" {
-  name          = local.aks_name
+  name          = local.name
   resource_type = "azurerm_resource_group"
   prefixes      = var.name_prefix == "" ? null : [local.name_prefix]
   suffixes      = ["nodes"]
