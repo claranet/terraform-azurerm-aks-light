@@ -1,3 +1,48 @@
+## 8.0.0 (2025-01-24)
+
+### ⚠ BREAKING CHANGES
+
+* **AZ-1088:** module standardization
+
+### Features
+
+* **AZ-1088:** bump azapi v2 + use provider function 5be9b14
+* **AZ-1088:** enable blob csi driver by default 16af51b
+* **AZ-1088:** global rework 50c80a9
+* **AZ-1088:** rework module fbcfef1
+* **AZ-1088:** rework node_pools variable 3430dc0
+* **AZ-1088:** rework variables 5a3ff2e
+
+### Bug Fixes
+
+* **AZ-1088:** force image cleaner interval default value to 24 as the default provider value (0) is not supported by the API 984635f
+
+### Documentation
+
+* **AZ-1088:** add storage_use_azuread provider option in examples 6f35fde
+* **AZ-1088:** bump terraform min version in examples 4a5600d
+* **AZ-1088:** fix example 0c3a615
+* **AZ-1088:** fix typo 53a4979
+
+### Miscellaneous Chores
+
+* **deps:** update dependency azuread to v3 13f3e01
+* **deps:** update dependency claranet/diagnostic-settings/azurerm to v8 907bb1c
+* **deps:** update dependency opentofu to v1.8.6 3ae932a
+* **deps:** update dependency opentofu to v1.8.8 a9b650f
+* **deps:** update dependency opentofu to v1.9.0 dabbeb9
+* **deps:** update dependency pre-commit to v4.1.0 42a8958
+* **deps:** update dependency tflint to v0.54.0 49d931f
+* **deps:** update dependency tflint to v0.55.0 dbb5ab6
+* **deps:** update dependency trivy to v0.57.1 57611cb
+* **deps:** update dependency trivy to v0.58.1 125f2bf
+* **deps:** update dependency trivy to v0.58.2 cd38a40
+* **deps:** update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.19.0 5cb3088
+* **deps:** update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.20.0 74cbce4
+* **deps:** update tools 8ae8613
+* **deps:** update tools 65bd4e9
+* update tflint config for v0.55.0 8afdf0b
+
 ## 7.11.0 (2024-10-25)
 
 ### Features
