@@ -508,7 +508,7 @@ variable "maintenance_window_auto_upgrade" {
 }
 
 variable "microsoft_defender" {
-  description = "Specifies the ID of the Log Analytics Workspace where the audit logs collected by Microsoft Defender should be sent to"
+  description = "Specifies the ID of the Log Analytics Workspace where the audit logs collected by Microsoft Defender should be sent to."
   type = object({
     log_analytics_workspace_id = string
   })
