@@ -1,3 +1,14 @@
+## 8.1.0 (2025-02-04)
+
+### Features
+
+* add microsoft defender 423cb05
+
+### Miscellaneous Chores
+
+* **deps:** update tools c27f38f
+* update Github templates 982d57e
+
 ## 8.0.0 (2025-01-24)
 
 ### ⚠ BREAKING CHANGES
