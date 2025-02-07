@@ -1,3 +1,13 @@
+## 8.2.0 (2025-02-07)
+
+### Features
+
+* **AZ-1512:** set api_server_access_profile as dynamic 2b1e6f4
+
+### Miscellaneous Chores
+
+* **deps:** update dependency trivy to v0.59.1 a658643
+
 ## 8.1.0 (2025-02-04)
 
 ### Features
