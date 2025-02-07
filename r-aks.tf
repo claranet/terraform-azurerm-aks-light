@@ -26,8 +26,11 @@ resource "azurerm_kubernetes_cluster" "main" {
   image_cleaner_enabled        = var.image_cleaner_configuration.enabled
   image_cleaner_interval_hours = var.image_cleaner_configuration.interval_hours
 
-  api_server_access_profile {
-    authorized_ip_ranges = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
+  dynamic "api_server_access_profile" {
+    for_each = !var.private_cluster_enabled ? [0] : []
+    content {
+      authorized_ip_ranges = var.api_server_authorized_ip_ranges
+    }
   }
 
   network_profile {
