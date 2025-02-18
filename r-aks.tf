@@ -268,6 +268,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "microsoft_defender" {
+    for_each = var.microsoft_defender[*]
+    content {
+      log_analytics_workspace_id = microsoft_defender.value.log_analytics_workspace_id
+    }
+  }
+
   tags = merge(local.default_tags, var.extra_tags)
 
   depends_on = [
