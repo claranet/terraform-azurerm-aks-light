@@ -1,3 +1,32 @@
+## 7.12.0 (2025-02-18)
+
+### Features
+
+  * add microsoft defender 71b2563
+
+### Miscellaneous Chores
+
+  * add legacy/v7 branch to semantic-release ec2213a
+  * add missing period 106233f
+  * add new var in readme 58e4f41
+  * deps: update dependency opentofu to v1.8.6 3ae932a
+  * deps: update dependency opentofu to v1.8.8 a9b650f
+  * deps: update dependency opentofu to v1.9.0 dabbeb9
+  * deps: update dependency pre-commit to v4.1.0 42a8958
+  * deps: update dependency tflint to v0.54.0 49d931f
+  * deps: update dependency tflint to v0.55.0 dbb5ab6
+  * deps: update dependency trivy to v0.57.1 57611cb
+  * deps: update dependency trivy to v0.58.1 125f2bf
+  * deps: update dependency trivy to v0.58.2 cd38a40
+  * deps: update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.19.0 5cb3088
+  * deps: update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.20.0 74cbce4
+  * deps: update tools 8ae8613
+  * deps: update tools 65bd4e9
+  * fix lint fd0d4e6
+  * fix readme fdaaba4
+  * fix readme order f0bdafc
+  * update tflint config for v0.55.0 8afdf0b
+
 ## 7.11.0 (2024-10-25)
 
 ### Features
