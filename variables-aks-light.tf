@@ -423,20 +423,6 @@ variable "key_vault_secrets_provider" {
   default = {}
 }
 
-variable "vnet_integration" {
-  description = "Virtual Network integration configuration."
-  type = object({
-    enabled   = optional(bool, false)
-    subnet_id = optional(string)
-  })
-  nullable = false
-  default  = {}
-  validation {
-    condition     = !var.vnet_integration.enabled || var.vnet_integration.subnet_id != null
-    error_message = "var.vnet_integration.subnet_id must be set when VNet integration is enabled."
-  }
-}
-
 variable "aks_automatic_channel_upgrade" {
   description = "The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. Setting this field to `null` sets this value to none."
   type        = string
