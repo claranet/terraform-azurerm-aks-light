@@ -1,3 +1,13 @@
+## 8.2.1 (2025-02-24)
+
+### Bug Fixes
+
+* **AZ-1527:** deprecated api version 1a4b832
+
+### Miscellaneous Chores
+
+* **deps:** update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.21.0 5369a58
+
 ## 8.2.0 (2025-02-07)
 
 ### Features
