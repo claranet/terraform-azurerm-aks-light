@@ -1,3 +1,13 @@
+## 7.12.1 (2025-02-24)
+
+### Bug Fixes
+
+* update Microsoft.ContainerService/managedClusters version ec128a5
+
+### Miscellaneous Chores
+
+* update v7 release chanel e4a74fb
+
 ## 7.12.0 (2025-02-18)
 
 ### Features
