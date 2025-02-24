@@ -325,7 +325,7 @@ resource "null_resource" "kubernetes_version_keeper" {
 }
 
 resource "azapi_update_resource" "aks_kubernetes_version" {
-  type        = "Microsoft.ContainerService/managedClusters@2023-01-02-preview"
+  type        = "Microsoft.ContainerService/managedClusters@2024-10-01"
   resource_id = azurerm_kubernetes_cluster.aks.id
 
   body = jsonencode({
