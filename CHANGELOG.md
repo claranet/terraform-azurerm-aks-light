@@ -1,3 +1,9 @@
+## 8.3.0 (2025-02-28)
+
+### Features
+
+* **AZ-1531:** add `temporary_name_for_rotation` support for node pool resources 850c41d
+
 ## 8.2.1 (2025-02-24)
 
 ### Bug Fixes
