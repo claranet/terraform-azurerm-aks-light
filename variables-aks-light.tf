@@ -382,9 +382,10 @@ variable "node_pools" {
       virtual_network_name = optional(string)
       resource_group_name  = optional(string)
     }), {})
-    priority             = optional(string)
-    eviction_policy      = optional(string)
-    orchestrator_version = optional(string)
+    priority                    = optional(string)
+    eviction_policy             = optional(string)
+    orchestrator_version        = optional(string)
+    temporary_name_for_rotation = optional(string)
     upgrade_settings = optional(object({
       max_surge = optional(string, "10%")
     }), {})
