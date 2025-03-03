@@ -76,6 +76,7 @@ locals {
     var.service_cidr,
     "localhost",
     "konnectivity",
+    ".svc.cluster.local",
     "127.0.0.1",     # Localhost
     "172.17.0.0/16", # Default Docker bridge CIDR
     "168.63.129.16",
