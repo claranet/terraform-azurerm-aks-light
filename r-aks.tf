@@ -27,9 +27,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   image_cleaner_interval_hours = var.image_cleaner_configuration.interval_hours
 
   api_server_access_profile {
-    authorized_ip_ranges     = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
-    vnet_integration_enabled = var.vnet_integration.enabled
-    subnet_id                = var.vnet_integration.subnet_id
+    authorized_ip_ranges = var.private_cluster_enabled ? null : var.api_server_authorized_ip_ranges
   }
 
   network_profile {
