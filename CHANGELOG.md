@@ -1,3 +1,13 @@
+## 7.12.2 (2025-03-05)
+
+### Bug Fixes
+
+* remove use of derecated api_server_access_profile. vnet_integration_enabled a3c90c8, closes #14
+
+### Documentation
+
+* update README 0d65adb
+
 ## 7.12.1 (2025-02-24)
 
 ### Bug Fixes
