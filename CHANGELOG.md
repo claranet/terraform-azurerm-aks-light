@@ -1,3 +1,13 @@
+## 8.4.0 (2025-03-07)
+
+### Features
+
+* update no proxy list 1b7275a
+
+### Miscellaneous Chores
+
+* **deps:** update dependency trivy to v0.60.0 de0f230
+
 ## 8.3.0 (2025-02-28)
 
 ### Features
