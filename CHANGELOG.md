@@ -1,3 +1,14 @@
+## 7.13.0 (2025-03-12)
+
+### Features
+
+* add some upgrade_settings parameters 764d484
+
+### Miscellaneous Chores
+
+* fix format 54af70b
+* fix README 8d10c12
+
 ## 7.12.2 (2025-03-05)
 
 ### Bug Fixes
