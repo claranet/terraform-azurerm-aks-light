@@ -155,6 +155,8 @@ variable "default_node_pool" {
     temporary_name_for_rotation = optional(string)
     upgrade_settings = optional(object({
       max_surge = optional(string, "10%")
+      drain_timeout_in_minutes = optional(number)
+      node_soak_duration_in_minutes = optional(number)
     }), {})
     linux_os_config = optional(object({
       swap_file_size_mb             = optional(number)
@@ -386,6 +388,8 @@ variable "node_pools" {
     orchestrator_version = optional(string)
     upgrade_settings = optional(object({
       max_surge = optional(string, "10%")
+      drain_timeout_in_minutes = optional(number)
+      node_soak_duration_in_minutes = optional(number)
     }), {})
     zones = optional(list(number), [1, 2, 3])
     tags  = optional(map(string), {})
