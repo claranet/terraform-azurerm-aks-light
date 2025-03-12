@@ -108,8 +108,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     tags                        = local.default_node_pool_tags
     temporary_name_for_rotation = coalesce(local.default_node_pool.temporary_name_for_rotation, format("%stmp", substr(local.default_node_pool.name, 0, 9)))
     upgrade_settings {
-      max_surge = local.default_node_pool.upgrade_settings.max_surge
-      drain_timeout_in_minutes = local.default_node_pool.upgrade_settings.drain_timeout_in_minutes
+      max_surge                     = local.default_node_pool.upgrade_settings.max_surge
+      drain_timeout_in_minutes      = local.default_node_pool.upgrade_settings.drain_timeout_in_minutes
       node_soak_duration_in_minutes = local.default_node_pool.upgrade_settings.node_soak_duration_in_minutes
     }
 
