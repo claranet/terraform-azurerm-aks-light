@@ -294,20 +294,10 @@ resource "azurerm_kubernetes_cluster" "main" {
 
     precondition {
       condition = var.azure_active_directory_rbac == null || try(alltrue([
-        var.azure_active_directory_rbac.managed_integration_enabled,
-        var.azure_active_directory_rbac.service_principal_client_app_id == null,
-        var.azure_active_directory_rbac.service_principal_server_app_id == null,
-        var.azure_active_directory_rbac.service_principal_server_app_secret == null,
-      ]), false)
-      error_message = "`managed_integration_enabled` cannot be used with `service_principal_client_app_id`, `service_principal_server_app_id` and `service_principal_server_app_secret`."
-    }
-
-    precondition {
-      condition = var.azure_active_directory_rbac == null || try(alltrue([
-        var.azure_active_directory_rbac.managed_integration_enabled,
+        var.azure_active_directory_rbac.azure_rbac_enabled,
         length(var.azure_active_directory_rbac.admin_group_object_ids) > 0,
       ]), false)
-      error_message = "Please specify `admin_group_object_ids` when `managed_integration_enabled = true`."
+      error_message = "Please specify `admin_group_object_ids` when `azure_rbac_enabled = true`."
     }
   }
 }
