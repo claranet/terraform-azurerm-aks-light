@@ -1,3 +1,15 @@
+## 8.4.1 (2025-03-21)
+
+### Bug Fixes
+
+* update `azure_active_directory_role_based_access_control` ce9cb4c
+* update tenant_id variable in `azure_active_directory_role_based_access_control` bloc a061ca1
+
+### Miscellaneous Chores
+
+* **deps:** update dependency pre-commit to v4.2.0 e73c5b7
+* **deps:** update pre-commit hook alessandrojcm/commitlint-pre-commit-hook to v9.22.0 0077883
+
 ## 8.4.0 (2025-03-07)
 
 ### Features
