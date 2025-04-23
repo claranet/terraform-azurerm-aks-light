@@ -3,7 +3,7 @@
 ### Bug Fixes
 
 * update `azure_active_directory_role_based_access_control` ce9cb4c
-* update tenant_id variable in `azure_active_directory_role_based_access_control` bloc a061ca1
+* update `tenant_id` variable in `azure_active_directory_role_based_access_control` bloc a061ca1
 
 ### Miscellaneous Chores
 
@@ -40,7 +40,7 @@
 
 ### Features
 
-* **AZ-1512:** set api_server_access_profile as dynamic 2b1e6f4
+* **AZ-1512:** set `api_server_access_profile` as dynamic 2b1e6f4
 
 ### Miscellaneous Chores
 
