@@ -23,6 +23,13 @@ resource "azurerm_role_assignment" "uai_subnets_network_contributor" {
   role_definition_name = "Network Contributor"
 }
 
+resource "azurerm_role_assignment" "uai_vnet_network_contributor" {
+  for_each             = var.private_dns_zone_type == "Custom" ? toset(local.vnet_ids) : []
+  scope                = each.key
+  principal_id         = azurerm_user_assigned_identity.main.principal_id
+  role_definition_name = "Network Contributor"
+}
+
 resource "azurerm_role_assignment" "uai_route_table_contributor" {
   count = local.is_kubenet && var.outbound_type == "userDefinedRouting" ? 1 : 0
 

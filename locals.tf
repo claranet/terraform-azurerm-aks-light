@@ -66,6 +66,8 @@ locals {
     ],
   )))
 
+  vnet_ids = distinct([for snet in local.subnet_ids : provider::azapi::parse_resource_id("Microsoft.Network/virtualNetworks/subnets", snet).parent_id])
+
   private_dns_zone              = var.private_dns_zone_type == "Custom" ? var.private_dns_zone_id : var.private_dns_zone_type
   is_custom_dns_private_cluster = var.private_dns_zone_type == "Custom" && var.private_cluster_enabled
   is_network_cni                = var.network_plugin.name == "azure"
