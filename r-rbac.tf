@@ -16,8 +16,15 @@ resource "azurerm_role_assignment" "uai_private_dns_zone_contributor" {
 }
 
 resource "azurerm_role_assignment" "uai_subnets_network_contributor" {
-  for_each = toset(local.subnet_ids)
+  for_each = var.private_dns_zone_type != "Custom" ? toset(local.subnet_ids) : []
 
+  scope                = each.key
+  principal_id         = azurerm_user_assigned_identity.main.principal_id
+  role_definition_name = "Network Contributor"
+}
+
+resource "azurerm_role_assignment" "uai_vnet_network_contributor" {
+  for_each             = var.private_dns_zone_type == "Custom" ? toset(local.vnet_ids) : []
   scope                = each.key
   principal_id         = azurerm_user_assigned_identity.main.principal_id
   role_definition_name = "Network Contributor"
