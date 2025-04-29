@@ -1,3 +1,20 @@
+## 8.4.2 (2025-04-29)
+
+### Bug Fixes
+
+* **AZ-1549:** add `Network Contributor` role to User Assigned Identity on the VNET when `var.private_dns_zone_type` is set to `Custom` fdbb0c2
+* **AZ-1549:** exclude network contributor on subnet if activated on VNET b98c81d
+
+### Miscellaneous Chores
+
+* **changelog:** ✏️ fix formatting for tenant_id and api_server_access_profile 7c5a610
+* **deps:** update dependency opentofu to v1.9.1 6ee586e
+* **deps:** update dependency terraform-docs to v0.20.0 d23de2d
+* **deps:** update dependency tflint to v0.56.0 b6a8671
+* **deps:** update dependency trivy to v0.61.0 dd25507
+* **deps:** update dependency trivy to v0.61.1 643cbc7
+* **deps:** update pre-commit hook tofuutils/pre-commit-opentofu to v2.2.0 7ebff01
+
 ## 8.4.1 (2025-03-21)
 
 ### Bug Fixes
