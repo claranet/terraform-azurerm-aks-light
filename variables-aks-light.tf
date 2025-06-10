@@ -4,6 +4,19 @@ variable "kubernetes_version" {
   default     = null
 }
 
+variable "force_upgrade_enabled" {
+  description = "Whether to force the upgrade of the Kubernetes cluster."
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
+variable "effective_until" {
+  description = "Effective until date for the Kubernetes cluster. This is used to control the lifecycle of the cluster."
+  type        = string
+  default     = null
+}
+
 variable "api_server_authorized_ip_ranges" {
   description = <<EOD
 IP ranges allowed to interact with Kubernetes API for public clusters.
