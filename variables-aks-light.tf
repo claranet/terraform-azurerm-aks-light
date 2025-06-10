@@ -388,7 +388,7 @@ variable "node_pools" {
     temporary_name_for_rotation = optional(string)
     upgrade_settings = optional(object({
       max_surge = optional(string, "10%")
-    }), {})
+    }), null)
     zones = optional(list(number), [1, 2, 3])
     tags  = optional(map(string), {})
   }))
