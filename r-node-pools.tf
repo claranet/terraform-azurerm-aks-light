@@ -13,10 +13,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   min_count            = each.value.auto_scaling_enabled ? each.value.min_count : null
   max_count            = each.value.auto_scaling_enabled ? each.value.max_count : null
   node_labels          = each.value.node_labels
-  node_taints = each.value.priority == "Spot" ? concat(
-    coalesce(each.value.node_taints, []),
-    ["kubernetes.azure.com/scalesetpriority=spot:NoSchedule"]
-  ) : each.value.node_taints
+  node_taints          = each.value.node_taints
 
   host_encryption_enabled     = each.value.host_encryption_enabled
   node_public_ip_enabled      = each.value.node_public_ip_enabled
