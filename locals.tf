@@ -53,7 +53,12 @@ locals {
           coalesce(np.pod_subnet.virtual_network_name, var.pods_subnet.virtual_network_name),
           coalesce(np.pod_subnet.name, var.pods_subnet.name),
         ), null)
+        node_taints = np.priority == "Spot" ? concat(
+          coalesce(np.node_taints, []),
+          ["kubernetes.azure.com/scalesetpriority=spot:NoSchedule"]
+        ) : np.node_taints
       },
+
     )
   ]
 
