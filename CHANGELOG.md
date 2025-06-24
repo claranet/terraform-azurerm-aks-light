@@ -1,3 +1,21 @@
+## 8.4.3 (2025-06-24)
+
+### Bug Fixes
+
+* **AZ-1573:** 🐛 update node pool configuration for spot instances aea2107
+* **AZ-1573:** 🐛 update node taints configuration for spot instances d45f1f2
+
+### Miscellaneous Chores
+
+* **⚙️:** ✏️ update template identifier for MR review 51188b6
+* **deps:** update dependency opentofu to v1.10.0 1e2968d
+* **deps:** update dependency tflint to v0.57.0 e2a30da
+* **deps:** update dependency tflint to v0.58.0 75c67ba
+* **deps:** update dependency trivy to v0.62.0 151f7e5
+* **deps:** update dependency trivy to v0.62.1 c3f4d5c
+* **deps:** update dependency trivy to v0.63.0 3e8e41d
+* **deps:** update pre-commit hook tofuutils/pre-commit-opentofu to v2.2.1 50065cc
+
 ## 8.4.2 (2025-04-29)
 
 ### Bug Fixes
