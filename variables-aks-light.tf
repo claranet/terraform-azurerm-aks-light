@@ -12,9 +12,14 @@ variable "force_upgrade_enabled" {
 }
 
 variable "effective_until" {
-  description = "Effective until date for the Kubernetes cluster. This is used to control the lifecycle of the cluster."
+  description = "Effective until date for the upgrade override values. The date-time must be within the next 30 days."
   type        = string
   default     = null
+  validation {
+    condition     = var.effective_until == null || can(regex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$", var.effective_until))
+    error_message = "The effective_until value must be in RFC3339 format (YYYY-MM-DDThh:mm:ssZ)."
+  }
+
 }
 
 variable "api_server_authorized_ip_ranges" {
