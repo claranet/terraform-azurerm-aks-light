@@ -1,3 +1,14 @@
+## 8.4.4 (2025-06-27)
+
+### Bug Fixes
+
+* **AZ-1574:** 🐛 add `upgrade_override` bloc 144de23
+* **AZ-1574:** add upgrade_override bloc 28b8b92
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.10.1 98f7865
+
 ## 8.4.3 (2025-06-24)
 
 ### Bug Fixes
