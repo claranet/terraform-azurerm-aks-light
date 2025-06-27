@@ -18,6 +18,11 @@ resource "azurerm_kubernetes_cluster" "main" {
   oidc_issuer_enabled              = var.oidc_issuer_enabled
   workload_identity_enabled        = var.workload_identity_enabled
 
+  upgrade_override {
+    force_upgrade_enabled = var.force_upgrade_enabled
+    effective_until       = var.effective_until
+  }
+
   # Network config
   private_cluster_enabled             = var.private_cluster_enabled
   private_cluster_public_fqdn_enabled = var.private_cluster_enabled == true ? var.private_cluster_public_fqdn_enabled : null
@@ -277,7 +282,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   ]
 
   lifecycle {
-    ignore_changes = [kubernetes_version]
+    ignore_changes = [kubernetes_version, upgrade_override]
 
     precondition {
       condition     = !var.workload_identity_enabled || var.oidc_issuer_enabled
