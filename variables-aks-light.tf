@@ -453,6 +453,16 @@ variable "automatic_upgrade_channel" {
   }
 }
 
+variable "node_os_upgrade_channel" {
+  description = "The upgrade channel for this Kubernetes Cluster Nodes OS Image. Possible values are `Unmanaged`, `SecurityPatch`, `NodeImage` and `None`."
+  type        = string
+  default     = "SecurityPatch"
+  validation {
+    condition     = try(contains(["Unmanaged", "SecurityPatch", "NodeImage", "None"], var.node_os_upgrade_channel), false) || var.node_os_upgrade_channel == null
+    error_message = "The node OS upgrade channel must be one of the following values: Unmanaged, SecurityPatch, NodeImage or None."
+  }
+}
+
 variable "azure_active_directory_rbac" {
   description = "Active Directory role based access control configuration."
   type = object({
@@ -505,6 +515,26 @@ variable "maintenance_window_auto_upgrade" {
     })), [])
   })
   default = null
+}
+
+variable "node_os_update_schedule" {
+  description = "Controls when to perform node OS upgrade with more finely controlled cadence and recurrence settings compared to the basic one. See [documentation](https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli)."
+  type = object({
+    frequency         = optional(string, "Weekly")
+    interval          = optional(number, 1)
+    duration_in_hours = optional(number, 4)
+    day_of_week       = optional(string, "Monday")
+    day_of_month      = optional(string)
+    week_index        = optional(string)
+    start_time        = optional(string, "04:00")
+    utc_offset        = optional(string, "00:00")
+    start_date        = optional(string)
+    not_allowed = optional(list(object({
+      start = string
+      end   = string
+    })), [])
+  })
+  default = {}
 }
 
 variable "microsoft_defender" {

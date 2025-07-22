@@ -12,6 +12,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   # Cluster config
   kubernetes_version               = coalesce(var.kubernetes_version, data.azurerm_kubernetes_service_versions.main.latest_version)
   automatic_upgrade_channel        = var.automatic_upgrade_channel
+  node_os_upgrade_channel          = var.automatic_upgrade_channel == "node-image" ? "NodeImage" : var.node_os_upgrade_channel
   sku_tier                         = var.sku_tier
   node_resource_group              = local.nodes_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
@@ -260,6 +261,28 @@ resource "azurerm_kubernetes_cluster" "main" {
       start_date   = maintenance_window_auto_upgrade.value.start_date
       dynamic "not_allowed" {
         for_each = maintenance_window_auto_upgrade.value.not_allowed[*]
+        content {
+          start = not_allowed.value.start
+          end   = not_allowed.value.end
+        }
+      }
+    }
+  }
+
+  dynamic "maintenance_window_node_os" {
+    for_each = var.node_os_update_schedule[*]
+    content {
+      frequency    = maintenance_window_node_os.value.frequency
+      interval     = maintenance_window_node_os.value.interval
+      duration     = maintenance_window_node_os.value.duration
+      day_of_week  = maintenance_window_node_os.value.day_of_week
+      day_of_month = maintenance_window_node_os.value.day_of_month
+      week_index   = maintenance_window_node_os.value.week_index
+      start_time   = maintenance_window_node_os.value.start_time
+      utc_offset   = maintenance_window_node_os.value.utc_offset
+      start_date   = maintenance_window_node_os.value.start_date
+      dynamic "not_allowed" {
+        for_each = maintenance_window_node_os.value.not_allowed[*]
         content {
           start = not_allowed.value.start
           end   = not_allowed.value.end
