@@ -1,3 +1,17 @@
+## 8.5.0 (2025-08-01)
+
+### Features
+
+* add maintenance window node OS parameters df7e706
+
+### Miscellaneous Chores
+
+* 🗑️ remove old commitlint configuration files 4a9c0fa
+* **deps:** update dependency opentofu to v1.10.3 d1f3d73
+* **deps:** update dependency tflint to v0.58.1 3ef3587
+* **deps:** update tools 0b113a5
+* **deps:** update tools eef8b09
+
 ## 8.4.4 (2025-06-27)
 
 ### Bug Fixes
