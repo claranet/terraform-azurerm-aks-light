@@ -1,3 +1,9 @@
+## 8.5.1 (2025-08-01)
+
+### Bug Fixes
+
+* **AZ-1600:** duration setting in node_os_update_schedule 0482001
+
 ## 8.5.0 (2025-08-01)
 
 ### Features
