@@ -520,15 +520,15 @@ variable "maintenance_window_auto_upgrade" {
 variable "node_os_update_schedule" {
   description = "Controls when to perform node OS upgrade with more finely controlled cadence and recurrence settings compared to the basic one. See [documentation](https://learn.microsoft.com/en-us/azure/aks/planned-maintenance?tabs=azure-cli)."
   type = object({
-    frequency         = optional(string, "Weekly")
-    interval          = optional(number, 1)
-    duration_in_hours = optional(number, 4)
-    day_of_week       = optional(string, "Monday")
-    day_of_month      = optional(string)
-    week_index        = optional(string)
-    start_time        = optional(string, "04:00")
-    utc_offset        = optional(string, "00:00")
-    start_date        = optional(string)
+    frequency    = optional(string, "Weekly")
+    interval     = optional(number, 1)
+    duration     = optional(number, 4)
+    day_of_week  = optional(string, "Monday")
+    day_of_month = optional(string)
+    week_index   = optional(string)
+    start_time   = optional(string, "04:00")
+    utc_offset   = optional(string, "00:00")
+    start_date   = optional(string)
     not_allowed = optional(list(object({
       start = string
       end   = string
