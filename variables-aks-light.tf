@@ -527,7 +527,7 @@ variable "node_os_update_schedule" {
     day_of_month = optional(string)
     week_index   = optional(string)
     start_time   = optional(string, "04:00")
-    utc_offset   = optional(string, "00:00")
+    utc_offset   = optional(string, "+00:00")
     start_date   = optional(string)
     not_allowed = optional(list(object({
       start = string
