@@ -1,3 +1,9 @@
+## 8.5.2 (2025-08-08)
+
+### Bug Fixes
+
+* **AZ-1601:** fix utcOffset default value 8fca746
+
 ## 8.5.1 (2025-08-01)
 
 ### Bug Fixes
