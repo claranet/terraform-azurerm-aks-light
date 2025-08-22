@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   upgrade_override {
     force_upgrade_enabled = var.force_upgrade_enabled
-    effective_until       = var.effective_until
+    effective_until       = coalesce(var.effective_until, timeadd(plantimestamp(), "24h"))
   }
 
   # Network config
