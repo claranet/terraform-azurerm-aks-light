@@ -1,3 +1,21 @@
+## 8.6.0 (2025-08-22)
+
+### Features
+
+* ✨ apply suggestions d6b0590
+* ✨ update upgrade_settings object to avoid perpetual drift 3bac12c
+
+### Bug Fixes
+
+* 🔧 effective_until parameter d298902
+
+### Miscellaneous Chores
+
+* **deps:** 🔗 bump AzureRM provider v4.31+ 498c0ba
+* **deps:** update pre-commit hook pre-commit/pre-commit-hooks to v6 15032a5
+* **deps:** update terraform claranet/diagnostic-settings/azurerm to ~> 8.1.0 e8d73f0
+* **deps:** update tools 5335796
+
 ## 8.5.2 (2025-08-08)
 
 ### Bug Fixes
