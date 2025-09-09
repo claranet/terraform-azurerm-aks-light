@@ -15,6 +15,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   node_labels          = each.value.node_labels
   node_taints          = each.value.node_taints
 
+  gpu_instance = each.value.gpu_instance
+  gpu_driver   = each.value.gpu_driver
+
   host_encryption_enabled     = each.value.host_encryption_enabled
   node_public_ip_enabled      = each.value.node_public_ip_enabled
   vnet_subnet_id              = each.value.vnet_subnet_id

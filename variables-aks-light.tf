@@ -402,6 +402,8 @@ variable "node_pools" {
       virtual_network_name = optional(string)
       resource_group_name  = optional(string)
     }), {})
+    gpu_instance                = optional(string)
+    gpu_driver                  = optional(string)
     priority                    = optional(string)
     eviction_policy             = optional(string)
     orchestrator_version        = optional(string)
