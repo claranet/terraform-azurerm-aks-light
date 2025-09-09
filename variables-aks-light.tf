@@ -160,6 +160,7 @@ variable "default_node_pool" {
     os_disk_type                = optional(string, "Managed")
     os_disk_size_gb             = optional(number)
     gpu_instance                = optional(string)
+    fips_enabled                = optional(bool)
     auto_scaling_enabled        = optional(bool, false)
     node_count                  = optional(number, 1)
     min_count                   = optional(number, 1)
@@ -179,9 +180,9 @@ variable "default_node_pool" {
       max_surge                     = optional(string, "10%")
     }), {})
     linux_os_config = optional(object({
-      swap_file_size_mb             = optional(number)
-      transparent_huge_page_enabled = optional(string)
-      transparent_huge_page_defrag  = optional(string)
+      swap_file_size_mb            = optional(number)
+      transparent_huge_page        = optional(string)
+      transparent_huge_page_defrag = optional(string)
       sysctl_config = optional(object({
         fs_aio_max_nr                      = optional(number)
         fs_file_max                        = optional(number)
@@ -347,11 +348,12 @@ variable "node_pools" {
     os_sku            = optional(string, "Ubuntu")
     os_disk_type      = optional(string, "Managed")
     os_disk_size_gb   = optional(number)
+    fips_enabled      = optional(bool)
     kubelet_disk_type = optional(string)
     linux_os_config = optional(object({
-      swap_file_size_mb             = optional(number)
-      transparent_huge_page_enabled = optional(string)
-      transparent_huge_page_defrag  = optional(string)
+      swap_file_size_mb            = optional(number)
+      transparent_huge_page        = optional(string)
+      transparent_huge_page_defrag = optional(string)
       sysctl_config = optional(object({
         fs_aio_max_nr                      = optional(number)
         fs_file_max                        = optional(number)

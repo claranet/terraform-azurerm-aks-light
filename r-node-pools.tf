@@ -25,6 +25,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   priority                    = each.value.priority
   eviction_policy             = each.value.eviction_policy
   orchestrator_version        = each.value.orchestrator_version
+  fips_enabled                = each.value.fips_enabled
   temporary_name_for_rotation = coalesce(each.value.temporary_name_for_rotation, format("%stmp", substr(each.value.name, 0, 9)))
   zones                       = each.value.zones
 
@@ -45,9 +46,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   dynamic "linux_os_config" {
     for_each = each.value.linux_os_config[*]
     content {
-      swap_file_size_mb             = linux_os_config.value.swap_file_size_mb
-      transparent_huge_page_enabled = linux_os_config.value.transparent_huge_page_enabled
-      transparent_huge_page_defrag  = linux_os_config.value.transparent_huge_page_defrag
+      swap_file_size_mb            = linux_os_config.value.swap_file_size_mb
+      transparent_huge_page        = linux_os_config.value.transparent_huge_page
+      transparent_huge_page_defrag = linux_os_config.value.transparent_huge_page_defrag
       dynamic "sysctl_config" {
         for_each = linux_os_config.value.sysctl_config[*]
         content {
