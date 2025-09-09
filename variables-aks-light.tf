@@ -159,6 +159,7 @@ variable "default_node_pool" {
     os_sku                      = optional(string, "Ubuntu")
     os_disk_type                = optional(string, "Managed")
     os_disk_size_gb             = optional(number)
+    gpu_instance                = optional(string)
     auto_scaling_enabled        = optional(bool, false)
     node_count                  = optional(number, 1)
     min_count                   = optional(number, 1)
