@@ -29,6 +29,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   private_cluster_public_fqdn_enabled = var.private_cluster_enabled == true ? var.private_cluster_public_fqdn_enabled : null
   private_dns_zone_id                 = var.private_cluster_enabled ? local.private_dns_zone : null
 
+  # Image
   image_cleaner_enabled        = var.image_cleaner_configuration.enabled
   image_cleaner_interval_hours = var.image_cleaner_configuration.interval_hours
 
@@ -102,6 +103,8 @@ resource "azurerm_kubernetes_cluster" "main" {
     type                        = local.default_node_pool.type
     vm_size                     = local.default_node_pool.vm_size
     os_disk_type                = local.default_node_pool.os_disk_type
+    gpu_instance                = local.default_node_pool.gpu_instance
+    fips_enabled                = local.default_node_pool.fips_enabled
     auto_scaling_enabled        = local.default_node_pool.auto_scaling_enabled
     node_count                  = local.default_node_pool.auto_scaling_enabled ? null : local.default_node_pool.node_count
     min_count                   = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.min_count : null
@@ -124,9 +127,9 @@ resource "azurerm_kubernetes_cluster" "main" {
     dynamic "linux_os_config" {
       for_each = local.default_node_pool.linux_os_config[*]
       content {
-        swap_file_size_mb             = linux_os_config.value.swap_file_size_mb
-        transparent_huge_page_enabled = linux_os_config.value.transparent_huge_page_enabled
-        transparent_huge_page_defrag  = linux_os_config.value.transparent_huge_page_defrag
+        swap_file_size_mb            = linux_os_config.value.swap_file_size_mb
+        transparent_huge_page        = linux_os_config.value.transparent_huge_page
+        transparent_huge_page_defrag = linux_os_config.value.transparent_huge_page_defrag
         dynamic "sysctl_config" {
           for_each = linux_os_config.value.sysctl_config[*]
           content {
