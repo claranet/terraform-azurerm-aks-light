@@ -104,6 +104,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     vm_size                     = local.default_node_pool.vm_size
     os_disk_type                = local.default_node_pool.os_disk_type
     gpu_instance                = local.default_node_pool.gpu_instance
+    fips_enabled                = local.default_node_pool.fips_enabled
     auto_scaling_enabled        = local.default_node_pool.auto_scaling_enabled
     node_count                  = local.default_node_pool.auto_scaling_enabled ? null : local.default_node_pool.node_count
     min_count                   = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.min_count : null
@@ -126,9 +127,9 @@ resource "azurerm_kubernetes_cluster" "main" {
     dynamic "linux_os_config" {
       for_each = local.default_node_pool.linux_os_config[*]
       content {
-        swap_file_size_mb             = linux_os_config.value.swap_file_size_mb
-        transparent_huge_page_enabled = linux_os_config.value.transparent_huge_page_enabled
-        transparent_huge_page_defrag  = linux_os_config.value.transparent_huge_page_defrag
+        swap_file_size_mb            = linux_os_config.value.swap_file_size_mb
+        transparent_huge_page        = linux_os_config.value.transparent_huge_page
+        transparent_huge_page_defrag = linux_os_config.value.transparent_huge_page_defrag
         dynamic "sysctl_config" {
           for_each = linux_os_config.value.sysctl_config[*]
           content {
