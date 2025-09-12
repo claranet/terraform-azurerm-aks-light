@@ -1,3 +1,20 @@
+## 8.7.0 (2025-09-12)
+
+### Features
+
+* ✨ add AKS default node pool GPU options 185d6ad
+* ✨ add Node pool GPU options 238e4d3
+* ✨ add some new AKS node pools params 884ad41
+* ✨ add some new AKS node pools params 1d862b1
+
+### Miscellaneous Chores
+
+* **deps:** 🔗 bump AzureRM provider to v4.40+ for AKS GPU options f67191e
+* **deps:** update dependency opentofu to v1.10.6 79968b5
+* **deps:** update dependency tflint to v0.59.1 4673812
+* **deps:** update dependency trivy to v0.66.0 ead8456
+* **deps:** update terraform claranet/diagnostic-settings/azurerm to ~> 8.2.0 f4bbe95
+
 ## 8.6.0 (2025-08-22)
 
 ### Features
