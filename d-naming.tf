@@ -21,7 +21,6 @@ data "azurecaf_name" "aks_identity" {
 data "azurecaf_name" "aks_nodes_rg" {
   name          = local.name
   resource_type = "azurerm_resource_group"
-  prefixes      = var.name_prefix == "" ? null : [local.name_prefix]
   suffixes      = ["nodes"]
   use_slug      = true
   clean_input   = true
