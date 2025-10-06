@@ -1,3 +1,9 @@
+## 8.7.2 (2025-10-06)
+
+### Bug Fixes
+
+* remove double prefix from AKS nodes resource group naming 67f29f4
+
 ## 8.7.1 (2025-09-30)
 
 ### Code Refactoring
