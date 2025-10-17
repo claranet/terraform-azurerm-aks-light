@@ -326,7 +326,9 @@ module "aks" {
 | sku\_tier | Azure Kubernetes Service SKU tier. Possible values are `Free` ou `Standard`. | `string` | `"Standard"` | no |
 | stack | Project stack name. | `string` | n/a | yes |
 | storage\_profile | Select the CSI drivers to be enabled. | <pre>object({<br/>    blob_driver_enabled         = optional(bool, true)<br/>    disk_driver_enabled         = optional(bool, true)<br/>    file_driver_enabled         = optional(bool, true)<br/>    snapshot_controller_enabled = optional(bool, true)<br/>  })</pre> | `null` | no |
+| user\_assigned\_identity | Existing Azure Kubernetes Service User Assigned Identity to use. If not provided, a new User Assigned Identity will be created. | <pre>object({<br/>    id = string<br/>  })</pre> | `null` | no |
 | user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource. | `string` | `null` | no |
+| user\_assigned\_identity\_role\_assignment\_enabled | Option to enable or disable User Assigned Identity role assignments. | `bool` | `true` | no |
 | user\_assigned\_identity\_tags | Tags to add to AKS MSI. | `map(string)` | `{}` | no |
 | workload\_identity\_enabled | Whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 

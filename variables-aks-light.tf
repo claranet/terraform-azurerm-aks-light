@@ -89,10 +89,25 @@ variable "private_dns_zone_role_assignment_enabled" {
   default     = true
 }
 
+variable "user_assigned_identity" {
+  description = "Existing Azure Kubernetes Service User Assigned Identity to use. If not provided, a new User Assigned Identity will be created."
+  type = object({
+    id = string
+  })
+  default = null
+}
+
 variable "user_assigned_identity_resource_group_name" {
   description = "Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource."
   type        = string
   default     = null
+}
+
+variable "user_assigned_identity_role_assignment_enabled" {
+  description = "Option to enable or disable User Assigned Identity role assignments."
+  type        = bool
+  nullable    = false
+  default     = true
 }
 
 variable "sku_tier" {

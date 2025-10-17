@@ -9,6 +9,7 @@ data "azurecaf_name" "aks" {
 }
 
 data "azurecaf_name" "aks_identity" {
+  count         = var.user_assigned_identity != null ? 0 : 1
   name          = var.stack
   resource_type = "azurerm_user_assigned_identity"
   prefixes      = compact(["aks", local.name_prefix])
