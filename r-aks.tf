@@ -74,6 +74,13 @@ resource "azurerm_kubernetes_cluster" "main" {
     identity_ids = [coalesce(var.user_assigned_identity.id, azurerm_user_assigned_identity.main[0].id)]
   }
 
+  dynamic "kubelet_identity" {
+    for_each = var.user_assigned_identity[*]
+    content {
+      user_assigned_identity_id = var.user_assigned_identity.id
+    }
+  }
+
   dynamic "oms_agent" {
     for_each = var.oms_agent[*]
     content {
