@@ -9,6 +9,7 @@ variable "data_collection_rule" {
   type = object({
     enabled                           = optional(bool, true)
     custom_log_analytics_workspace_id = optional(string)
+    custom_event_hub_id               = optional(string)
     data_streams = optional(list(string), [
       "Microsoft-ContainerLog",
       "Microsoft-ContainerLogV2",
