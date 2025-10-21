@@ -1,3 +1,9 @@
+## 8.9.0 (2025-10-21)
+
+### Features
+
+* support to send logs to an Azure Event Hub e89022b
+
 ## 8.8.0 (2025-10-21)
 
 ### Features
