@@ -10,6 +10,11 @@ resource "azurerm_monitor_data_collection_rule" "main" {
       name                  = "default-workspace"
       workspace_resource_id = coalesce(var.data_collection_rule.custom_log_analytics_workspace_id, local.default_log_analytics)
     }
+
+    event_hub {
+      name         = "default-eventhub"
+      event_hub_id = coalesce(var.data_collection_rule.custom_event_hub_id, local.default_event_hub)
+    }
   }
 
   data_flow {

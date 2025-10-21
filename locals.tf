@@ -102,6 +102,11 @@ locals {
     ], [null])[
     0
   ]
+  default_event_hub = coalescelist([
+    for r in var.logs_destinations_ids : r if contains(split("/", lower(r)), "microsoft.eventhub")
+    ], [null])[
+    0
+  ]
 
   parsed_aci_subnet_id = try(provider::azapi::parse_resource_id("Microsoft.Network/virtualNetworks/subnets", var.aci_subnet.id), null)
 }
