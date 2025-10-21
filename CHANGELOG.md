@@ -1,3 +1,15 @@
+## 8.8.0 (2025-10-21)
+
+### Features
+
+* add possibility to use existing user assigned identity c70b96f
+* add possibility to use existing user assigned identity for kubelet identity 23c6925
+
+### Miscellaneous Chores
+
+* **deps:** update dependency trivy to v0.67.1 f0bb32d
+* **deps:** update dependency trivy to v0.67.2 56ec6d2
+
 ## 8.7.2 (2025-10-06)
 
 ### Bug Fixes
