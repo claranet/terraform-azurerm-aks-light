@@ -89,7 +89,7 @@ output "kube_config" {
 
 output "user_managed_identity" {
   description = "The User Managed Identity used by the Azure Kubernetes Service."
-  value       = azurerm_user_assigned_identity.main
+  value       = one(azurerm_user_assigned_identity.main[*])
 }
 
 output "kubelet_user_managed_identity" {
