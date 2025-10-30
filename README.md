@@ -288,6 +288,7 @@ module "aks" {
 | http\_proxy\_settings | Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list. | <pre>object({<br/>    https_proxy_url = optional(string)<br/>    http_proxy_url  = optional(string)<br/>    trusted_ca      = optional(string)<br/>    no_proxy_list   = optional(list(string), [])<br/>  })</pre> | `null` | no |
 | image\_cleaner\_configuration | Kubernetes image cleaner configuration. | <pre>object({<br/>    enabled        = optional(bool, true)<br/>    interval_hours = optional(number, 24)<br/>  })</pre> | `{}` | no |
 | key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br/>    secret_rotation_enabled  = optional(bool, true)<br/>    secret_rotation_interval = optional(string)<br/>  })</pre> | `{}` | no |
+| kubelet\_user\_assigned\_identity | Existing Azure Kubernetes Service User Assigned Identity to use for Kubelet. If not provided, a new User Assigned Identity will be created. Should be different from `user_assigned_identity`. | <pre>object({<br/>    id        = string<br/>    client_id = optional(string)<br/>    object_id = optional(string)<br/>  })</pre> | `null` | no |
 | kubernetes\_version | Version of Kubernetes to deploy. | `string` | `null` | no |
 | linux\_profile | Username and SSH public key for accessing Linux nodes with SSH. | <pre>object({<br/>    username = string<br/>    ssh_key  = string<br/>  })</pre> | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
@@ -326,7 +327,7 @@ module "aks" {
 | sku\_tier | Azure Kubernetes Service SKU tier. Possible values are `Free` ou `Standard`. | `string` | `"Standard"` | no |
 | stack | Project stack name. | `string` | n/a | yes |
 | storage\_profile | Select the CSI drivers to be enabled. | <pre>object({<br/>    blob_driver_enabled         = optional(bool, true)<br/>    disk_driver_enabled         = optional(bool, true)<br/>    file_driver_enabled         = optional(bool, true)<br/>    snapshot_controller_enabled = optional(bool, true)<br/>  })</pre> | `null` | no |
-| user\_assigned\_identity | Existing Azure Kubernetes Service User Assigned Identity to use. If not provided, a new User Assigned Identity will be created. | <pre>object({<br/>    id = string<br/>  })</pre> | `null` | no |
+| user\_assigned\_identity | Existing Azure Kubernetes Service User Assigned Identity to use. If not provided, a new User Assigned Identity will be created. | <pre>object({<br/>    id        = string<br/>    client_id = optional(string)<br/>    object_id = optional(string)<br/>  })</pre> | `null` | no |
 | user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource. | `string` | `null` | no |
 | user\_assigned\_identity\_role\_assignment\_enabled | Option to enable or disable User Assigned Identity role assignments. | `bool` | `true` | no |
 | user\_assigned\_identity\_tags | Tags to add to AKS MSI. | `map(string)` | `{}` | no |
