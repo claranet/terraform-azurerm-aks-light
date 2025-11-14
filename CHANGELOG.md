@@ -1,3 +1,15 @@
+## 8.9.2 (2025-11-14)
+
+### Bug Fixes
+
+* 🐛 fix coalesce 1bbd0f8
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.10.7 62e42a4
+* **deps:** update dependency pre-commit to v4.4.0 bf74f39
+* **deps:** update pre-commit hook tofuutils/pre-commit-opentofu to v2.2.2 194307d
+
 ## 8.9.1 (2025-10-22)
 
 ### Bug Fixes
