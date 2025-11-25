@@ -92,7 +92,9 @@ variable "private_dns_zone_role_assignment_enabled" {
 variable "user_assigned_identity" {
   description = "Existing Azure Kubernetes Service User Assigned Identity to use. If not provided, a new User Assigned Identity will be created."
   type = object({
-    id = string
+    id        = string
+    client_id = optional(string)
+    object_id = optional(string)
   })
   default = null
 }
@@ -108,6 +110,16 @@ variable "user_assigned_identity_role_assignment_enabled" {
   type        = bool
   nullable    = false
   default     = true
+}
+
+variable "kubelet_user_assigned_identity" {
+  description = "Existing Azure Kubernetes Service User Assigned Identity to use for Kubelet. Should be different from `user_assigned_identity`."
+  type = object({
+    id        = string
+    client_id = optional(string)
+    object_id = optional(string)
+  })
+  default = null
 }
 
 variable "sku_tier" {

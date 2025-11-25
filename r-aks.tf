@@ -75,9 +75,11 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   dynamic "kubelet_identity" {
-    for_each = var.user_assigned_identity[*]
+    for_each = var.kubelet_user_assigned_identity[*]
     content {
-      user_assigned_identity_id = var.user_assigned_identity.id
+      client_id                 = var.kubelet_user_assigned_identity.client_id
+      object_id                 = var.kubelet_user_assigned_identity.object_id
+      user_assigned_identity_id = var.kubelet_user_assigned_identity.id
     }
   }
 
