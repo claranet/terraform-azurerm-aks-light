@@ -1,3 +1,18 @@
+## 8.10.0 (2025-11-25)
+
+### Features
+
+* add fields on user_assigned_identity + updates on kubelet_identity cca5877
+
+### Documentation
+
+* update documentation 0842133
+
+### Miscellaneous Chores
+
+* **deps:** update dependency tflint to v0.60.0 5aab0dd
+* **deps:** update pre-commit hook crate-ci/committed to v1.1.8 a979226
+
 ## 8.9.2 (2025-11-14)
 
 ### Bug Fixes
