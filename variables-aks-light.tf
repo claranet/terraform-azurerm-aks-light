@@ -113,7 +113,7 @@ variable "user_assigned_identity_role_assignment_enabled" {
 }
 
 variable "kubelet_user_assigned_identity" {
-  description = "Existing Azure Kubernetes Service User Assigned Identity to use for Kubelet. If not provided, a new User Assigned Identity will be created. Should be different from `user_assigned_identity`."
+  description = "Existing Azure Kubernetes Service User Assigned Identity to use for Kubelet. Should be different from `user_assigned_identity`."
   type = object({
     id        = string
     client_id = optional(string)
