@@ -1,3 +1,13 @@
+## 8.11.0 (2025-11-28)
+
+### Features
+
+* **AZ-1621:** set default value for drain_timeout_in_minutes 473ac2e
+
+### Miscellaneous Chores
+
+* **deps:** update dependency pre-commit to v4.5.0 5fdbde4
+
 ## 8.10.0 (2025-11-25)
 
 ### Features
