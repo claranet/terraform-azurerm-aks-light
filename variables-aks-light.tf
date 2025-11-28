@@ -202,7 +202,7 @@ variable "default_node_pool" {
     tags                        = optional(map(string), {})
     temporary_name_for_rotation = optional(string)
     upgrade_settings = optional(object({
-      drain_timeout_in_minutes      = optional(number)
+      drain_timeout_in_minutes      = optional(number, 30)
       node_soak_duration_in_minutes = optional(number, 0)
       max_surge                     = optional(string, "10%")
     }), {})
@@ -439,7 +439,7 @@ variable "node_pools" {
     orchestrator_version        = optional(string)
     temporary_name_for_rotation = optional(string)
     upgrade_settings = optional(object({
-      drain_timeout_in_minutes      = optional(number)
+      drain_timeout_in_minutes      = optional(number, 30)
       node_soak_duration_in_minutes = optional(number, 0)
       max_surge                     = optional(string, "10%")
     }), {})
