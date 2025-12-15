@@ -46,6 +46,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     network_policy      = var.network_policy
     network_mode        = local.is_network_cni ? var.network_mode : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
+    network_data_plane  = var.network_data_plane
     service_cidr        = var.service_cidr
     outbound_type       = var.outbound_type
     pod_cidr            = var.pod_cidr

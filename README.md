@@ -303,6 +303,7 @@ module "aks" {
 | monitor\_metrics | Specifies a Prometheus add-on profile for this Kubernetes Cluster. | <pre>object({<br/>    annotations_allowed = optional(string, null)<br/>    labels_allowed      = optional(string, null)<br/>  })</pre> | `null` | no |
 | name\_prefix | Optional prefix for the generated name. | `string` | `""` | no |
 | name\_suffix | Optional suffix for the generated name. | `string` | `""` | no |
+| network\_data\_plane | Azure Kubernetes Service network data plane to use. Possible values are `azure` and `cilium`. When network\_policy is set to cilium, the network\_data\_plane field must be set to cilium. | `string` | `"azure"` | no |
 | network\_mode | Azure Kubernetes Service network mode to use. Only available with Azure CNI. | `string` | `null` | no |
 | network\_plugin | Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created. | <pre>object({<br/>    name     = optional(string, "azure")<br/>    cni_mode = optional(string, "overlay")<br/>  })</pre> | `{}` | no |
 | network\_policy | Azure Kubernetes Service network policy to use. | `string` | `"calico"` | no |

@@ -154,6 +154,12 @@ variable "network_policy" {
   default     = "calico"
 }
 
+variable "network_data_plane" {
+  description = "Azure Kubernetes Service network data plane to use. Possible values are `azure` and `cilium`. When network_policy is set to cilium, the network_data_plane field must be set to cilium."
+  type        = string
+  default     = "azure"
+}
+
 variable "network_mode" {
   description = "Azure Kubernetes Service network mode to use. Only available with Azure CNI."
   type        = string
