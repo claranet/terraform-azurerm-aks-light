@@ -607,7 +607,7 @@ variable "image_cleaner_configuration" {
 }
 
 variable "advanced_networking" {
-  description = "Advanced networking configuration for AKS clusters using Azure CNI and cilium network_data_plance."
+  description = "Advanced networking configuration for AKS clusters using Azure CNI and Cilium network_data_plane."
   type = object({
     observability_enabled = optional(bool, false)
     security_enabled      = optional(bool, false)
