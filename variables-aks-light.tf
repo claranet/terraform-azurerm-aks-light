@@ -605,3 +605,12 @@ variable "image_cleaner_configuration" {
   nullable = false
   default  = {}
 }
+
+variable "advanced_networking" {
+  description = "Advanced networking configuration for AKS clusters using Azure CNI and cilium network_data_plance."
+  type = object({
+    observability_enabled = optional(bool, false)
+    security_enabled      = optional(bool, false)
+  })
+  default = null
+}
