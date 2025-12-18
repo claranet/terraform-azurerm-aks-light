@@ -204,6 +204,14 @@ resource "azurerm_kubernetes_cluster" "main" {
     }
   }
 
+  dynamic "workload_autoscaler_profile" {
+    for_each = var.workload_autoscaler_profile[*]
+    content {
+      keda_enabled                    = workload_autoscaler_profile.value.keda_enabled
+      vertical_pod_autoscaler_enabled = workload_autoscaler_profile.value.vertical_pod_autoscaler_enabled
+    }
+  }
+
   dynamic "linux_profile" {
     for_each = var.linux_profile[*]
     content {
