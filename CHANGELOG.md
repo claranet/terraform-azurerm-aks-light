@@ -1,3 +1,23 @@
+## 8.12.0 (2025-12-19)
+
+### Features
+
+* 🚀 add `workload_autoscaler_profile` variable 099acd9
+* **AZ-1624:** ✨ add `advanced_networking` configuration for AKS clusters 9257d05
+* **AZ-1624:** add network_data_plane input 7dfd50c
+
+### Documentation
+
+* **AZ-1624:** 📚 update description for `advanced_networking` variable afbf760
+
+### Miscellaneous Chores
+
+* **AZ-1624:** 🔧 update `azurerm` provider version to `4.45` 9a978ea
+* **deps:** update dependency pre-commit to v4.5.1 60e5293
+* **deps:** update dependency trivy to v0.68.1 3253308
+* **deps:** update dependency trivy to v0.68.2 2c951ae
+* **deps:** update tools 2820b34
+
 ## 8.11.0 (2025-11-28)
 
 ### Features
