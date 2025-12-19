@@ -306,6 +306,15 @@ variable "auto_scaler_profile" {
   default = null
 }
 
+variable "workload_autoscaler_profile" {
+  description = "Workload Autoscaler configuration."
+  type = object({
+    keda_enabled                    = optional(bool)
+    vertical_pod_autoscaler_enabled = optional(bool)
+  })
+  default = null
+}
+
 variable "oms_agent" {
   description = "OMS Agent configuration."
   type = object({

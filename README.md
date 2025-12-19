@@ -331,6 +331,7 @@ module "aks" {
 | user\_assigned\_identity\_resource\_group\_name | Resource Group where to deploy the Azure Kubernetes Service User Assigned Identity resource. | `string` | `null` | no |
 | user\_assigned\_identity\_role\_assignment\_enabled | Option to enable or disable User Assigned Identity role assignments. | `bool` | `true` | no |
 | user\_assigned\_identity\_tags | Tags to add to AKS MSI. | `map(string)` | `{}` | no |
+| workload\_autoscaler\_profile | Workload Autoscaler configuration. | <pre>object({<br/>    keda_enabled                    = optional(bool)<br/>    vertical_pod_autoscaler_enabled = optional(bool)<br/>  })</pre> | `null` | no |
 | workload\_identity\_enabled | Whether Azure AD Workload Identity should be enabled for the cluster. `oidc_issuer_enabled` must be set to true to use this feature. | `bool` | `true` | no |
 
 ## Outputs
