@@ -224,7 +224,7 @@ module "aks" {
 | azapi | ~> 2.0 |
 | azuread | ~> 3.0 |
 | azurecaf | >= 1.2.28 |
-| azurerm | ~> 4.40 |
+| azurerm | ~> 4.45 |
 | null | >= 3.0 |
 
 ## Modules
@@ -265,6 +265,7 @@ module "aks" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | aci\_subnet | ID of the Subnet for ACI virtual-nodes. | <pre>object({<br/>    id = string<br/>  })</pre> | `null` | no |
+| advanced\_networking | Advanced networking configuration for AKS clusters using Azure CNI and Cilium network\_data\_plane. | <pre>object({<br/>    observability_enabled = optional(bool, false)<br/>    security_enabled      = optional(bool, false)<br/>  })</pre> | `null` | no |
 | aks\_user\_assigned\_identity\_custom\_name | Custom name for the AKS user assigned identity resource. | `string` | `null` | no |
 | api\_server\_authorized\_ip\_ranges | IP ranges allowed to interact with Kubernetes API for public clusters.<br/>See documentation about "0.0.0.0/32" default value :<br/>- https://learn.microsoft.com/en-us/azure/aks/api-server-authorized-ip-ranges#allow-only-the-outbound-public-ip-of-the-standard-sku-load-balancer<br/>- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster#public_network_access_enabled<br/><br/>Set to `0.0.0.0/0` to wide open (not recommended) | `list(string)` | <pre>[<br/>  "0.0.0.0/32"<br/>]</pre> | no |
 | auto\_scaler\_profile | Auto Scaler configuration. | <pre>object({<br/>    balance_similar_node_groups      = optional(bool, false)<br/>    expander                         = optional(string, "random")<br/>    max_graceful_termination_sec     = optional(number, 600)<br/>    max_node_provisioning_time       = optional(string, "15m")<br/>    max_unready_nodes                = optional(number, 3)<br/>    max_unready_percentage           = optional(number, 45)<br/>    new_pod_scale_up_delay           = optional(string, "10s")<br/>    scale_down_delay_after_add       = optional(string, "10m")<br/>    scale_down_delay_after_delete    = optional(string, "10s")<br/>    scale_down_delay_after_failure   = optional(string, "3m")<br/>    scan_interval                    = optional(string, "10s")<br/>    scale_down_unneeded              = optional(string, "10m")<br/>    scale_down_unready               = optional(string, "20m")<br/>    scale_down_utilization_threshold = optional(number, 0.5)<br/>    empty_bulk_delete_max            = optional(number, 10)<br/>    skip_nodes_with_local_storage    = optional(bool, true)<br/>    skip_nodes_with_system_pods      = optional(bool, true)<br/>  })</pre> | `null` | no |
@@ -303,6 +304,7 @@ module "aks" {
 | monitor\_metrics | Specifies a Prometheus add-on profile for this Kubernetes Cluster. | <pre>object({<br/>    annotations_allowed = optional(string, null)<br/>    labels_allowed      = optional(string, null)<br/>  })</pre> | `null` | no |
 | name\_prefix | Optional prefix for the generated name. | `string` | `""` | no |
 | name\_suffix | Optional suffix for the generated name. | `string` | `""` | no |
+| network\_data\_plane | Azure Kubernetes Service network data plane to use. Possible values are `azure` and `cilium`. When network\_policy is set to cilium, the network\_data\_plane field must be set to cilium. | `string` | `"azure"` | no |
 | network\_mode | Azure Kubernetes Service network mode to use. Only available with Azure CNI. | `string` | `null` | no |
 | network\_plugin | Azure Kubernetes Service network plugin to use. Possible names are `azure` and `kubenet`. Possible CNI modes are `None`, `Overlay` and `Cilium` for Azure CNI and `None` for Kubenet. Changing this forces a new resource to be created. | <pre>object({<br/>    name     = optional(string, "azure")<br/>    cni_mode = optional(string, "overlay")<br/>  })</pre> | `{}` | no |
 | network\_policy | Azure Kubernetes Service network policy to use. | `string` | `"calico"` | no |

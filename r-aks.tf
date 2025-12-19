@@ -46,10 +46,18 @@ resource "azurerm_kubernetes_cluster" "main" {
     network_policy      = var.network_policy
     network_mode        = local.is_network_cni ? var.network_mode : null
     dns_service_ip      = cidrhost(var.service_cidr, 10)
+    network_data_plane  = var.network_data_plane
     service_cidr        = var.service_cidr
     outbound_type       = var.outbound_type
     pod_cidr            = var.pod_cidr
     load_balancer_sku   = "standard"
+    dynamic "advanced_networking" {
+      for_each = var.advanced_networking[*]
+      content {
+        observability_enabled = advanced_networking.value.observability_enabled
+        security_enabled      = advanced_networking.value.security_enabled
+      }
+    }
   }
 
   dynamic "http_proxy_config" {
