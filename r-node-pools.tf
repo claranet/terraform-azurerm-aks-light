@@ -30,11 +30,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   zones                       = each.value.zones
 
   dynamic "upgrade_settings" {
-    for_each = each.value.upgrade_settings[*]
+    for_each = each.value.priority == null ? each.value.upgrade_settings[*] : []
     content {
       drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
       node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
       max_surge                     = upgrade_settings.value.max_surge
+
     }
   }
 
