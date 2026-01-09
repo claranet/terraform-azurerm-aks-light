@@ -30,6 +30,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   zones                       = each.value.zones
 
   dynamic "upgrade_settings" {
+    # Spot node pools can't set max_surge or max_unavailable, but the provider requires one of them.
     for_each = each.value.priority == null ? each.value.upgrade_settings[*] : []
     content {
       drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
