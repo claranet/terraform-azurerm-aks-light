@@ -1,3 +1,15 @@
+## 8.12.1 (2026-01-09)
+
+### Bug Fixes
+
+* **AZ-1629:** 🐛 handle null priority in `upgrade_settings` for node pools a2fa39d
+
+### Miscellaneous Chores
+
+* **AZ-1629:** 📚 add comment 7d4c487
+* **deps:** update dependency opentofu to v1.11.2 1e55da9
+* **deps:** update pre-commit hook crate-ci/committed to v1.1.9 7f93d86
+
 ## 8.12.0 (2025-12-19)
 
 ### Features
