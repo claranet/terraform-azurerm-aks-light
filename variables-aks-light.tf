@@ -614,3 +614,21 @@ variable "advanced_networking" {
   })
   default = null
 }
+
+variable "service_mesh_profile" {
+  description = "Service Mesh configuration for this Kubernetes Cluster."
+  type = object({
+    mode                             = optional(string, "Istio")
+    revisions                        = optional(list(string), ["asm-1-27"])
+    internal_ingress_gateway_enabled = optional(bool, false)
+    external_ingress_gateway_enabled = optional(bool, false)
+    certificate_authority = optional(object({
+      cert_chain_object_name = string
+      cert_object_name       = string
+      key_vault_id           = string
+      key_object_name        = string
+      root_cert_object_name  = string
+    }), null)
+  })
+  default = null
+}

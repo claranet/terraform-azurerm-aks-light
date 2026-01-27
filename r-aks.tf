@@ -328,6 +328,27 @@ resource "azurerm_kubernetes_cluster" "main" {
     }
   }
 
+  dynamic "service_mesh_profile" {
+    for_each = var.service_mesh_profile[*]
+    content {
+
+      mode                             = service_mesh_profile.value.mode
+      revisions                        = service_mesh_profile.value.revisions
+      internal_ingress_gateway_enabled = service_mesh_profile.value.internal_ingress_gateway_enabled
+      external_ingress_gateway_enabled = service_mesh_profile.value.external_ingress_gateway_enabled
+      dynamic "certificate_authority" {
+        for_each = service_mesh_profile.value.certificate_authority[*]
+        content {
+          cert_chain_object_name = certificate_authority.value.cert_chain_object_name
+          cert_object_name       = certificate_authority.value.cert_object_name
+          key_object_name        = certificate_authority.value.key_object_name
+          key_vault_id           = certificate_authority.value.key_vault_id
+          root_cert_object_name  = certificate_authority.value.root_cert_object_name
+        }
+      }
+    }
+  }
+
   tags = merge(local.default_tags, var.extra_tags)
 
   depends_on = [
