@@ -326,6 +326,7 @@ module "aks" {
 | resource\_group\_name | Name of the resource group. | `string` | n/a | yes |
 | route\_table\_id | Provide an existing Route Table ID when `outbound_type = "userDefinedRouting"`. Only available with Kubenet. | `string` | `null` | no |
 | service\_cidr | CIDR used by Kubernetes services (kubectl get svc). | `string` | n/a | yes |
+| service\_mesh\_profile | Service Mesh configuration for this Kubernetes Cluster. | <pre>object({<br/>    mode                             = optional(string, "Istio")<br/>    revisions                        = optional(list(string), ["asm-1-27"])<br/>    internal_ingress_gateway_enabled = optional(bool, false)<br/>    external_ingress_gateway_enabled = optional(bool, false)<br/>    certificate_authority = optional(object({<br/>      cert_chain_object_name = string<br/>      cert_object_name       = string<br/>      key_vault_id           = string<br/>      key_object_name        = string<br/>      root_cert_object_name  = string<br/>    }), null)<br/>  })</pre> | `null` | no |
 | sku\_tier | Azure Kubernetes Service SKU tier. Possible values are `Free` ou `Standard`. | `string` | `"Standard"` | no |
 | stack | Project stack name. | `string` | n/a | yes |
 | storage\_profile | Select the CSI drivers to be enabled. | <pre>object({<br/>    blob_driver_enabled         = optional(bool, true)<br/>    disk_driver_enabled         = optional(bool, true)<br/>    file_driver_enabled         = optional(bool, true)<br/>    snapshot_controller_enabled = optional(bool, true)<br/>  })</pre> | `null` | no |
