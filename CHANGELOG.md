@@ -1,3 +1,15 @@
+## 8.13.0 (2026-01-30)
+
+### Features
+
+* **AZ-1636:** ✨ add `service_mesh_profile` variable for Kubernetes Cluster configuration 8934c1b
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.11.3 66624cb
+* **deps:** update dependency opentofu to v1.11.4 f0979b7
+* **deps:** update pre-commit hook crate-ci/committed to v1.1.10 cbcf893
+
 ## 8.12.1 (2026-01-09)
 
 ### Bug Fixes
