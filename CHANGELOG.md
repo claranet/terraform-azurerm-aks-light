@@ -1,3 +1,19 @@
+## 8.13.1 (2026-02-13)
+
+### Bug Fixes
+
+* **GITHUB-21:** 🐛 add back old moved block needed by v7 upgrades 694e7c3
+
+### Code Refactoring
+
+* **gitlab MR template:** ♻️ update default reviewers group with Azure Factory 🔧 011f6a7
+
+### Miscellaneous Chores
+
+* **deps:** update dependency tflint to v0.61.0 193af2d
+* **deps:** update dependency trivy to v0.69.0 dbea075
+* **deps:** update dependency trivy to v0.69.1 57001b4
+
 ## 8.13.0 (2026-01-30)
 
 ### Features
