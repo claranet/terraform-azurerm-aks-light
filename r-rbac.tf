@@ -9,6 +9,11 @@ resource "azurerm_user_assigned_identity" "main" {
 }
 
 moved {
+  from = azurerm_user_assigned_identity.aks_user_assigned_identity
+  to   = azurerm_user_assigned_identity.main[0]
+}
+
+moved {
   from = azurerm_user_assigned_identity.main
   to   = azurerm_user_assigned_identity.main[0]
 }
