@@ -1,3 +1,13 @@
+## 8.13.2 (2026-02-18)
+
+### Bug Fixes
+
+* 🐛 fix moved block destination for user assigned identity 516f516
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.11.5 87b2533
+
 ## 8.13.1 (2026-02-13)
 
 ### Bug Fixes
