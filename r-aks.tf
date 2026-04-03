@@ -16,6 +16,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   sku_tier                         = var.sku_tier
   node_resource_group              = local.nodes_rg_name
   http_application_routing_enabled = var.http_application_routing_enabled
+  local_account_disabled           = var.local_account_disabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
   workload_identity_enabled        = var.workload_identity_enabled
 

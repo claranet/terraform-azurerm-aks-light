@@ -524,6 +524,12 @@ variable "azure_active_directory_rbac" {
   default = null
 }
 
+variable "local_account_disabled" {
+  description = "If `true`, local accounts will be disabled on this Kubernetes Cluster. See [documentation](https://docs.microsoft.com/en-us/azure/aks/managed-aad#disable-local-accounts)."
+  type        = bool
+  default     = true
+}
+
 variable "monitor_metrics" {
   description = "Specifies a Prometheus add-on profile for this Kubernetes Cluster."
   type = object({
