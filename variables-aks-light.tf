@@ -527,7 +527,7 @@ variable "azure_active_directory_rbac" {
 variable "local_account_disabled" {
   description = "If `true`, local accounts will be disabled on this Kubernetes Cluster. See [documentation](https://docs.microsoft.com/en-us/azure/aks/managed-aad#disable-local-accounts)."
   type        = bool
-  default     = true
+  default     = null
 }
 
 variable "monitor_metrics" {

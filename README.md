@@ -292,7 +292,7 @@ module "aks" {
 | kubelet\_user\_assigned\_identity | Existing Azure Kubernetes Service User Assigned Identity to use for Kubelet. Should be different from `user_assigned_identity`. | <pre>object({<br/>    id        = string<br/>    client_id = optional(string)<br/>    object_id = optional(string)<br/>  })</pre> | `null` | no |
 | kubernetes\_version | Version of Kubernetes to deploy. | `string` | `null` | no |
 | linux\_profile | Username and SSH public key for accessing Linux nodes with SSH. | <pre>object({<br/>    username = string<br/>    ssh_key  = string<br/>  })</pre> | `null` | no |
-| local\_account\_disabled | If `true`, local accounts will be disabled on this Kubernetes Cluster. See [documentation](https://docs.microsoft.com/en-us/azure/aks/managed-aad#disable-local-accounts). | `bool` | `true` | no |
+| local\_account\_disabled | If `true`, local accounts will be disabled on this Kubernetes Cluster. See [documentation](https://docs.microsoft.com/en-us/azure/aks/managed-aad#disable-local-accounts). | `bool` | `null` | no |
 | location | Azure region to use. | `string` | n/a | yes |
 | location\_short | Short string for Azure location. | `string` | n/a | yes |
 | logs\_categories | Log categories to send to destinations. | `list(string)` | `null` | no |
