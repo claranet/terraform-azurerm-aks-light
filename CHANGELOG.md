@@ -1,3 +1,14 @@
+## 8.14.0 (2026-04-07)
+
+### Features
+
+* **variables:** ✨ add local_account_disabled option 9c6dbfb
+
+### Miscellaneous Chores
+
+* 🔧 set `local_account_disabled` null by default to keep provider default behavior 38f7e16
+* **deps:** 🔗 update mise conf for OpenTofu 77818c6
+
 ## 8.13.3 (2026-03-27)
 
 ### Bug Fixes
