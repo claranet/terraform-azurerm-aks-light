@@ -186,32 +186,58 @@ variable "http_proxy_settings" {
 variable "default_node_pool" {
   description = "Default Node Pool configuration."
   type = object({
-    name                        = optional(string, "default")
-    type                        = optional(string, "VirtualMachineScaleSets")
-    vm_size                     = optional(string, "Standard_D2_v3")
-    os_sku                      = optional(string, "Ubuntu")
-    os_disk_type                = optional(string, "Managed")
-    os_disk_size_gb             = optional(number)
-    gpu_instance                = optional(string)
-    fips_enabled                = optional(bool)
-    auto_scaling_enabled        = optional(bool, false)
-    node_count                  = optional(number, 1)
-    min_count                   = optional(number, 1)
-    max_count                   = optional(number, 10)
-    max_pods                    = optional(number)
-    node_labels                 = optional(map(any))
-    node_taints                 = optional(list(any))
-    host_encryption_enabled     = optional(bool)
-    node_public_ip_enabled      = optional(bool, false)
-    orchestrator_version        = optional(string)
-    zones                       = optional(list(number), [1, 2, 3])
-    tags                        = optional(map(string), {})
-    temporary_name_for_rotation = optional(string)
+    name                         = optional(string, "default")
+    type                         = optional(string, "VirtualMachineScaleSets")
+    vm_size                      = optional(string, "Standard_D2_v3")
+    os_sku                       = optional(string, "Ubuntu")
+    os_disk_type                 = optional(string, "Managed")
+    os_disk_size_gb              = optional(number)
+    gpu_instance                 = optional(string)
+    fips_enabled                 = optional(bool)
+    auto_scaling_enabled         = optional(bool, false)
+    node_count                   = optional(number, 1)
+    min_count                    = optional(number, 1)
+    max_count                    = optional(number, 10)
+    max_pods                     = optional(number)
+    node_labels                  = optional(map(any))
+    node_taints                  = optional(list(any))
+    host_encryption_enabled      = optional(bool)
+    node_public_ip_enabled       = optional(bool, false)
+    orchestrator_version         = optional(string)
+    zones                        = optional(list(number), [1, 2, 3])
+    tags                         = optional(map(string), {})
+    temporary_name_for_rotation  = optional(string)
+    workload_runtime             = optional(string)
+    scale_down_mode              = optional(string)
+    ultra_ssd_enabled            = optional(bool)
+    only_critical_addons_enabled = optional(bool)
     upgrade_settings = optional(object({
       drain_timeout_in_minutes      = optional(number, 30)
       node_soak_duration_in_minutes = optional(number, 0)
       max_surge                     = optional(string, "10%")
+      undrainable_node_behavior     = optional(string)
     }), {})
+    kubelet_config = optional(object({
+      allowed_unsafe_sysctls    = optional(list(string))
+      container_log_max_line    = optional(number)
+      container_log_max_size_mb = optional(number)
+      cpu_cfs_quota_enabled     = optional(bool)
+      cpu_cfs_quota_period      = optional(string)
+      cpu_manager_policy        = optional(string)
+      image_gc_high_threshold   = optional(number)
+      image_gc_low_threshold    = optional(number)
+      pod_max_pid               = optional(number)
+      topology_manager_policy   = optional(string)
+    }))
+    node_network_profile = optional(object({
+      allowed_host_ports = optional(list(object({
+        port_start = optional(number)
+        port_end   = optional(number)
+        protocol   = optional(string)
+      })))
+      application_security_group_ids = optional(list(string))
+      node_public_ip_tags            = optional(map(string))
+    }))
     linux_os_config = optional(object({
       swap_file_size_mb            = optional(number)
       transparent_huge_page        = optional(string)
@@ -291,23 +317,26 @@ variable "aci_subnet" {
 variable "auto_scaler_profile" {
   description = "Auto Scaler configuration."
   type = object({
-    balance_similar_node_groups      = optional(bool, false)
-    expander                         = optional(string, "random")
-    max_graceful_termination_sec     = optional(number, 600)
-    max_node_provisioning_time       = optional(string, "15m")
-    max_unready_nodes                = optional(number, 3)
-    max_unready_percentage           = optional(number, 45)
-    new_pod_scale_up_delay           = optional(string, "10s")
-    scale_down_delay_after_add       = optional(string, "10m")
-    scale_down_delay_after_delete    = optional(string, "10s")
-    scale_down_delay_after_failure   = optional(string, "3m")
-    scan_interval                    = optional(string, "10s")
-    scale_down_unneeded              = optional(string, "10m")
-    scale_down_unready               = optional(string, "20m")
-    scale_down_utilization_threshold = optional(number, 0.5)
-    empty_bulk_delete_max            = optional(number, 10)
-    skip_nodes_with_local_storage    = optional(bool, true)
-    skip_nodes_with_system_pods      = optional(bool, true)
+    balance_similar_node_groups                   = optional(bool, false)
+    daemonset_eviction_for_empty_nodes_enabled    = optional(bool)
+    daemonset_eviction_for_occupied_nodes_enabled = optional(bool)
+    ignore_daemonsets_utilization_enabled          = optional(bool)
+    expander                                      = optional(string, "random")
+    max_graceful_termination_sec                   = optional(number, 600)
+    max_node_provisioning_time                     = optional(string, "15m")
+    max_unready_nodes                              = optional(number, 3)
+    max_unready_percentage                         = optional(number, 45)
+    new_pod_scale_up_delay                         = optional(string, "10s")
+    scale_down_delay_after_add                     = optional(string, "10m")
+    scale_down_delay_after_delete                  = optional(string, "10s")
+    scale_down_delay_after_failure                 = optional(string, "3m")
+    scan_interval                                  = optional(string, "10s")
+    scale_down_unneeded                            = optional(string, "10m")
+    scale_down_unready                             = optional(string, "20m")
+    scale_down_utilization_threshold               = optional(number, 0.5)
+    empty_bulk_delete_max                          = optional(number, 10)
+    skip_nodes_with_local_storage                  = optional(bool, true)
+    skip_nodes_with_system_pods                    = optional(bool, true)
   })
   default = null
 }
@@ -392,6 +421,35 @@ variable "node_pools" {
     os_disk_size_gb   = optional(number)
     fips_enabled      = optional(bool)
     kubelet_disk_type = optional(string)
+    workload_runtime  = optional(string)
+    mode              = optional(string)
+    scale_down_mode   = optional(string)
+    ultra_ssd_enabled = optional(bool)
+    spot_max_price    = optional(number)
+    kubelet_config = optional(object({
+      allowed_unsafe_sysctls    = optional(list(string))
+      container_log_max_line    = optional(number)
+      container_log_max_size_mb = optional(number)
+      cpu_cfs_quota_enabled     = optional(bool)
+      cpu_cfs_quota_period      = optional(string)
+      cpu_manager_policy        = optional(string)
+      image_gc_high_threshold   = optional(number)
+      image_gc_low_threshold    = optional(number)
+      pod_max_pid               = optional(number)
+      topology_manager_policy   = optional(string)
+    }))
+    node_network_profile = optional(object({
+      allowed_host_ports = optional(list(object({
+        port_start = optional(number)
+        port_end   = optional(number)
+        protocol   = optional(string)
+      })))
+      application_security_group_ids = optional(list(string))
+      node_public_ip_tags            = optional(map(string))
+    }))
+    windows_profile = optional(object({
+      outbound_nat_enabled = optional(bool, true)
+    }))
     linux_os_config = optional(object({
       swap_file_size_mb            = optional(number)
       transparent_huge_page        = optional(string)
@@ -457,6 +515,8 @@ variable "node_pools" {
       drain_timeout_in_minutes      = optional(number, 30)
       node_soak_duration_in_minutes = optional(number, 0)
       max_surge                     = optional(string, "10%")
+      max_unavailable               = optional(string)
+      undrainable_node_behavior     = optional(string)
     }), {})
     zones = optional(list(number), [1, 2, 3])
     tags  = optional(map(string), {})
@@ -635,6 +695,36 @@ variable "service_mesh_profile" {
       key_object_name        = string
       root_cert_object_name  = string
     }), null)
+  })
+  default = null
+}
+
+variable "node_provisioning_profile" {
+  description = <<EOD
+Node Auto-Provisioning (NAP / Karpenter) configuration for the AKS cluster.
+When `mode` is set to `Auto`, AKS automatically provisions node pools based on workload requirements.
+This is incompatible with manually defined `node_pools`.
+See [documentation](https://learn.microsoft.com/en-us/azure/aks/node-autoprovision).
+EOD
+  type = object({
+    mode = string
+  })
+  default = null
+
+  validation {
+    condition     = var.node_provisioning_profile == null || contains(["Auto", "Manual"], var.node_provisioning_profile.mode)
+    error_message = "node_provisioning_profile.mode must be \"Auto\" or \"Manual\"."
+  }
+}
+
+variable "bootstrap_profile" {
+  description = <<EOD
+Bootstrap profile configuration for network-isolated AKS clusters.
+Allows the cluster to bootstrap without direct Azure dependency endpoints.
+See [documentation](https://learn.microsoft.com/en-us/azure/aks/bootstrap-profile).
+EOD
+  type = object({
+    container_registry_id = string
   })
   default = null
 }
