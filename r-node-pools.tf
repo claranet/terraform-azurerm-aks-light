@@ -8,6 +8,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   name                 = each.value.name
   vm_size              = each.value.vm_size
   os_disk_type         = each.value.os_disk_type
+  kubelet_disk_type    = each.value.kubelet_disk_type
   auto_scaling_enabled = each.value.auto_scaling_enabled
   node_count           = each.value.auto_scaling_enabled ? null : each.value.node_count
   min_count            = each.value.auto_scaling_enabled ? each.value.min_count : null
@@ -17,6 +18,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
 
   gpu_instance = each.value.gpu_instance
   gpu_driver   = each.value.gpu_driver
+
+  workload_runtime  = each.value.workload_runtime
+  mode              = each.value.mode
+  scale_down_mode   = each.value.scale_down_mode
+  ultra_ssd_enabled = each.value.ultra_ssd_enabled
+  spot_max_price    = each.value.spot_max_price
 
   host_encryption_enabled     = each.value.host_encryption_enabled
   node_public_ip_enabled      = each.value.node_public_ip_enabled
@@ -30,13 +37,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   zones                       = each.value.zones
 
   dynamic "upgrade_settings" {
-    # Spot node pools can't set max_surge or max_unavailable, but the provider requires one of them.
-    for_each = each.value.priority == null ? each.value.upgrade_settings[*] : []
+    for_each = each.value.upgrade_settings[*]
     content {
       drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
       node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
       max_surge                     = upgrade_settings.value.max_surge
-
+      max_unavailable               = upgrade_settings.value.max_unavailable
+      undrainable_node_behavior     = upgrade_settings.value.undrainable_node_behavior
     }
   }
 
@@ -44,6 +51,45 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   os_type         = can(regex("^Windows", each.value.os_sku)) ? "Windows" : "Linux"
   os_disk_size_gb = coalesce(each.value.os_disk_size_gb, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].os_disk_size_gb : local.default_node_profile["linux"].os_disk_size_gb)
   max_pods        = coalesce(each.value.max_pods, can(regex("^Windows", each.value.os_sku)) ? local.default_node_profile["windows"].max_pods : local.default_node_profile["linux"].max_pods)
+
+  dynamic "kubelet_config" {
+    for_each = each.value.kubelet_config[*]
+    content {
+      allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
+      container_log_max_line    = kubelet_config.value.container_log_max_line
+      container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
+      cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
+      cpu_cfs_quota_period      = kubelet_config.value.cpu_cfs_quota_period
+      cpu_manager_policy        = kubelet_config.value.cpu_manager_policy
+      image_gc_high_threshold   = kubelet_config.value.image_gc_high_threshold
+      image_gc_low_threshold    = kubelet_config.value.image_gc_low_threshold
+      pod_max_pid               = kubelet_config.value.pod_max_pid
+      topology_manager_policy   = kubelet_config.value.topology_manager_policy
+    }
+  }
+
+  dynamic "node_network_profile" {
+    for_each = each.value.node_network_profile[*]
+    content {
+      dynamic "allowed_host_ports" {
+        for_each = node_network_profile.value.allowed_host_ports != null ? node_network_profile.value.allowed_host_ports : []
+        content {
+          port_start = allowed_host_ports.value.port_start
+          port_end   = allowed_host_ports.value.port_end
+          protocol   = allowed_host_ports.value.protocol
+        }
+      }
+      application_security_group_ids = node_network_profile.value.application_security_group_ids
+      node_public_ip_tags            = node_network_profile.value.node_public_ip_tags
+    }
+  }
+
+  dynamic "windows_profile" {
+    for_each = each.value.windows_profile[*]
+    content {
+      outbound_nat_enabled = windows_profile.value.outbound_nat_enabled
+    }
+  }
 
   dynamic "linux_os_config" {
     for_each = each.value.linux_os_config[*]

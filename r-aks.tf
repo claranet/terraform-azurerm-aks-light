@@ -117,29 +117,67 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   # Default Node Pool config
   default_node_pool {
-    name                        = local.default_node_pool.name
-    type                        = local.default_node_pool.type
-    vm_size                     = local.default_node_pool.vm_size
-    os_disk_type                = local.default_node_pool.os_disk_type
-    gpu_instance                = local.default_node_pool.gpu_instance
-    fips_enabled                = local.default_node_pool.fips_enabled
-    auto_scaling_enabled        = local.default_node_pool.auto_scaling_enabled
-    node_count                  = local.default_node_pool.auto_scaling_enabled ? null : local.default_node_pool.node_count
-    min_count                   = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.min_count : null
-    max_count                   = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.max_count : null
-    node_labels                 = local.default_node_pool.node_labels
-    host_encryption_enabled     = local.default_node_pool.host_encryption_enabled
-    node_public_ip_enabled      = local.default_node_pool.node_public_ip_enabled
-    vnet_subnet_id              = local.default_node_pool.vnet_subnet_id
-    pod_subnet_id               = local.default_node_pool.pod_subnet_id
-    orchestrator_version        = local.default_node_pool.orchestrator_version
-    zones                       = local.default_node_pool.zones
-    tags                        = local.default_node_pool_tags
-    temporary_name_for_rotation = coalesce(local.default_node_pool.temporary_name_for_rotation, format("%stmp", substr(local.default_node_pool.name, 0, 9)))
+    name                         = local.default_node_pool.name
+    type                         = local.default_node_pool.type
+    vm_size                      = local.default_node_pool.vm_size
+    os_disk_type                 = local.default_node_pool.os_disk_type
+    gpu_instance                 = local.default_node_pool.gpu_instance
+    fips_enabled                 = local.default_node_pool.fips_enabled
+    auto_scaling_enabled         = local.default_node_pool.auto_scaling_enabled
+    node_count                   = local.default_node_pool.auto_scaling_enabled ? null : local.default_node_pool.node_count
+    min_count                    = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.min_count : null
+    max_count                    = local.default_node_pool.auto_scaling_enabled ? local.default_node_pool.max_count : null
+    node_labels                  = local.default_node_pool.node_labels
+    host_encryption_enabled      = local.default_node_pool.host_encryption_enabled
+    node_public_ip_enabled       = local.default_node_pool.node_public_ip_enabled
+    vnet_subnet_id               = local.default_node_pool.vnet_subnet_id
+    pod_subnet_id                = local.default_node_pool.pod_subnet_id
+    orchestrator_version         = local.default_node_pool.orchestrator_version
+    zones                        = local.default_node_pool.zones
+    tags                         = local.default_node_pool_tags
+    temporary_name_for_rotation  = coalesce(local.default_node_pool.temporary_name_for_rotation, format("%stmp", substr(local.default_node_pool.name, 0, 9)))
+    workload_runtime             = local.default_node_pool.workload_runtime
+    scale_down_mode              = local.default_node_pool.scale_down_mode
+    ultra_ssd_enabled            = local.default_node_pool.ultra_ssd_enabled
+    only_critical_addons_enabled = local.default_node_pool.only_critical_addons_enabled
+
     upgrade_settings {
       drain_timeout_in_minutes      = local.default_node_pool.upgrade_settings.drain_timeout_in_minutes
       node_soak_duration_in_minutes = local.default_node_pool.upgrade_settings.node_soak_duration_in_minutes
       max_surge                     = local.default_node_pool.upgrade_settings.max_surge
+      undrainable_node_behavior     = local.default_node_pool.upgrade_settings.undrainable_node_behavior
+    }
+
+    dynamic "kubelet_config" {
+      for_each = local.default_node_pool.kubelet_config[*]
+      content {
+        allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
+        container_log_max_line    = kubelet_config.value.container_log_max_line
+        container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
+        cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
+        cpu_cfs_quota_period      = kubelet_config.value.cpu_cfs_quota_period
+        cpu_manager_policy        = kubelet_config.value.cpu_manager_policy
+        image_gc_high_threshold   = kubelet_config.value.image_gc_high_threshold
+        image_gc_low_threshold    = kubelet_config.value.image_gc_low_threshold
+        pod_max_pid               = kubelet_config.value.pod_max_pid
+        topology_manager_policy   = kubelet_config.value.topology_manager_policy
+      }
+    }
+
+    dynamic "node_network_profile" {
+      for_each = local.default_node_pool.node_network_profile[*]
+      content {
+        dynamic "allowed_host_ports" {
+          for_each = node_network_profile.value.allowed_host_ports != null ? node_network_profile.value.allowed_host_ports : []
+          content {
+            port_start = allowed_host_ports.value.port_start
+            port_end   = allowed_host_ports.value.port_end
+            protocol   = allowed_host_ports.value.protocol
+          }
+        }
+        application_security_group_ids = node_network_profile.value.application_security_group_ids
+        node_public_ip_tags            = node_network_profile.value.node_public_ip_tags
+      }
     }
 
     dynamic "linux_os_config" {
@@ -193,23 +231,26 @@ resource "azurerm_kubernetes_cluster" "main" {
   dynamic "auto_scaler_profile" {
     for_each = var.auto_scaler_profile[*]
     content {
-      balance_similar_node_groups      = auto_scaler_profile.value.balance_similar_node_groups
-      expander                         = auto_scaler_profile.value.expander
-      max_graceful_termination_sec     = auto_scaler_profile.value.max_graceful_termination_sec
-      max_node_provisioning_time       = auto_scaler_profile.value.max_node_provisioning_time
-      max_unready_nodes                = auto_scaler_profile.value.max_unready_nodes
-      max_unready_percentage           = auto_scaler_profile.value.max_unready_percentage
-      new_pod_scale_up_delay           = auto_scaler_profile.value.new_pod_scale_up_delay
-      scale_down_delay_after_add       = auto_scaler_profile.value.scale_down_delay_after_add
-      scale_down_delay_after_delete    = auto_scaler_profile.value.scale_down_delay_after_delete
-      scale_down_delay_after_failure   = auto_scaler_profile.value.scale_down_delay_after_failure
-      scan_interval                    = auto_scaler_profile.value.scan_interval
-      scale_down_unneeded              = auto_scaler_profile.value.scale_down_unneeded
-      scale_down_unready               = auto_scaler_profile.value.scale_down_unready
-      scale_down_utilization_threshold = auto_scaler_profile.value.scale_down_utilization_threshold
-      empty_bulk_delete_max            = auto_scaler_profile.value.empty_bulk_delete_max
-      skip_nodes_with_local_storage    = auto_scaler_profile.value.skip_nodes_with_local_storage
-      skip_nodes_with_system_pods      = auto_scaler_profile.value.skip_nodes_with_system_pods
+      balance_similar_node_groups                   = auto_scaler_profile.value.balance_similar_node_groups
+      daemonset_eviction_for_empty_nodes_enabled    = auto_scaler_profile.value.daemonset_eviction_for_empty_nodes_enabled
+      daemonset_eviction_for_occupied_nodes_enabled = auto_scaler_profile.value.daemonset_eviction_for_occupied_nodes_enabled
+      ignore_daemonsets_utilization_enabled         = auto_scaler_profile.value.ignore_daemonsets_utilization_enabled
+      expander                                      = auto_scaler_profile.value.expander
+      max_graceful_termination_sec                  = auto_scaler_profile.value.max_graceful_termination_sec
+      max_node_provisioning_time                    = auto_scaler_profile.value.max_node_provisioning_time
+      max_unready_nodes                             = auto_scaler_profile.value.max_unready_nodes
+      max_unready_percentage                        = auto_scaler_profile.value.max_unready_percentage
+      new_pod_scale_up_delay                        = auto_scaler_profile.value.new_pod_scale_up_delay
+      scale_down_delay_after_add                    = auto_scaler_profile.value.scale_down_delay_after_add
+      scale_down_delay_after_delete                 = auto_scaler_profile.value.scale_down_delay_after_delete
+      scale_down_delay_after_failure                = auto_scaler_profile.value.scale_down_delay_after_failure
+      scan_interval                                 = auto_scaler_profile.value.scan_interval
+      scale_down_unneeded                           = auto_scaler_profile.value.scale_down_unneeded
+      scale_down_unready                            = auto_scaler_profile.value.scale_down_unready
+      scale_down_utilization_threshold              = auto_scaler_profile.value.scale_down_utilization_threshold
+      empty_bulk_delete_max                         = auto_scaler_profile.value.empty_bulk_delete_max
+      skip_nodes_with_local_storage                 = auto_scaler_profile.value.skip_nodes_with_local_storage
+      skip_nodes_with_system_pods                   = auto_scaler_profile.value.skip_nodes_with_system_pods
     }
   }
 
@@ -329,6 +370,20 @@ resource "azurerm_kubernetes_cluster" "main" {
     }
   }
 
+  dynamic "node_provisioning_profile" {
+    for_each = var.node_provisioning_profile[*]
+    content {
+      mode = node_provisioning_profile.value.mode
+    }
+  }
+
+  dynamic "bootstrap_profile" {
+    for_each = var.bootstrap_profile[*]
+    content {
+      container_registry_id = bootstrap_profile.value.container_registry_id
+    }
+  }
+
   dynamic "service_mesh_profile" {
     for_each = var.service_mesh_profile[*]
     content {
@@ -378,6 +433,11 @@ resource "azurerm_kubernetes_cluster" "main" {
         length(var.azure_active_directory_rbac.admin_group_object_ids) > 0,
       ]), false)
       error_message = "Please specify `admin_group_object_ids` when `azure_rbac_enabled = true`."
+    }
+
+    precondition {
+      condition     = try(var.node_provisioning_profile.mode, "Manual") != "Auto" || length(var.node_pools) == 0
+      error_message = "node_provisioning_profile.mode = \"Auto\" (Node Auto-Provisioning / Karpenter) is incompatible with manually defined node_pools. Remove node_pools or set mode to \"Manual\"."
     }
   }
 }
