@@ -220,7 +220,7 @@ module "aks" {
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | azapi | ~> 2.0 |
 | azuread | ~> 3.0 |
 | azurecaf | >= 1.2.28 |
@@ -230,13 +230,13 @@ module "aks" {
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | diagnostics | claranet/diagnostic-settings/azurerm | ~> 8.2.0 |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azapi_update_resource.aks_kubernetes_version](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/update_resource) | resource |
 | [azurerm_kubernetes_cluster.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) | resource |
 | [azurerm_kubernetes_cluster_node_pool.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) | resource |
@@ -263,7 +263,7 @@ module "aks" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | aci\_subnet | ID of the Subnet for ACI virtual-nodes. | <pre>object({<br/>    id = string<br/>  })</pre> | `null` | no |
 | advanced\_networking | Advanced networking configuration for AKS clusters using Azure CNI and Cilium network\_data\_plane. | <pre>object({<br/>    observability_enabled = optional(bool, false)<br/>    security_enabled      = optional(bool, false)<br/>  })</pre> | `null` | no |
 | aks\_user\_assigned\_identity\_custom\_name | Custom name for the AKS user assigned identity resource. | `string` | `null` | no |
@@ -341,7 +341,7 @@ module "aks" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | apiserver\_endpoint | APIServer Endpoint of the Azure Kubernetes Service. |
 | id | ID of the Azure Kubernetes Service. |
 | identity\_principal\_id | AKS System Managed Identity principal ID. |
