@@ -1,3 +1,22 @@
+## 8.15.0 (2026-04-30)
+
+### Features
+
+* **AZ-1652:** ✨ enhance AKS configuration with new node pool and provisioning features 1efd27e
+
+### Bug Fixes
+
+* **lint:** ensure consistent formatting for better readability 6b5b97c
+
+### Miscellaneous Chores
+
+* **AZ-1652:** 🔧 Update `AZURERM_PROVIDER_MIN_VERSION` to `4.57` 00dba98
+* **AZ-1652:** 🔧 update `azurerm` provider version to ~> 4.68 8a74d1a
+* **deps:** update pre-commit hook tofuutils/pre-commit-opentofu to v2.3.0 14c271c
+* **deps:** update tools 763b60f
+* **pre-commit:** 🔧 move to prek 333ba06
+* **tfdocs:** bump tfdocs to v0.22 🔧 a0b287c
+
 ## 8.14.0 (2026-04-07)
 
 ### Features
