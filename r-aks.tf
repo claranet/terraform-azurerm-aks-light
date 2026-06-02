@@ -79,8 +79,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   cost_analysis_enabled = var.cost_analysis_enabled
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = compact([try(var.user_assigned_identity.id, one(azurerm_user_assigned_identity.main[*].id))])
+    type         = var.identity_type
+    identity_ids = local.is_user_assigned_identity ? compact([try(var.user_assigned_identity.id, one(azurerm_user_assigned_identity.main[*].id))]) : null
   }
 
   dynamic "kubelet_identity" {

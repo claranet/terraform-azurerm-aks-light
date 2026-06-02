@@ -1,5 +1,6 @@
 resource "azurerm_user_assigned_identity" "main" {
-  count    = var.user_assigned_identity != null ? 0 : 1
+  count = var.user_assigned_identity == null && local.is_user_assigned_identity ? 1 : 0
+
   name     = local.identity_name
   location = var.location
 
@@ -19,28 +20,28 @@ moved {
 }
 
 resource "azurerm_role_assignment" "uai_private_dns_zone_contributor" {
-  count                = var.user_assigned_identity_role_assignment_enabled && local.is_custom_dns_private_cluster && var.private_dns_zone_role_assignment_enabled ? 1 : 0
+  count                = var.user_assigned_identity_role_assignment_enabled && local.is_user_assigned_identity && local.is_custom_dns_private_cluster && var.private_dns_zone_role_assignment_enabled ? 1 : 0
   scope                = var.private_dns_zone_id
   principal_id         = azurerm_user_assigned_identity.main[0].principal_id
   role_definition_name = "Private DNS Zone Contributor"
 }
 
 resource "azurerm_role_assignment" "uai_subnets_network_contributor" {
-  for_each             = var.user_assigned_identity_role_assignment_enabled && var.private_dns_zone_type != "Custom" ? toset(local.subnet_ids) : []
+  for_each             = var.user_assigned_identity_role_assignment_enabled && local.is_user_assigned_identity && var.private_dns_zone_type != "Custom" ? toset(local.subnet_ids) : []
   scope                = each.key
   principal_id         = azurerm_user_assigned_identity.main[0].principal_id
   role_definition_name = "Network Contributor"
 }
 
 resource "azurerm_role_assignment" "uai_vnet_network_contributor" {
-  for_each             = var.user_assigned_identity_role_assignment_enabled && var.private_dns_zone_type == "Custom" ? toset(local.vnet_ids) : []
+  for_each             = var.user_assigned_identity_role_assignment_enabled && local.is_user_assigned_identity && var.private_dns_zone_type == "Custom" ? toset(local.vnet_ids) : []
   scope                = each.key
   principal_id         = azurerm_user_assigned_identity.main[0].principal_id
   role_definition_name = "Network Contributor"
 }
 
 resource "azurerm_role_assignment" "uai_route_table_contributor" {
-  count                = var.user_assigned_identity_role_assignment_enabled && local.is_kubenet && var.outbound_type == "userDefinedRouting" ? 1 : 0
+  count                = var.user_assigned_identity_role_assignment_enabled && local.is_user_assigned_identity && local.is_kubenet && var.outbound_type == "userDefinedRouting" ? 1 : 0
   scope                = var.route_table_id
   principal_id         = azurerm_user_assigned_identity.main[0].principal_id
   role_definition_name = "Contributor"
