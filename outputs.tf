@@ -1,6 +1,7 @@
 output "resource" {
   description = "Azure Kubernetes Cluster resource object."
   value       = azurerm_kubernetes_cluster.main
+  sensitive   = true
 }
 
 output "module_diagnostics" {
@@ -11,11 +12,13 @@ output "module_diagnostics" {
 output "resource_node_pools" {
   description = "Azure Kubernetes Node Pools resource output."
   value       = azurerm_kubernetes_cluster_node_pool.main
+  sensitive   = true
 }
 
 output "resource_data_collection_rule" {
   description = "Data Collection Rule resource output."
   value       = azurerm_monitor_data_collection_rule.main
+  sensitive   = true
 }
 
 output "apiserver_endpoint" {
