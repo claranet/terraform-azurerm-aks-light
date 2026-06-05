@@ -1,3 +1,15 @@
+## 8.16.0 (2026-06-05)
+
+### Features
+
+* ✨ add `SystemAssigned` identity type support 42eb627
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.12.1 6a788f1
+* **deps:** update pre-commit hook tofuutils/pre-commit-opentofu to v2.4.0 107d680
+* **deps:** update tools 4568d8a
+
 ## 8.15.1 (2026-06-02)
 
 ### Bug Fixes
