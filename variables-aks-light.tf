@@ -89,6 +89,13 @@ variable "private_dns_zone_role_assignment_enabled" {
   default     = true
 }
 
+variable "identity_type" {
+  description = "Azure Kubernetes Service identity type. Possible values are `SystemAssigned` or `UserAssigned`. Defaults to `UserAssigned`."
+  type        = string
+  nullable    = false
+  default     = "UserAssigned"
+}
+
 variable "user_assigned_identity" {
   description = "Existing Azure Kubernetes Service User Assigned Identity to use. If not provided, a new User Assigned Identity will be created."
   type = object({

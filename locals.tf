@@ -77,6 +77,7 @@ locals {
   is_custom_dns_private_cluster = var.private_dns_zone_type == "Custom" && var.private_cluster_enabled
   is_network_cni                = var.network_plugin.name == "azure"
   is_kubenet                    = var.network_plugin.name == "kubenet"
+  is_user_assigned_identity     = var.identity_type == "UserAssigned"
 
   default_no_proxy_list = [
     var.pod_cidr,

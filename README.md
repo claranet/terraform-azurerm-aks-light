@@ -288,6 +288,7 @@ module "aks" {
 | force\_upgrade\_enabled | Whether to force the upgrade of the Kubernetes cluster. | `bool` | `false` | no |
 | http\_application\_routing\_enabled | Whether HTTP Application Routing is enabled. | `bool` | `false` | no |
 | http\_proxy\_settings | Azure Kubernetes Service HTTP proxy settings. URLs must be in format `http(s)://fqdn:port/`. When setting the `no_proxy_list` parameter, the AKS Private Endpoint domain name and the AKS VNet CIDR (or Subnet CIDRs) must be added to the list. | <pre>object({<br/>    https_proxy_url = optional(string)<br/>    http_proxy_url  = optional(string)<br/>    trusted_ca      = optional(string)<br/>    no_proxy_list   = optional(list(string), [])<br/>  })</pre> | `null` | no |
+| identity\_type | Azure Kubernetes Service identity type. Possible values are `SystemAssigned` or `UserAssigned`. Defaults to `UserAssigned`. | `string` | `"UserAssigned"` | no |
 | image\_cleaner\_configuration | Kubernetes image cleaner configuration. | <pre>object({<br/>    enabled        = optional(bool, true)<br/>    interval_hours = optional(number, 24)<br/>  })</pre> | `{}` | no |
 | key\_vault\_secrets\_provider | Enable AKS built-in Key Vault secrets provider. If enabled, an identity is created by the AKS itself and exported from this module. | <pre>object({<br/>    secret_rotation_enabled  = optional(bool, true)<br/>    secret_rotation_interval = optional(string)<br/>  })</pre> | `{}` | no |
 | kubelet\_user\_assigned\_identity | Existing Azure Kubernetes Service User Assigned Identity to use for Kubelet. Should be different from `user_assigned_identity`. | <pre>object({<br/>    id        = string<br/>    client_id = optional(string)<br/>    object_id = optional(string)<br/>  })</pre> | `null` | no |
@@ -367,6 +368,7 @@ module "aks" {
 | resource | Azure Kubernetes Cluster resource object. |
 | resource\_data\_collection\_rule | Data Collection Rule resource output. |
 | resource\_node\_pools | Azure Kubernetes Node Pools resource output. |
+| system\_managed\_identity | The System Managed Identity used by the Azure Kubernetes Service. |
 | user\_managed\_identity | The User Managed Identity used by the Azure Kubernetes Service. |
 <!-- END_TF_DOCS -->
 

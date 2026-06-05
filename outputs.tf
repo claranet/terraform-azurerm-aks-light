@@ -95,6 +95,11 @@ output "user_managed_identity" {
   value       = one(azurerm_user_assigned_identity.main[*])
 }
 
+output "system_managed_identity" {
+  description = "The System Managed Identity used by the Azure Kubernetes Service."
+  value       = !local.is_user_assigned_identity ? one(azurerm_kubernetes_cluster.main.identity[*]) : null
+}
+
 output "kubelet_user_managed_identity" {
   description = "The Kubelet User Managed Identity used by the Azure Kubernetes Service."
   value       = azurerm_kubernetes_cluster.main.kubelet_identity[0]
