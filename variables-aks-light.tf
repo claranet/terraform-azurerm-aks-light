@@ -226,7 +226,7 @@ variable "default_node_pool" {
     }), {})
     kubelet_config = optional(object({
       allowed_unsafe_sysctls    = optional(list(string))
-      container_log_max_line    = optional(number)
+      container_log_max_files   = optional(number)
       container_log_max_size_mb = optional(number)
       cpu_cfs_quota_enabled     = optional(bool)
       cpu_cfs_quota_period      = optional(string)
@@ -435,7 +435,7 @@ variable "node_pools" {
     spot_max_price    = optional(number)
     kubelet_config = optional(object({
       allowed_unsafe_sysctls    = optional(list(string))
-      container_log_max_line    = optional(number)
+      container_log_max_files   = optional(number)
       container_log_max_size_mb = optional(number)
       cpu_cfs_quota_enabled     = optional(bool)
       cpu_cfs_quota_period      = optional(string)
@@ -716,10 +716,12 @@ EOD
   type = object({
     mode = string
   })
-  default = null
+  default = {
+    mode = "Manual"
+  }
 
   validation {
-    condition     = var.node_provisioning_profile == null || contains(["Auto", "Manual"], var.node_provisioning_profile.mode)
+    condition     = contains(["Auto", "Manual"], var.node_provisioning_profile.mode)
     error_message = "node_provisioning_profile.mode must be \"Auto\" or \"Manual\"."
   }
 }
