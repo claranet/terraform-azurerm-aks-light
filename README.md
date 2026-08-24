@@ -224,7 +224,7 @@ module "aks" {
 | ---- | ------- |
 | azapi | ~> 2.0 |
 | azuread | ~> 3.0 |
-| azurecaf | >= 1.2.28 |
+| azurecaf | ~> 1.3.0 |
 | azurerm | ~> 5.0 |
 | null | >= 3.0 |
 
