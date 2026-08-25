@@ -1,3 +1,29 @@
+## 9.0.0 (2026-08-25)
+
+### ⚠ BREAKING CHANGES
+
+* **SREAA-368:** - AzureRM provider bumped from ~> 4.57 to ~> 5.0
+- OpenTofu minimum version raised from 1.8 to 1.12
+- Diagnostics settings module bumped from ~> 8.2.0 to ~> 9.0.0
+- container_log_max_line variable renamed to container_log_max_files in
+  default_node_pool.kubelet_config and node_pools[].kubelet_config
+- node_provisioning_profile variable default changed from null to { mode = "Manual" }
+
+### Features
+
+* **SREAA-368:** upgrade module to v9 (OpenTofu >= 1.12, AzureRM ~> 5.0) 9e24e8a
+
+### Continuous Integration
+
+* **SREAA-368:** 👷 point the pipeline include back at the ci master branch 4ba4513
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.12.5 ea24ca4
+* **deps:** update dependency tflint to v0.64.0 d415558
+* **SREAA-368:** 🔗 bump azurecaf to ~> 1.3.0 and resync the ci template files 2203b24
+* **v9:** 🐛 synchronize common files and docs 4616e1d
+
 ## 8.16.1 (2026-07-20)
 
 ### Bug Fixes
