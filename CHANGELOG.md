@@ -1,3 +1,13 @@
+## 9.1.0 (2026-09-04)
+
+### Features
+
+* **AZ-1692:** ✨ add `default_node_pools` to NAP config 5c31b5d
+
+### Miscellaneous Chores
+
+* **deps:** ⬆️ update tools 🔗 083b6e5
+
 ## 9.0.0 (2026-08-25)
 
 ### ⚠ BREAKING CHANGES
