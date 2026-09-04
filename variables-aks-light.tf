@@ -711,18 +711,28 @@ variable "node_provisioning_profile" {
 Node Auto-Provisioning (NAP / Karpenter) configuration for the AKS cluster.
 When `mode` is set to `Auto`, AKS automatically provisions node pools based on workload requirements.
 This is incompatible with manually defined `node_pools`.
-See [documentation](https://learn.microsoft.com/en-us/azure/aks/node-autoprovision).
+`default_node_pools` controls the default Karpenter `NodePool` resources created by AKS: `Auto` creates
+the `default` and `system-surge` node pools, `None` creates none and requires you to provide your own
+`NodePool` custom resources. Switching from `Auto` to `None` on an existing cluster does not delete the
+already created node pools, you have to remove them manually.
+Node Auto-Provisioning requires Azure CNI (`network_plugin.name = "azure"`) and does not support the
+Calico network policy.
+See [documentation](https://learn.microsoft.com/en-us/azure/aks/node-auto-provisioning).
 EOD
   type = object({
-    mode = string
+    mode               = optional(string, "Manual")
+    default_node_pools = optional(string, "Auto")
   })
-  default = {
-    mode = "Manual"
-  }
+  nullable = false
+  default  = {}
 
   validation {
     condition     = contains(["Auto", "Manual"], var.node_provisioning_profile.mode)
     error_message = "node_provisioning_profile.mode must be \"Auto\" or \"Manual\"."
+  }
+  validation {
+    condition     = contains(["Auto", "None"], var.node_provisioning_profile.default_node_pools)
+    error_message = "node_provisioning_profile.default_node_pools must be \"Auto\" or \"None\"."
   }
 }
 

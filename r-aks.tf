@@ -373,7 +373,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   dynamic "node_provisioning_profile" {
     for_each = var.node_provisioning_profile[*]
     content {
-      mode = node_provisioning_profile.value.mode
+      mode               = node_provisioning_profile.value.mode
+      default_node_pools = node_provisioning_profile.value.default_node_pools
     }
   }
 
@@ -436,8 +437,15 @@ resource "azurerm_kubernetes_cluster" "main" {
     }
 
     precondition {
-      condition     = try(var.node_provisioning_profile.mode, "Manual") != "Auto" || length(var.node_pools) == 0
+      condition     = var.node_provisioning_profile.mode != "Auto" || length(var.node_pools) == 0
       error_message = "node_provisioning_profile.mode = \"Auto\" (Node Auto-Provisioning / Karpenter) is incompatible with manually defined node_pools. Remove node_pools or set mode to \"Manual\"."
+    }
+
+    precondition {
+      condition = var.node_provisioning_profile.mode != "Auto" || (
+        local.is_network_cni && lower(coalesce(var.network_policy, "")) != "calico"
+      )
+      error_message = "node_provisioning_profile.mode = \"Auto\" (Node Auto-Provisioning / Karpenter) requires Azure CNI (var.network_plugin.name = \"azure\") and does not support the Calico network policy. Supported network configurations are Azure CNI, Azure CNI Overlay and Azure CNI Overlay powered by Cilium."
     }
   }
 }
