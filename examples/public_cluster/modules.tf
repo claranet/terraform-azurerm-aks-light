@@ -106,6 +106,8 @@ module "aks" {
   }
 
   container_registry_id = module.acr.id
+  # Set to "AbacRepositoryPermissions" if the ACR uses the "RBAC Registry + ABAC Repository Permissions" mode
+  # container_registry_role_assignment_mode = "AbacRepositoryPermissions"
 
   oms_agent = {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id
