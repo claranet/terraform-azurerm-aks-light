@@ -1,3 +1,10 @@
+## 9.2.0 (2026-09-18)
+
+### Features
+
+* **AZ-1703:** ✨ add ACR ABAC repository permissions support 95c1b62
+* **AZ-1703:** ✨ assign `AcrPull` only when ACR is not in ABAC mode fe531f6
+
 ## 9.1.0 (2026-09-04)
 
 ### Features
