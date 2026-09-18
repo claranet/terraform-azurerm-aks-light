@@ -538,6 +538,18 @@ variable "container_registry_id" {
   default     = null
 }
 
+variable "container_registry_role_assignment_mode" {
+  description = "Role assignment mode of the Azure Container Registry referenced by `container_registry_id`. Possible values are `LegacyRegistryPermissions` and `AbacRepositoryPermissions`. When set to `AbacRepositoryPermissions`, the `Container Registry Repository Reader` role is assigned to the Kubelet identity instead of `AcrPull`, which is not honored in ABAC-enabled registries. See [documentation](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-rbac-abac-repository-permissions)."
+  type        = string
+  nullable    = false
+  default     = "LegacyRegistryPermissions"
+
+  validation {
+    condition     = contains(["LegacyRegistryPermissions", "AbacRepositoryPermissions"], var.container_registry_role_assignment_mode)
+    error_message = "The container registry role assignment mode must be \"LegacyRegistryPermissions\" or \"AbacRepositoryPermissions\"."
+  }
+}
+
 variable "oidc_issuer_enabled" {
   description = "Whether the OIDC issuer URL should be enabled."
   type        = bool

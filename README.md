@@ -188,6 +188,8 @@ module "aks" {
   }
 
   container_registry_id = module.acr.id
+  # Set to "AbacRepositoryPermissions" if the ACR uses the "RBAC Registry + ABAC Repository Permissions" mode
+  # container_registry_role_assignment_mode = "AbacRepositoryPermissions"
 
   oms_agent = {
     log_analytics_workspace_id = module.run.log_analytics_workspace_id
@@ -245,6 +247,7 @@ module "aks" {
 | [azurerm_monitor_data_collection_rule_association.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule_association) | resource |
 | [azurerm_role_assignment.aci_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.kubelet_uai_acr_pull](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.kubelet_uai_acr_repository_reader](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.kubelet_uai_nodes_rg_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.uai_private_dns_zone_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.uai_route_table_contributor](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
@@ -276,6 +279,7 @@ module "aks" {
 | bootstrap\_profile | Bootstrap profile configuration for network-isolated AKS clusters.<br/>Allows the cluster to bootstrap without direct Azure dependency endpoints.<br/>See [documentation](https://learn.microsoft.com/en-us/azure/aks/bootstrap-profile). | <pre>object({<br/>    container_registry_id = string<br/>  })</pre> | `null` | no |
 | client\_name | Client name/account used in naming. | `string` | n/a | yes |
 | container\_registry\_id | Azure Container Registry ID where Azure Kubernetes Service needs pull access. | `string` | `null` | no |
+| container\_registry\_role\_assignment\_mode | Role assignment mode of the Azure Container Registry referenced by `container_registry_id`. Possible values are `LegacyRegistryPermissions` and `AbacRepositoryPermissions`. When set to `AbacRepositoryPermissions`, the `Container Registry Repository Reader` role is assigned to the Kubelet identity instead of `AcrPull`, which is not honored in ABAC-enabled registries. See [documentation](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-rbac-abac-repository-permissions). | `string` | `"LegacyRegistryPermissions"` | no |
 | cost\_analysis\_enabled | Option to enable cost analysis in the Azure portal for this Kubernetes cluster. The `sku_tier` must be set to `Standard` or `Premium` to enable this feature. | `bool` | `false` | no |
 | custom\_name | Custom AKS name, generated if not set. | `string` | `""` | no |
 | data\_collection\_rule | AKS Data Collection Rule configuration. | <pre>object({<br/>    enabled                           = optional(bool, true)<br/>    custom_log_analytics_workspace_id = optional(string)<br/>    custom_event_hub_id               = optional(string)<br/>    data_streams = optional(list(string), [<br/>      "Microsoft-ContainerLog",<br/>      "Microsoft-ContainerLogV2",<br/>      "Microsoft-KubeEvents",<br/>      "Microsoft-KubePodInventory",<br/>      "Microsoft-InsightsMetrics",<br/>      "Microsoft-ContainerInventory",<br/>      "Microsoft-ContainerNodeInventory",<br/>      "Microsoft-KubeNodeInventory",<br/>      "Microsoft-KubeServices",<br/>      "Microsoft-KubePVInventory"<br/>    ])<br/>    namespaces_filter = optional(list(string), [<br/>      "kube-system",<br/>      "gatekeeper-system",<br/>      "kube-node-lease",<br/>      "calico-system",<br/>    ])<br/>    namespace_filtering_mode = optional(string, "Exclude")<br/>    data_collection_interval = optional(string, "5m")<br/>    container_log_v2_enabled = optional(bool, true)<br/>  })</pre> | `{}` | no |

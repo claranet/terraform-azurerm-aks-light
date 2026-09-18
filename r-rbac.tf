@@ -61,12 +61,26 @@ moved {
 }
 
 # Allow Kubelet Identity to authenticate with Azure Container Registry (ACR)
+# Note: "AcrPull" is not honored when the ACR uses the "AbacRepositoryPermissions" role assignment mode
 resource "azurerm_role_assignment" "kubelet_uai_acr_pull" {
-  count = var.user_assigned_identity_role_assignment_enabled ? length(var.container_registry_id[*]) : 0
+  count = var.user_assigned_identity_role_assignment_enabled && var.container_registry_role_assignment_mode != "AbacRepositoryPermissions" ? length(var.container_registry_id[*]) : 0
 
   scope                = var.container_registry_id
   principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
   role_definition_name = "AcrPull"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Allow Kubelet Identity to pull images from an ABAC-enabled Azure Container Registry (ACR)
+resource "azurerm_role_assignment" "kubelet_uai_acr_repository_reader" {
+  count = var.user_assigned_identity_role_assignment_enabled && var.container_registry_role_assignment_mode == "AbacRepositoryPermissions" ? length(var.container_registry_id[*]) : 0
+
+  scope                = var.container_registry_id
+  principal_id         = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
+  role_definition_name = "Container Registry Repository Reader"
 
   lifecycle {
     create_before_destroy = true
