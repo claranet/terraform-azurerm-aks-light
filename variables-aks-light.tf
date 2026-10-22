@@ -419,7 +419,12 @@ variable "outbound_type" {
 }
 
 variable "node_pools" {
-  description = "A list of Node Pools to create."
+  description = <<EOD
+A list of Node Pools to create.
+`upgrade_settings.max_surge` and `upgrade_settings.max_unavailable` are mutually exclusive: `max_surge` defaults to `10%`
+only when `max_unavailable` is not set.
+`upgrade_settings` is ignored for Spot Node Pools (`priority = "Spot"`), which do not support upgrade settings.
+EOD
   type = list(object({
     name              = string
     vm_size           = optional(string, "Standard_D2_v3")
@@ -521,7 +526,7 @@ variable "node_pools" {
     upgrade_settings = optional(object({
       drain_timeout_in_minutes      = optional(number, 30)
       node_soak_duration_in_minutes = optional(number, 0)
-      max_surge                     = optional(string, "10%")
+      max_surge                     = optional(string)
       max_unavailable               = optional(string)
       undrainable_node_behavior     = optional(string)
     }), {})
@@ -530,6 +535,13 @@ variable "node_pools" {
   }))
   nullable = false
   default  = []
+
+  validation {
+    condition = alltrue([
+      for np in var.node_pools : np.upgrade_settings.max_surge == null || np.upgrade_settings.max_unavailable == null
+    ])
+    error_message = "`upgrade_settings.max_surge` and `upgrade_settings.max_unavailable` cannot be set together in `var.node_pools`."
+  }
 }
 
 variable "container_registry_id" {
