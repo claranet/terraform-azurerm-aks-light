@@ -37,11 +37,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   zones                       = each.value.zones
 
   dynamic "upgrade_settings" {
-    for_each = each.value.upgrade_settings[*]
+    # Spot node pools do not support upgrade settings: Azure stores none for them
+    # and the AzureRM provider rejects `max_surge` and `max_unavailable` when `priority` is `Spot`.
+    # `max_surge` and `max_unavailable` are mutually exclusive, `max_surge` defaults to 10% when `max_unavailable` is not set.
+    for_each = each.value.priority == "Spot" ? [] : each.value.upgrade_settings[*]
     content {
       drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
       node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
-      max_surge                     = upgrade_settings.value.max_surge
+      max_surge                     = upgrade_settings.value.max_unavailable == null ? coalesce(upgrade_settings.value.max_surge, "10%") : null
       max_unavailable               = upgrade_settings.value.max_unavailable
       undrainable_node_behavior     = upgrade_settings.value.undrainable_node_behavior
     }
