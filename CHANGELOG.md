@@ -1,3 +1,16 @@
+## 9.2.1 (2026-11-02)
+
+### Bug Fixes
+
+* **node-pools:** 🐛 fix `upgrade_settings` with Spot pools on AzureRM v5 14e5aef
+
+### Miscellaneous Chores
+
+* **deps:** update dependency opentofu to v1.13.0 f137286
+* **deps:** update dependency opentofu to v1.13.1 7de292a
+* **deps:** update dependency opentofu to v1.13.2 4da3ad2
+* **deps:** update dependency tflint to v0.65.0 a78a3cd
+
 ## 9.2.0 (2026-09-18)
 
 ### Features
